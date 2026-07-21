@@ -164,7 +164,7 @@ body{
 /* ===== Duty calculator ===== */
 .detail-popup-overlay{ position:fixed;inset:0;background:rgba(14,27,43,.55); backdrop-filter:blur(2px); z-index:1200; opacity:0;pointer-events:none; transition:opacity .25s var(--ease); }
 .detail-popup-overlay.active{opacity:1;pointer-events:auto;}
-.detail-popup{ position:fixed;top:50%;left:50%; transform:translate(-50%,-50%) scale(.55); width:92%;max-width:420px; background:var(--surface); border-radius:18px; box-shadow:var(--shadow-lg); z-index:1201; padding:24px 22px 22px; opacity:0;pointer-events:none; transition: transform .42s cubic-bezier(.34,1.56,.64,1), opacity .22s var(--ease); }
+.detail-popup{ position:fixed;top:50%;left:50%; transform:translate(-50%,-50%) scale(.55); width:92%;max-width:420px; max-height:86vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background:var(--surface); border-radius:18px; box-shadow:var(--shadow-lg); z-index:1201; padding:24px 22px 22px; opacity:0;pointer-events:none; transition: transform .42s cubic-bezier(.34,1.56,.64,1), opacity .22s var(--ease); }
 .detail-popup.banned-flash{ animation: bannedPulse 1.3s ease 1; }
 @keyframes bannedPulse{
   0%   { box-shadow: 0 0 0 0 rgba(178,52,52,.55), var(--shadow-lg); }
@@ -736,6 +736,37 @@ window.__STATIC_TARIFF_DATA__ = [];
 <script>
 (function(){
   "use strict";
+
+  // ===== منع فتح/تبديل البند بالخطأ أثناء التمرير (سحب الإصبع) فوق صف بالجدول =====
+  // المشكلة: أي عنصر عليه onclick (صف بالجدول، عنصر "بنود مشابهة"...) كان يفتح تفاصيل
+  // البند حتى لو المستخدم كان ناوي بس يمرر الشاشة لفوق/لتحت (سحب بالإصبع)، لأن المتصفح
+  // يطلق حدث click عادي عند رفع الإصبع طالما ما في تحديد نص. النتيجة: الصف نفسه ما يتحرك
+  // (لأنه مش قابل للسحب أصلاً) بينما يظهر وكأن البنود اللي تحته "تتحرك" لأنه ينفتح بند
+  // مختلف (تفاصيل بند جديد) ويستبدل محتوى القائمة بالكامل.
+  // الحل: نراقب حركة الإصبع بين touchstart و touchend، ولو تجاوزت 10px بأي اتجاه
+  // (يعني نية تمرير لا نقر) نلغي حدث click اللي بيجي بعدها مباشرة قبل ما توصل لأي onclick.
+  (function(){
+      var startX = 0, startY = 0, moved = false;
+      document.addEventListener('touchstart', function(e){
+          if (!e.touches || !e.touches[0]) return;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          moved = false;
+      }, { passive: true, capture: true });
+      document.addEventListener('touchmove', function(e){
+          if (!e.touches || !e.touches[0]) return;
+          var dx = Math.abs(e.touches[0].clientX - startX);
+          var dy = Math.abs(e.touches[0].clientY - startY);
+          if (dx > 10 || dy > 10) moved = true;
+      }, { passive: true, capture: true });
+      document.addEventListener('click', function(e){
+          if (moved) {
+              e.stopPropagation();
+              e.preventDefault();
+          }
+          moved = false;
+      }, true);
+  })();
 
   var state = {
     records: [],
