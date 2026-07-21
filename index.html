@@ -1522,10 +1522,34 @@ window.__STATIC_TARIFF_DATA__ = [];
       document.getElementById('qaInput').value = q;
       window.__runQaQuestion();
   };
-  function findExplanationForCode(code){
-      var head4 = String(code || "").replace(/\D/g, "").slice(0, 4);
+  // دالة موحّدة لربط بند بشرحه المناسب - تُستخدم بكل مكان بالتطبيق (بدل وجود أكثر من طريقة ربط مختلفة):
+  // ١) تطابق تام على الكود الكامل أولاً (أدق حالة).
+  // ٢) إذا ما في تطابق تام، نبحث ضمن كل الشروحات المسجّلة على نفس "البند الرئيسي" (٤ أرقام)،
+  //    ولو كان في أكثر من شرح مرشّح لنفس البند الرئيسي، نختار الأقرب فعلياً حسب تشابه الكلمات
+  //    مع وصف البند (نفس منطق `scoreExplanationMatch` المستخدم بالبحث النصي) بدل أخذ أول شرح بالترتيب فقط.
+  // تُرجع null أو { ex, matchType } حيث matchType تكون 'exact' أو 'heading'.
+  function findExplanationForCode(record){
+      var code = (record && typeof record === 'object') ? record.code : record; // يدعم تمرير سجل كامل أو كود نصي مباشرة
+      var codeDigits = String(code || "").replace(/\D/g, "");
+      if (!codeDigits) return null;
+
+      var exact = state.explanations.find(function(e){ return String(e.code || "").replace(/\D/g, "") === codeDigits; });
+      if (exact) return { ex: exact, matchType: 'exact' };
+
+      var head4 = codeDigits.slice(0, 4);
       if (!head4) return null;
-      return state.explanations.find(function(e){ return String(e.code || "").replace(/\D/g, "").indexOf(head4) === 0; }) || null;
+      var candidates = state.explanations.filter(function(e){ return String(e.code || "").replace(/\D/g, "").indexOf(head4) === 0; });
+      if (!candidates.length) return null;
+      if (candidates.length === 1) return { ex: candidates[0], matchType: 'heading' };
+
+      var desc = (record && typeof record === 'object') ? (record.desc || "") : "";
+      var terms = normalizeAr(desc).split(/\s+/).filter(function(w){ return w && w.length >= 2 && STOPWORDS_AR.indexOf(w) === -1; });
+      var best = candidates[0], bestScore = -1;
+      candidates.forEach(function(c){
+          var s = terms.length ? scoreExplanationMatch(c, terms) : 0;
+          if (s > bestScore) { bestScore = s; best = c; }
+      });
+      return { ex: best, matchType: 'heading' };
   }
   window.__openQaModal = function(){
       document.getElementById('qaResults').innerHTML = "";
@@ -1583,10 +1607,16 @@ window.__STATIC_TARIFF_DATA__ = [];
           answerParts.push('🚫 تنبيه: هذا البند ممنوع الاستيراد حالياً' + (r.banReason ? (' — ' + escapeHtml(r.banReason)) : '') + '.');
       }
       if (intents.explain) {
-          var ex = findExplanationForCode(r.code);
-          if (ex) {
+          var explRes = findExplanationForCode(r);
+          if (explRes) {
+              var ex = explRes.ex;
               var snippet = String(ex.text || "").replace(/\s+/g, " ").trim().slice(0, 180);
-              answerParts.push('📖 من شرح البند: ' + escapeHtml(snippet) + (String(ex.text || "").length > 180 ? '…' : ''));
+              var explTag = explRes.matchType === 'heading'
+                  ? '<span style="font-size:10.5px;color:var(--muted);">(شرح عام للبند الرئيسي - غير مخصص لهذا الكود بالتحديد)</span> '
+                  : '';
+              var explCodeAttr = String(ex.code).replace(/'/g, "");
+              answerParts.push('📖 من شرح البند: ' + explTag + escapeHtml(snippet) + (String(ex.text || "").length > 180 ? '…' : '') +
+                  ' <button class="action-btn" style="font-size:10.5px;padding:2px 6px;" onclick="window.__closeQaModal();window.__openExplanation(\'' + explCodeAttr + '\')">قراءة الشرح كاملاً 📖</button>');
           } else {
               answerParts.push('📖 لا يوجد شرح تفصيلي مسجّل لهذا البند حالياً.');
           }
@@ -2462,7 +2492,8 @@ window.__STATIC_TARIFF_DATA__ = [];
       return score;
   }
 
-  // ===== نسبة تغطية الشروحات (أدمن): كم "بند رئيسي" (4 أرقام) من بيانات التعرفة الحالية إله شرح فعلي =====
+  // ===== نسبة تغطية الشروحات (أدمن): كم "بند رئيسي" (4 أرقام) من بيانات التعرفة الحالية إله شرح فعلي، =====
+  // ===== وكم من إجمالي البنود الكاملة إله شرح مطابق تماماً لكوده (مش بس عام على مستوى البند الرئيسي) =====
   function computeExplanationsCoverage(){
       var headingSet = {};
       state.records.forEach(function(r){
@@ -2475,7 +2506,19 @@ window.__STATIC_TARIFF_DATA__ = [];
           var has = state.explanations.some(function(e){ return String(e.code || "").replace(/\D/g, "").indexOf(h4) === 0; });
           if (!has) missing.push(h4);
       });
-      return { total: headings.length, covered: headings.length - missing.length, missing: missing };
+
+      var explCodeSet = {};
+      state.explanations.forEach(function(e){ explCodeSet[String(e.code || "").replace(/\D/g, "")] = true; });
+      var exactCovered = 0;
+      state.records.forEach(function(r){
+          var digits = String(r.code || "").replace(/\D/g, "");
+          if (digits && explCodeSet[digits]) exactCovered++;
+      });
+
+      return {
+          total: headings.length, covered: headings.length - missing.length, missing: missing,
+          itemsTotal: state.records.length, itemsExact: exactCovered
+      };
   }
   window.__showExplanationsCoverage = function(){
       if (!state.isAdmin) return;
@@ -2483,8 +2526,11 @@ window.__STATIC_TARIFF_DATA__ = [];
       if (!box) return;
       var cov = computeExplanationsCoverage();
       var pct = cov.total ? Math.round((cov.covered / cov.total) * 100) : 0;
+      var exactPct = cov.itemsTotal ? Math.round((cov.itemsExact / cov.itemsTotal) * 100) : 0;
       var html = '<div style="font-size:12.5px;font-weight:800;margin-bottom:4px;">📊 التغطية: ' + cov.covered.toLocaleString() + ' من ' + cov.total.toLocaleString() + ' بند رئيسي (' + pct + '%)</div>';
       html += '<div style="height:7px;border-radius:4px;background:var(--line-soft);overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:' + pct + '%;background:var(--accent-deep);"></div></div>';
+      html += '<div style="font-size:12.5px;font-weight:800;margin-bottom:4px;">🎯 دقة الربط: ' + cov.itemsExact.toLocaleString() + ' من ' + cov.itemsTotal.toLocaleString() + ' بند فرعي له شرح مطابق لكوده بالضبط (' + exactPct + '%) - والباقي إما بلا شرح أو يعرض شرح عام لبنده الرئيسي فقط</div>';
+      html += '<div style="height:7px;border-radius:4px;background:var(--line-soft);overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:' + exactPct + '%;background:var(--gold);"></div></div>';
       if (cov.missing.length) {
           html += '<div style="font-size:11px;color:var(--muted);margin-bottom:4px;">أمثلة على بنود رئيسية بلا شرح مسجّل (' + cov.missing.length + '):</div>';
           html += '<div style="font-size:11.5px;line-height:1.9;">' + cov.missing.slice(0, 24).map(escapeHtml).join('، ') + (cov.missing.length > 24 ? ' ...و' + (cov.missing.length - 24) + ' غيرها' : '') + '</div>';
@@ -3367,6 +3413,7 @@ window.__STATIC_TARIFF_DATA__ = [];
         html += '<td data-label="إجراءات" onclick="event.stopPropagation()">'; 
         html += '<button class="action-btn" onclick="window.__toggleFav(\''+r.code+'\', \''+escapeHtml(r.desc)+'\')" title="إضافة/إزالة مفضلة">' + (isFav ? '⭐' : '☆') + '</button>';
         html += '<button class="action-btn" onclick="window.__toggleCompareItem(\''+r.code+'\')" title="إضافة/إزالة من مقارنة سريعة">' + (isInCompare ? '✅⚖️' : '⚖️') + '</button>';
+        html += '<button class="action-btn" onclick="window.__searchWeb(\''+escapeHtml(r.code)+'\', \''+escapeHtml(r.desc)+'\')" title="🔍 البحث عن هذا البند بالإنترنت">🔍</button>';
         if (state.isAdmin) {
           html += '<button class="action-btn" onclick="window.__toggleBan(\'' + r.id + '\')" title="' + (r.banned ? "إلغاء حظر الاستيراد" : "حظر الاستيراد") + '">' + (r.banned ? '✅' : '🚫') + '</button>';
           html += '<button class="action-btn" onclick="window.__toggleLab(\'' + r.id + '\')" title="' + (r.labRequired ? "إلغاء وسم الفحص المخبري" : "وسم كبند يتطلب فحص مخبري / رقابة جودة") + '">' + (r.labRequired ? '🧪✅' : '🧪') + '</button>';
@@ -3491,13 +3538,29 @@ window.__STATIC_TARIFF_DATA__ = [];
           '<span>' + escapeHtml(r.desc) + '</span>' +
           '<button class="action-btn" style="flex-shrink:0;" title="🔊 استماع لتفاصيل البند" onclick="window.__speakStored(' + ttsIdx + ')">🔊</button>' +
           '</div></div>';
-      var relatedExpl = findExplanationForCode(r.code);
-      if (relatedExpl) {
+      var relatedExplRes = findExplanationForCode(r);
+      if (relatedExplRes) {
+          var relatedExpl = relatedExplRes.ex;
           var explSnippet = String(relatedExpl.text || '').replace(/\s+/g, ' ').trim().slice(0, 90);
+          var explBadge = relatedExplRes.matchType === 'heading'
+              ? '<div style="font-size:10.5px;color:var(--muted);margin-bottom:3px;">شرح عام على مستوى البند الرئيسي (' + escapeHtml(String(relatedExpl.code)) + ') - غير مخصص لهذا الكود بالتحديد</div>'
+              : '';
           html += '<div class="detail-popup-item"><div class="dk">📖 شرح البند</div><div class="dv" style="font-size:13px;font-weight:600;">' +
+              explBadge +
               escapeHtml(explSnippet) + (String(relatedExpl.text || '').length > 90 ? '…' : '') +
               '<br><button class="mini-btn" style="margin-top:6px;" onclick="window.__closeDetailPopup();window.__openExplanation(\'' + escapeHtml(relatedExpl.code).replace(/'/g, "\\'") + '\')">📖 قراءة الشرح كاملاً</button>' +
               '</div></div>';
+          if (relatedExplRes.matchType === 'heading') {
+              var head4ForSiblings = String(r.code || '').replace(/\D/g, '').slice(0, 4);
+              var siblings = state.records.filter(function(x){
+                  return x.code !== r.code && String(x.code || '').replace(/\D/g, '').slice(0, 4) === head4ForSiblings;
+              }).slice(0, 4);
+              if (siblings.length) {
+                  html += '<div class="detail-popup-item"><div class="dk" style="font-size:11px;">بنود أخرى تشارك نفس الشرح العام</div><div class="dv" style="font-size:12px;color:var(--ink-soft);">' +
+                      siblings.map(function(s){ return escapeHtml(s.code) + ' — ' + escapeHtml(String(s.desc || '').slice(0, 28)); }).join('، ') +
+                      '</div></div>';
+              }
+          }
       }
       if (r.labRequired) {
           html += '<div class="detail-popup-item lab-alert-box"><div class="dk" style="color:var(--warn);">🧪 تنبيه: يتطلب فحص مخبري / رقابة جودة' + (r.labAuto && r.labConfidence ? (' (نسبة ثقة تلقائية: ' + r.labConfidence + '%)') : '') + '</div><div class="dv" style="font-size:13px;font-weight:600;color:var(--ink);">' +
@@ -3531,6 +3594,9 @@ window.__STATIC_TARIFF_DATA__ = [];
       html += '<div class="detail-popup-item" style="display:flex;gap:8px;">' +
           '<button class="mini-btn" style="flex:1;justify-content:center;" onclick="window.__copyShareLink(\'' + shareUrl + '\')">🔗 نسخ رابط مباشر</button>' +
           '<button class="mini-btn" style="flex:1;justify-content:center;" onclick="window.__printReceipt()">🖨️ طباعة إيصال</button>' +
+          '</div>';
+      html += '<div class="detail-popup-item">' +
+          '<button class="mini-btn" style="width:100%;justify-content:center;" onclick="window.__searchWeb(\'' + escapeHtml(r.code) + '\', \'' + escapeHtml(r.desc) + '\')">🔍 البحث عن هذا البند بالإنترنت</button>' +
           '</div>';
 
       document.getElementById('detailPopupBody').innerHTML = html;
@@ -3578,6 +3644,15 @@ window.__STATIC_TARIFF_DATA__ = [];
   window.addEventListener('afterprint', function(){
       document.body.classList.remove('receipt-print-mode');
   });
+
+  // بحث سريع عن البند بمحرك بحث خارجي: يفتح تبويب جديد ببحث Google عن بيان البند مع رمزه الجمركي
+  // لمساعدة المستخدم بمعرفة تفاصيل إضافية عن البضاعة (صور، مواصفات، أسعار...) خارج بيانات التطبيق.
+  window.__searchWeb = function(code, desc){
+      var q = (String(desc || "").trim() + " " + String(code || "").trim()).trim();
+      if (!q) return;
+      var url = "https://www.google.com/search?q=" + encodeURIComponent(q);
+      window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   window.__copyShareLink = function(url){
       if (navigator.clipboard && navigator.clipboard.writeText) {
