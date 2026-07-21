@@ -1,7 +1,7 @@
 // ==== نسخة الكاش ====
 // كل ما تحدّثين محتوى الموقع (index.html أو أي ملف)، لازم تزيدي هالرقم بواحد.
 // هيك المستخدمين رح ياخدوا النسخة الجديدة أوتوماتيكياً بدل ما يضلوا شايفين نسخة قديمة محفوظة بالكاش.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = 'tariff-app-' + CACHE_VERSION;
 
 const APP_SHELL = [
