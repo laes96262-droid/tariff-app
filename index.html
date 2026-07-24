@@ -4075,8 +4075,21 @@ window.__STATIC_TARIFF_DATA__ = [];
     // جدول التعريفة الأساسي (الرسوم والأكواد) أصبح مدمجاً مباشرة بالكود لأنه نادراً ما يتغير،
     // وبقيت قاعدة البيانات السحابية مخصصة فقط لثلاثة أمور: الحسابات (تسجيل الدخول/الصلاحيات)،
     // قائمة المواد الممنوعة، وبنود التعريفة الكاملة المرفوعة من الأدمن عبر ملف إكسل.
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    // استيراد ديناميكي (dynamic import) بدل الاستيراد الثابت: لو فشل التحميل (مثلاً بدون
+    // اتصال بالإنترنت ولسه ما انخزنت المكتبة بالكاش)، منلتقط الخطأ فوراً بدل ما يوقف
+    // كل الموديول بصمت وينعلّق التطبيق ٢٠ ثانية لحد ما تنتهي مهلة الأمان العامة.
+    var createClient;
+    try {
+        var supabaseModule = await import("https://esm.sh/@supabase/supabase-js@2");
+        createClient = supabaseModule.createClient;
+    } catch (importErr) {
+        console.error("تعذّر تحميل مكتبة Supabase (على الأغلب لا يوجد اتصال بالإنترنت):", importErr);
+        if (window.__rejectTariffCloud) {
+            window.__rejectTariffCloud(new Error("تعذّر تحميل مكتبة الاتصال بقاعدة البيانات. تحققي من اتصال الإنترنت وأعيدي فتح الصفحة."));
+        }
+    }
 
+    if (createClient) {
     const SUPABASE_URL = "https://vynazxrkcabjldzydpyf.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_a7cogoEm5jx5iOyBcv7zfQ_jF80sdSz";
 
@@ -4502,6 +4515,7 @@ window.__STATIC_TARIFF_DATA__ = [];
     } catch(initErr) {
         console.error("فشل تهيئة الاتصال بـ Supabase:", initErr);
         if (window.__rejectTariffCloud) window.__rejectTariffCloud(initErr);
+    }
     }
 </script>
 
