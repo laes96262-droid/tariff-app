@@ -77,6 +77,8 @@ body{
 .brand{display:flex;align-items:center;gap:14px;}
 .brand-mark{ width:46px;height:46px;border-radius:11px; display:flex;align-items:center;justify-content:center; font-family:var(--serif);font-weight:700;font-size:15px; background:linear-gradient(155deg, var(--accent2), var(--accent-deep)); box-shadow:0 6px 16px -4px rgba(15,163,125,.55), inset 0 0 0 1px rgba(255,255,255,.18); color:#fff; overflow:hidden; }
 .brand-mark img{ width:100%; height:100%; object-fit:cover; display:block; }
+.tour-logo{ text-align:center; margin-bottom:8px; }
+.tour-logo img{ width:56px; height:56px; border-radius:14px; object-fit:cover; box-shadow:0 6px 16px -4px rgba(12,122,95,.5), inset 0 0 0 1px rgba(255,255,255,.18); }
 .brand-text h1{font-size:18.5px;font-weight:700;margin:0;font-family:var(--serif);}
 .brand-text p{margin:2px 0 0;font-size:12px;color:rgba(255,255,255,.62);}
 
@@ -242,14 +244,28 @@ tbody tr:hover{background:var(--accent-soft);}
 tbody tr.expanded{background:var(--row-expanded);}
 td{padding:12px 14px;vertical-align:top;}
 td.code{font-family:var(--mono);font-size:12.5px;color:var(--accent-deep);font-weight:700;white-space:nowrap;}
-td.desc{max-width:480px;line-height:1.55;}
+td.desc{max-width:480px;line-height:1.6;font-size:14.5px;}
 td.num{font-family:var(--mono);font-size:12.5px;text-align:left;white-space:nowrap;font-weight:600;}
 td.total-cell{background:rgba(15,163,125,.03); font-weight:800; color:var(--accent-deep); font-size:14px;}
+/* رسم مرتفع/منخفض نسبياً مقارنة ببقية نتائج البحث الحالية - انطباع سريع قبل قراءة الرقم بالتفصيل */
+td.total-cell.fee-high{background:var(--danger-soft);color:var(--danger);}
+td.total-cell.fee-low{background:var(--accent-soft);color:var(--accent-deep);}
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;}
 .badge-on{background:var(--accent-soft);color:var(--accent-deep);}
 .badge-off{background:var(--line-soft);color:var(--muted);}
 .badge-banned{background:var(--danger-soft);color:var(--danger);}
 .badge-lab{background:var(--warn-soft);color:var(--warn);border:1px solid var(--gold);}
+html[data-theme="dark"] .badge{border:1px solid rgba(255,255,255,.14);}
+/* شارتا "تطابق بالمعنى" (مرادف) و"اقتراح ذكاء اصطناعي": ألوان أغمق/أوضح بالوضع الليلي تحديداً لتحسين التباين */
+html[data-theme="dark"] .badge-synonym{background:rgba(27,199,154,.32);color:#eafff8;border-color:rgba(126,238,205,.55);}
+html[data-theme="dark"] .badge-ai-match{background:rgba(130,98,255,.32);color:#f1ecff;border-color:rgba(178,155,255,.55);}
+/* تمييز أقوى للبند الأول (الأعلى تطابقاً) بنتائج البحث - عين الموظف لازم توقف عليه فوراً */
+#resultsTable tbody tr.top-match-row{ border-inline-start:3px solid var(--accent2); background:var(--accent-soft); }
+html[data-theme="dark"] #resultsTable tbody tr.top-match-row{ background:rgba(27,199,154,.10); }
+#resultsTable tbody tr.top-match-row td.code::after{ content:" 🎯"; }
+/* شريط تقدم صغير لنسبة التطابق، أسرع بالقراءة من رقم مجرد */
+.match-bar-wrap{display:inline-block;width:52px;height:5px;background:var(--line-soft);border-radius:3px;overflow:hidden;vertical-align:middle;margin-inline-end:4px;}
+.match-bar-fill{display:block;height:100%;background:linear-gradient(90deg, var(--gold), var(--accent2));border-radius:3px;}
 .lab-alert-box{background:var(--warn-soft);padding:12px 14px;border-radius:12px;border:1px solid var(--gold);}
 .empty-state{padding:70px 20px;text-align:center;color:var(--ink-soft);}
 .empty-state svg{margin-bottom:14px;color:var(--empty-icon);}
@@ -282,11 +298,17 @@ td.total-cell{background:rgba(15,163,125,.03); font-weight:800; color:var(--acce
   #resultsTable td.code{ font-size:14px; }
   #resultsTable td.code::before{ content:none; }
   #resultsTable td.code{ justify-content:flex-start; gap:6px; }
-  #resultsTable td.desc{ flex-direction:column; align-items:flex-start; gap:4px; }
+  #resultsTable td.desc{ flex-direction:column; align-items:flex-start; gap:4px; font-size:16px; }
   #resultsTable td.desc::before{ order:-1; }
   #resultsTable td.total-cell{ background:none; border-top:1px solid var(--line); margin-top:2px; padding-top:10px; }
   #resultsTable td[data-label="إجراءات"]{ justify-content:flex-end; gap:14px; }
   #resultsTable td[data-label="إجراءات"]::before{ content:none; }
+  /* على الموبايل نخفي الأعمدة الثانوية (الوحدة وتفصيل الرسمين) ونكتفي بالرمز + البيان + الإجمالي بالصف الرئيسي؛ التفاصيل الكاملة متاحة بالضغط على البند (نافذة التفاصيل) */
+  #resultsTable td.mobile-secondary{ display:none; }
+  #resultsTable tbody tr::after{
+    content:"عرض التفاصيل الكاملة (الوحدة، تفصيل الرسوم) ›"; display:block; margin-top:8px; padding-top:8px;
+    border-top:1px dashed var(--line-soft); font-size:11px; font-weight:700; color:var(--accent-deep); text-align:center;
+  }
 }
 
 /* ===== Sortable columns ===== */
@@ -509,8 +531,10 @@ body.search-suggest-open .table-wrap{ visibility:hidden; }
     <div class="sidebar-section-body">
       <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 8px;line-height:1.6;">لسا ما بتعرفي الرمز الجمركي بالضبط؟ اكتبي وصف البضاعة بجملة عادية، ورح نقترحلك أقرب الرموز المحتملة بناءً على تشابه الكلمات مع بيانات النظام.</p>
       <div class="tools-bar">
-        <button class="tool-btn" onclick="window.__openClassifyModal()">🤖 اقترحي لي رمز مناسب</button>
+        <button class="tool-btn" onclick="window.__openClassifyModal()">🤖 اقترحي لي رمز مناسب <span id="classifySyncIcon" title="حالة مزامنة تصحيحات التصنيف مع الفريق" style="margin-inline-start:4px;">☁️</span></button>
+        <button class="tool-btn" onclick="window.__openGriModal()">⚖️ قواعد التصنيف العامة</button>
       </div>
+      <div style="margin-top:6px;font-size:10.5px;color:var(--muted);">حالة مزامنة التصحيحات مع الفريق: <span id="classifySyncStatus">☁️ جاهزة</span></div>
     </div>
   </div>
 
@@ -606,6 +630,7 @@ body.search-suggest-open .table-wrap{ visibility:hidden; }
   </div>
 
   <div class="facet-row" id="searchFacets" style="display:none;"></div>
+  <div id="ambiguityHint" style="display:none;"></div>
 
   <div class="table-actions-bar" id="tableActionsBar">
     <div class="result-toolbar">
@@ -706,8 +731,20 @@ body.search-suggest-open .table-wrap{ visibility:hidden; }
   <div class="auth-title">🤖 اقتراح تصنيف ذكي</div>
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;line-height:1.6;">اكتبي وصف البضاعة بجملتك الخاصة (مثال: "جهاز كهربائي صغير للمطبخ لتحضير القهوة")، وسنقترح أقرب الرموز الجمركية استناداً لتشابه الكلمات مع أوصاف بنود النظام. هذا اقتراح آلي تقريبي فقط وليس تصنيفاً رسمياً — يجب مراجعته من الموظف المختص.</p>
   <textarea id="classifyInput" class="modal-input" rows="3" style="resize:vertical;" placeholder="مثال: جهاز كهربائي صغير للمطبخ لتحضير القهوة"></textarea>
+  <div id="classifyAttrChips" style="margin:8px 0 2px;"></div>
   <div class="modal-actions"><button class="btn-primary" onclick="window.__runClassifySuggestion()">🔎 اقترح رموزاً مناسبة</button></div>
   <div id="classifyResults" style="margin-top:12px;max-height:44vh;overflow-y:auto;"></div>
+  <div style="margin-top:10px;border-top:1px solid var(--line-soft);padding-top:8px;">
+    <button type="button" class="tool-btn" style="font-size:11px;" onclick="window.__closeClassifyModal();window.__openGriModal();">⚖️ ما زلتِ مترددة بين بندين؟ راجعي قواعد التصنيف العامة</button>
+  </div>
+</div>
+
+<div class="detail-popup-overlay" id="griModalOverlay" onclick="if(event.target===this) window.__closeGriModal()"></div>
+<div class="detail-popup" id="griModal" style="max-width:640px;">
+  <button class="modal-close" onclick="window.__closeGriModal()" aria-label="إغلاق">&times;</button>
+  <div class="auth-title">⚖️ قواعد التصنيف الجمركي العامة</div>
+  <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.6;">عند التردد بين أكثر من بند محتمل لنفس الصنف، تُطبَّق هذه القواعد بالترتيب (كل قاعدة تُستخدم فقط إذا لم تحسم القاعدة التي قبلها). ملخّص تقريبي للمساعدة السريعة، والمرجع الرسمي هو نص القواعد التفسيرية المعتمد بجدول التعرفة.</p>
+  <div id="griList" style="max-height:50vh;overflow-y:auto;"></div>
 </div>
 
 <div class="toast-stack" id="toastStack"></div>
@@ -793,7 +830,10 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
     // بحث المستخدم الأصلية بنفس محرك المطابقة المحلي (scoreRecordMatch) لإيجاد أقرب البنود.
     aiTerms: [],
     aiSearchActive: false,
-    aiSearchLoading: false
+    aiSearchLoading: false,
+
+    // تصحيحات "اقتراح تصنيف ذكي" المشتركة بين كل الموظفين (تُملأ عبر onClassifyCorrectionsChange السحابي)
+    cloudCorrections: []
   };
 
   // نظام حسابات كامل عبر Supabase Auth + قاعدة بيانات Postgres:
@@ -924,6 +964,58 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       return digits.slice(0, 2) || "—";
   }
 
+  // ===== عناوين الفصول الجمركية الـ97 حسب النظام المنسّق (HS) =====
+  // تُستخدم لعرض اسم الفصل (وليس رقمه فقط) عند التصفح، لأن موظف الجمارك غالباً بيعرف
+  // فئة البضاعة العامة (مثلاً "آلات كهربائية") قبل ما يعرف رقم الفصل المطابق لها.
+  var HS_CHAPTER_TITLES = {
+    "01":"حيوانات حية","02":"لحوم وأحشاء لحمية صالحة للأكل","03":"أسماك وقشريات ورخويات",
+    "04":"ألبان وبيض وعسل ومنتجاتها","05":"منتجات حيوانية أخرى غير مذكورة","06":"نباتات حية وزهور مقطوفة",
+    "07":"خضر ونباتات وجذور ودرنات للأكل","08":"فواكه وثمار قشرية للأكل","09":"قهوة وشاي ومتة وبهارات",
+    "10":"حبوب","11":"منتجات مطاحن ونشا وغلوتين","12":"بذور وثمار زيتية ونباتات صناعية وطبية",
+    "13":"عصارات ومستخلصات نباتية وصموغ وراتنجات","14":"مواد نباتية للضفر",
+    "15":"شحوم وزيوت حيوانية ونباتية","16":"محضرات من اللحوم والأسماك","17":"سكريات وحلويات سكرية",
+    "18":"كاكاو ومحضراته","19":"محضرات من الحبوب والدقيق والنشا أو الحليب ومعجنات",
+    "20":"محضرات الخضر والفواكه والمكسرات","21":"محضرات غذائية متنوعة",
+    "22":"مشروبات وسوائل كحولية وخل","23":"بقايا الصناعات الغذائية وأعلاف الحيوانات",
+    "24":"تبغ وبدائل التبغ المصنّعة","25":"ملح وكبريت وتراب وحجارة وجص وجير وأسمنت",
+    "26":"خامات المعادن والخبث والرماد","27":"وقود معدني وزيوت معدنية ومنتجاتها وشموع",
+    "28":"منتجات كيماوية غير عضوية","29":"منتجات كيماوية عضوية","30":"منتجات صيدلانية (أدوية)",
+    "31":"أسمدة","32":"مستخلصات دباغة وصباغة، أصباغ ودهانات وحبر",
+    "33":"زيوت طيارة ومستحضرات تجميل وعطور","34":"صابون ومواد تنظيف وشموع ومواد تشحيم",
+    "35":"مواد بروتينية وغراء وإنزيمات","36":"متفجرات ومواد نارية وأعواد ثقاب",
+    "37":"منتجات تصوير فوتوغرافي وسينمائي","38":"منتجات كيماوية متنوعة",
+    "39":"لدائن (بلاستيك) ومصنوعاتها","40":"مطاط ومصنوعاته","41":"جلود خام ومدبوغة",
+    "42":"مصنوعات جلدية وحقائب سفر وسروج","43":"فراء طبيعي واصطناعي ومصنوعاته",
+    "44":"خشب ومصنوعاته وفحم خشبي","45":"فلين ومصنوعاته",
+    "46":"مصنوعات من القش والحلفاء وأصناف الضفر","47":"عجينة خشب وورق مسترجع",
+    "48":"ورق وكرتون ومصنوعاتهما","49":"مطبوعات وكتب وصحف","50":"حرير",
+    "51":"صوف وشعر حيواني وخيوط شعر الخيل","52":"قطن",
+    "53":"ألياف نسيجية نباتية أخرى وخيوط ورق","54":"خيوط وأنسجة صناعية أو اصطناعية مستمرة",
+    "55":"ألياف صناعية أو اصطناعية غير مستمرة","56":"حشو ولباد وحبال وأمراس",
+    "57":"سجاد وأغطية أرضية نسيجية","58":"أقمشة خاصة ومطرزة",
+    "59":"أقمشة مشربة أو مطلية ومصنوعات نسيجية صناعية","60":"أقمشة تريكو (محاكة)",
+    "61":"ملابس وإكسسوارات تريكو (محاكة)","62":"ملابس وإكسسوارات منسوجة (غير محاكة)",
+    "63":"مصنوعات نسيجية أخرى وألبسة مستعملة وخرق","64":"أحذية ولوازمها",
+    "65":"قبعات ولوازمها","66":"مظلات وعصي وسياط",
+    "67":"ريش وزغب وزهور صناعية ومصنوعات من شعر الإنسان",
+    "68":"مصنوعات من حجارة أو جص أو أسمنت أو ميكا","69":"منتجات خزفية (سيراميك)",
+    "70":"زجاج ومصنوعاته","71":"لآلئ وأحجار كريمة ومعادن نفيسة ومجوهرات",
+    "72":"حديد وصلب","73":"مصنوعات من حديد أو صلب","74":"نحاس ومصنوعاته",
+    "75":"نيكل ومصنوعاته","76":"ألمنيوم ومصنوعاته","78":"رصاص ومصنوعاته",
+    "79":"زنك ومصنوعاته","80":"قصدير ومصنوعاته","81":"معادن أخرى غير حديدية ومصنوعاتها",
+    "82":"عدد وأدوات وأمواس وملاعق وشوك من فلز عادي","83":"مصنوعات متنوعة من فلز عادي",
+    "84":"آلات وأجهزة ميكانيكية وغلايات ومفاعلات",
+    "85":"آلات وأجهزة كهربائية وأجهزة تسجيل الصوت والصورة",
+    "86":"قاطرات وعربات سكك حديدية ولوازمها",
+    "87":"سيارات ومركبات (غير سكك حديدية) وأجزاؤها",
+    "88":"مركبات جوية وطائرات وأجزاؤها","89":"سفن وقوارب ومنشآت عائمة",
+    "90":"أدوات وأجهزة بصرية وطبية وقياس ودقيقة","91":"ساعات كبيرة وصغيرة وأجزاؤها",
+    "92":"آلات موسيقية وأجزاؤها","93":"أسلحة وذخائر وأجزاؤها",
+    "94":"أثاث ولوازم فراش ومصابيح وإنارة","95":"ألعاب ولعب ولوازم رياضية",
+    "96":"مصنوعات متنوعة","97":"تحف فنية وقطع للمجموعات وآثار قديمة"
+  };
+  function chapterTitle(c){ return HS_CHAPTER_TITLES[c] || ""; }
+
   // ===== تصنيف تلقائي تقريبي: بنود قد تتطلب فحصاً مخبرياً أو رقابة جودة =====
   // ⚠️ هذا تصنيف تلقائي تقريبي فقط بالاعتماد على الفصل الجمركي وكلمات مفتاحية شائعة بالبيان،
   // وليس مرجعاً رسمياً. الهدف تنبيه الموظف ليراجع بنفسه، وليس اعتماده وحده كقرار نهائي.
@@ -1004,18 +1096,37 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       });
       render();
   }
-  function renderChapters(){
+  function renderChapters(filterQuery){
       var el = document.getElementById('chapterList');
       if (!el) return;
       var counts = {};
       state.records.forEach(function(r){ var c = chapterOf(r.code); counts[c] = (counts[c]||0) + 1; });
       var chapters = Object.keys(counts).sort();
-      var html = '<div class="chapter-item ' + (!chapterState.active ? 'active' : '') + '" onclick="window.__setChapter(null)"><span>كل الفصول</span><span class="ch-count">' + state.records.length + '</span></div>';
+      var nq = filterQuery ? normalizeAr(filterQuery) : "";
+      if (nq) {
+          chapters = chapters.filter(function(c){
+              return c.indexOf(nq) === 0 || normalizeAr(chapterTitle(c)).indexOf(nq) !== -1;
+          });
+      }
+      var html = '<input type="text" class="filter-select" id="chapterBrowseSearch" placeholder="🔎 دوّري باسم فئة (مثال: كهرباء، أثاث، أقمشة...)" oninput="window.__filterChapterList(this.value)" style="margin-bottom:8px;width:100%;">';
+      if (!nq) {
+          html += '<div class="chapter-item ' + (!chapterState.active ? 'active' : '') + '" onclick="window.__setChapter(null)"><span>كل الفصول</span><span class="ch-count">' + state.records.length + '</span></div>';
+      }
+      if (!chapters.length) {
+          html += '<div style="font-size:11.5px;color:var(--muted);padding:8px 2px;">ما في فصل مطابق لهاد الاسم.</div>';
+      }
       chapters.forEach(function(c){
-          html += '<div class="chapter-item ' + (chapterState.active === c ? 'active' : '') + '" onclick="window.__setChapter(\'' + c + '\')"><span>الفصل ' + c + '</span><span class="ch-count">' + counts[c] + '</span></div>';
+          var title = chapterTitle(c);
+          html += '<div class="chapter-item ' + (chapterState.active === c ? 'active' : '') + '" onclick="window.__setChapter(\'' + c + '\')"><span>الفصل ' + c + (title ? ' — ' + escapeHtml(title) : '') + '</span><span class="ch-count">' + counts[c] + '</span></div>';
       });
       el.innerHTML = html;
+      // نعيد تركيز خانة البحث ومكان المؤشر إن كانت هي مصدر الكتابة، حتى لا يفلت التركيز مع كل حرف
+      if (filterQuery !== undefined) {
+          var sIn = document.getElementById('chapterBrowseSearch');
+          if (sIn) { sIn.value = filterQuery; sIn.focus(); var v = sIn.value; sIn.value=""; sIn.value=v; }
+      }
   }
+  window.__filterChapterList = function(val){ renderChapters(val); };
   window.__setChapter = function(c){
       chapterState.active = c;
       state.page = 1;
@@ -1280,7 +1391,13 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
 
       var dots = TOUR_STEPS.map(function(s, idx){ return '<span class="tour-dot' + (idx === i ? ' active' : '') + '"></span>'; }).join('');
       var isFirst = i === 0, isLast = i === TOUR_STEPS.length - 1;
-      var html = '<h4>' + step.title + '</h4><p>' + step.text + '</p>' +
+      // بالخطوة الأولى (أول فتحة)، نعرض شعار التطبيق بوضوح بدل الاعتماد على النص فقط لانطباع أول أكثر احترافية
+      var logoHtml = '';
+      if (isFirst) {
+          var brandImgEl = document.querySelector('.brand-mark img');
+          if (brandImgEl) logoHtml = '<div class="tour-logo"><img src="' + brandImgEl.getAttribute('src') + '" alt="شعار التطبيق"></div>';
+      }
+      var html = logoHtml + '<h4>' + step.title + '</h4><p>' + step.text + '</p>' +
           '<div class="tour-actions">' +
           '<div class="tour-dots">' + dots + '</div>' +
           '<div class="tour-btns">' +
@@ -1317,9 +1434,10 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   var STOPWORDS_AR = ["من","الى","إلى","في","على","و","او","أو","ما","هذا","هذه","ذلك","التي","الذي","مع","عن","كل","بها","به","لل","ال"];
 
   // ===== تعلّم من تصحيحات الموظف: وصف سابق → الكود الذي اختاره فعلياً =====
-  // يُحفظ محلياً بالمتصفح فقط (بدون أي خادم)، ويُستشار أولاً بالمرة القادمة لوصف مشابه قبل التطابق النصي العام.
+  // تُحفظ نسخة محلية فورية بالمتصفح (تشتغل حتى بدون إنترنت)، وتُرفع أيضاً لجدول مشترك بقاعدة البيانات
+  // (راجعي window.TariffCloud.pushClassifyCorrection) ليستفيد منها كل الموظفين بأي معبر أو جهاز فوراً.
   var CLASSIFY_CORRECTIONS_KEY = 'tariff_classify_corrections';
-  function getClassifyCorrections(){
+  function getLocalClassifyCorrections(){
       try { return JSON.parse(localStorage.getItem(CLASSIFY_CORRECTIONS_KEY)) || []; } catch(e){ return []; }
   }
   function termOverlap(a, b){
@@ -1328,9 +1446,23 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       var common = a.filter(function(w){ return setB[w]; }).length;
       return common / Math.max(a.length, b.length);
   }
-  function pushClassifyCorrection(terms, code){
+  // نجمع تصحيحات الفريق السحابية (لها الأولوية، لأنها تراكمية من الجميع) مع أي تصحيح محلي إضافي
+  // لسا ما انرفع للسحابة (مثلاً بسبب انقطاع إنترنت لحظي)، بدون تكرار نفس الوصف مرتين.
+  function getClassifyCorrections(){
+      var cloud = state.cloudCorrections || [];
+      var local = getLocalClassifyCorrections();
+      if (!cloud.length) return local;
+      var merged = cloud.slice();
+      local.forEach(function(entry){
+          var dup = merged.some(function(m){ return termOverlap(m.terms, entry.terms) >= 0.8; });
+          if (!dup) merged.push(entry);
+      });
+      return merged;
+  }
+  function pushClassifyCorrection(terms, code, desc){
       var normTerms = terms.slice().sort();
-      var list = getClassifyCorrections();
+      // نخزّن محلياً أولاً كنسخة احتياطية فورية تشتغل حتى بدون إنترنت
+      var list = getLocalClassifyCorrections();
       var updated = false;
       for (var i = 0; i < list.length; i++){
           if (termOverlap(list[i].terms, normTerms) >= 0.8) { list[i] = { terms: normTerms, code: code }; updated = true; break; }
@@ -1338,6 +1470,21 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       if (!updated) list.unshift({ terms: normTerms, code: code });
       list = list.slice(0, 200);
       try { localStorage.setItem(CLASSIFY_CORRECTIONS_KEY, JSON.stringify(list)); } catch(e){}
+      // ثم نزامنها مع الفريق كامل عبر السحابة (بدون ما نوقف تجربة الموظف الحالي لو تأخرت أو فشلت الشبكة)
+      var syncEl = document.getElementById('classifySyncStatus');
+      var syncIconEl = document.getElementById('classifySyncIcon');
+      if (syncEl) { syncEl.textContent = '⏳ جارٍ الرفع للفريق...'; syncEl.style.color = 'var(--warn)'; }
+      if (syncIconEl) { syncIconEl.textContent = '☁️⏳'; syncIconEl.title = 'جارٍ رفع التصحيح للفريق...'; }
+      if (window.TariffCloud && window.TariffCloud.pushClassifyCorrection) {
+          window.TariffCloud.pushClassifyCorrection(normTerms, code, desc).then(function(){
+              if (syncEl) { syncEl.textContent = '✅ تمت المزامنة مع الفريق'; syncEl.style.color = 'var(--accent-deep)'; }
+              if (syncIconEl) { syncIconEl.textContent = '☁️✓'; syncIconEl.title = 'تمت المزامنة مع الفريق'; }
+          }).catch(function(err){
+              console.warn("تعذّرت مزامنة التصحيح مع باقي الموظفين (بقي محفوظاً محلياً على جهازك فقط):", err);
+              if (syncEl) { syncEl.textContent = '⚠️ تعذّرت المزامنة (محفوظ محلياً فقط)'; syncEl.style.color = 'var(--danger)'; }
+              if (syncIconEl) { syncIconEl.textContent = '☁️⚠️'; syncIconEl.title = 'تعذّرت المزامنة (محفوظ محلياً فقط)'; }
+          });
+      }
   }
   function findLearnedMatch(terms){
       var list = getClassifyCorrections();
@@ -1398,7 +1545,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
 
   function renderClassifyRow(item){
       var r = item.r;
-      var learnedTag = item.learned ? ' <span class="badge" style="background:var(--accent-deep);color:#fff;">📌 بناء على تصحيح سابق</span>' : '';
+      var learnedTag = item.learned ? ' <span class="badge" style="background:var(--accent-deep);color:#fff;">📌 بناء على تصحيح سابق (فريق العمل)</span>' : '';
       return '<div class="expl-result-item" style="cursor:pointer;" onclick="window.__pickClassifyResult(\'' + String(r.code).replace(/'/g,"") + '\')">' +
           '<b>' + escapeHtml(r.code) + '</b> — ' + escapeHtml(r.desc) +
           ' <span class="badge" style="background:var(--accent-soft);color:var(--accent-deep);">تطابق تقريبي ' + item.percent + '%</span>' + learnedTag +
@@ -1406,7 +1553,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   }
   function renderDecisivePick(item){
       var r = item.r;
-      var head = item.learned ? '✅ البند المرجّح — بناءً على اختيارك بمرة سابقة لوصف مشابه' : '✅ البند المرجّح';
+      var head = item.learned ? '✅ البند المرجّح — بناءً على اختيار سابق (لك أو لزميل) لوصف مشابه' : '✅ البند المرجّح';
       var sub = item.learned ? '' : ('<div style="font-size:10.5px;color:var(--muted);margin-top:4px;">ثقة تقريبية ' + item.percent + '%</div>');
       return '<div class="expl-result-item" style="cursor:pointer;border:2px solid var(--accent-deep);background:var(--accent-soft);" onclick="window.__pickClassifyResult(\'' + String(r.code).replace(/'/g,"") + '\')">' +
           '<div style="font-size:11px;color:var(--accent-deep);font-weight:700;margin-bottom:4px;">' + head + '</div>' +
@@ -1422,20 +1569,43 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       window.__runClassifySuggestion();
   };
 
-  // عند اختيار الموظف لأي نتيجة (سواء الأولى أو غيرها)، نسجّل الربط وصف→كود محلياً لتعزيز التعلّم بالمرات القادمة
+  // عند اختيار الموظف لأي نتيجة (سواء الأولى أو غيرها)، نسجّل الربط وصف→كود (محلياً وسحابياً لمشاركته مع الفريق)
   window.__pickClassifyResult = function(code){
       var r = state.records.find(function(x){ return String(x.code) === String(code); });
       if (!r) return;
       if (state.__lastClassifyTerms && state.__lastClassifyTerms.length) {
-          pushClassifyCorrection(state.__lastClassifyTerms, code);
+          pushClassifyCorrection(state.__lastClassifyTerms, code, r.desc);
       }
       window.__closeClassifyModal();
       window.__toggleRow(r.id);
   };
 
+  // ===== بحث بالخصائص: رقائق سريعة للمادة/الاستخدام/الشكل تُضاف لنص الوصف مباشرة =====
+  // مفيدة لما يكون الموظف عارف صفات البضاعة (من شو مصنوعة، لأي استخدام، شو شكلها) بدون ما يعرف اسمها الدقيق.
+  var CLASSIFY_ATTR_GROUPS = [
+      { label: "المادة", items: ["معدن","بلاستيك","خشب","قماش","جلد","زجاج","ورق","مطاط","سيراميك"] },
+      { label: "الاستخدام", items: ["منزلي","صناعي","طبي","زراعي","غذائي","رياضي","مكتبي","مدرسي"] },
+      { label: "الشكل", items: ["سائل","بودرة","صلب","انبوب","لوح","حبوب","بكرة","رذاذ"] }
+  ];
+  function renderClassifyAttrChips(){
+      var wrap = document.getElementById('classifyAttrChips');
+      if (!wrap) return;
+      var html = '<div style="font-size:10.5px;color:var(--muted);margin:4px 0 6px;">🔧 بحث بالخصائص (اختياري) — اضغطي أي كلمة لإضافتها للوصف:</div>';
+      CLASSIFY_ATTR_GROUPS.forEach(function(g, gi){
+          html += '<details style="margin-bottom:5px;border:1px solid var(--line-soft);border-radius:8px;padding:4px 8px;">' +
+              '<summary style="cursor:pointer;font-size:11px;font-weight:700;color:var(--ink-soft);padding:3px 0;">' + g.label + '</summary>' +
+              '<div style="display:flex;flex-wrap:wrap;gap:5px;padding:6px 0 4px;">';
+          g.items.forEach(function(w){
+              html += '<span class="facet-chip" style="cursor:pointer;" onclick="window.__classifyRefine(\'' + w + '\')">' + w + '</span>';
+          });
+          html += '</div></details>';
+      });
+      wrap.innerHTML = html;
+  }
   window.__openClassifyModal = function(){
       document.getElementById('classifyResults').innerHTML = "";
       document.getElementById('classifyInput').value = "";
+      renderClassifyAttrChips();
       document.getElementById('classifyModalOverlay').classList.add('active');
       document.getElementById('classifyModal').classList.add('active');
       setTimeout(function(){ document.getElementById('classifyInput').focus(); }, 50);
@@ -1443,6 +1613,37 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   window.__closeClassifyModal = function(){
       document.getElementById('classifyModalOverlay').classList.remove('active');
       document.getElementById('classifyModal').classList.remove('active');
+  };
+
+  // ===== ملخص تقريبي للقواعد التفسيرية العامة الست لتصنيف البضائع (بصياغة مبسّطة) =====
+  // إرشادية للمساعدة السريعة فقط؛ النص الرسمي المعتمد هو نص القواعد بجدول التعرفة الجمركية.
+  var GRI_RULES = [
+    { n: "١", t: "الاعتماد على نص البند أولاً", d: "التصنيف يعتمد أولاً على نص البند نفسه وملاحظات الفصل أو القسم، وليس على عناوين الفصول (فالعناوين للدلالة فقط). لا يُنتقل لقاعدة تالية إلا إذا لم يحسم نص البند وحده." },
+    { n: "٢أ", t: "الصنف غير المكتمل أو المفكك", d: "أي إشارة لصنف معيّن بالبند تشمل أيضاً هذا الصنف غير كامل التركيب أو غير جاهز نهائياً، طالما يحمل الخصائص الأساسية للصنف الكامل عند تقديمه، وكذلك يشمل الصنف المفكك أو غير المُجمّع." },
+    { n: "٢ب", t: "المزيج أو المركّب من عدة مواد", d: "أي إشارة لمادة معيّنة بالبند تشمل أيضاً مزيجها أو تركيبها مع مواد أخرى. صنف مصنوع من أكثر من مادة أو مكوّن يُصنَّف حسب القواعد الآتية بقاعدة ٣." },
+    { n: "٣أ", t: "الأخص أولى من الأعم", d: "عند احتمال تصنيف الصنف تحت أكثر من بند، يُفضَّل البند الذي يصفه بشكل أكثر تحديداً ودقة على البند ذي الوصف العام." },
+    { n: "٣ب", t: "المادة أو المكوّن الذي يعطي الصنف طابعه الأساسي", d: "إذا تعذّر الترجيح بالقاعدة ٣أ (مثل بضاعة مركّبة أو مجموعة معدّة للبيع بالتجزئة)، يُصنَّف الصنف حسب المادة أو المكوّن الذي يُعطيه صفته أو طابعه الأساسي." },
+    { n: "٣ج", t: "البند الأخير رقماً عند تعادل البدائل", d: "إن تعذّر الترجيح بالقاعدتين السابقتين، يُصنَّف الصنف تحت البند الأخير ترتيباً (الأعلى رقماً) من بين البنود المتنافسة المتساوية في الانطباق." },
+    { n: "٤", t: "الأقرب شبهاً", d: "الصنف الذي لا يمكن تصنيفه بالقواعد السابقة يُصنَّف تحت بند الصنف الأكثر شبهاً به من حيث الطبيعة والاستخدام." },
+    { n: "٥", t: "العلب والأوعية والتغليف المصاحب", d: "علب الآلات الموسيقية أو الأدوات ونحوها المصمّمة خصيصاً لصنف معيّن تُصنَّف معه إن كانت من النوع المعتاد لبيعه معه. مواد التعبئة والتغليف المعتادة تُصنَّف مع محتواها، ما لم تكن صالحة للاستخدام المتكرر بوضوح بشكل مستقل." },
+    { n: "٦", t: "تصنيف البنود الفرعية بنفس المنطق", d: "تُطبَّق القواعد السابقة بنفس الطريقة عند المفاضلة بين البنود الفرعية (الأرقام الفرعية) ضمن نفس البند، مع مقارنة بنود فرعية بنفس المستوى فقط." }
+  ];
+  function renderGriList(){
+      var el = document.getElementById('griList');
+      if (!el) return;
+      el.innerHTML = GRI_RULES.map(function(r){
+          return '<div class="expl-result-item" style="margin-bottom:8px;"><b>القاعدة ' + r.n + ' — ' + escapeHtml(r.t) + '</b>' +
+              '<div style="font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.7;">' + escapeHtml(r.d) + '</div></div>';
+      }).join("");
+  }
+  window.__openGriModal = function(){
+      renderGriList();
+      document.getElementById('griModalOverlay').classList.add('active');
+      document.getElementById('griModal').classList.add('active');
+  };
+  window.__closeGriModal = function(){
+      document.getElementById('griModalOverlay').classList.remove('active');
+      document.getElementById('griModal').classList.remove('active');
   };
   window.__runClassifySuggestion = function(){
       var raw = (document.getElementById('classifyInput').value || "").trim();
@@ -2996,7 +3197,57 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
     ["بذور","بذره","حبوب","حبه"],
     ["لحوم","لحمه","دواجن","دجاج"],
     ["اسماك","سمك","بحريات"],
-    ["فواكه","فاكهه","خضار","خضروات"]
+    ["فواكه","فاكهه","خضار","خضروات"],
+    // ===== إضافات: أسماء دارجة/تجارية شائعة الاستخدام عند موظفي الجمارك والمعابر =====
+    ["سياره","سيارات","مركبه","مركبات","عربه","عربات","اوتوموبيل"],
+    ["دراجه ناريه","موتور","موتوسيكل","دراجات ناريه"],
+    ["دراجه هوائيه","بسكليت","دراجات هوائيه"],
+    ["غساله","غسالات","غسيل"],
+    ["ثلاجه","ثلاجات","براد","برادات","فريزر","فريزرات"],
+    ["مكيف","مكيفات","تكييف","اير كوندشن","سبليت"],
+    ["تلفزيون","تلفزيونات","شاشه","شاشات","تيفي"],
+    ["كمبيوتر","حاسوب","حواسيب","لابتوب","لابتوبات"],
+    ["بطاريه","بطاريات","مركم","مراكم"],
+    ["كابل","كابلات","سلك","اسلاك","اسلاك كهربائيه"],
+    ["انبوب","انابيب","مواسير","ماسوره","بايبات"],
+    ["براغي","مسمار","مسامير","صواميل","صامله"],
+    ["مبيدات","مبيد حشري","مبيدات زراعيه"],
+    ["عطور","عطر","برفان","كولونيا"],
+    ["بسكويت","شوكولا","شوكولاته","حلويات مصنعه"],
+    ["معلبات","كونسروه","معلب","اطعمه معلبه"],
+    ["مشروبات غازيه","غازيات","صودا"],
+    ["سجاد","موكيت","بساط","بسط"],
+    ["بطانيات","بطانيه","اغطيه","لحاف","لحف"],
+    ["مناديل","فوط","محارم"],
+    ["حفاضات","بامبرز","حفاضه"],
+    ["زيوت تشحيم","زيت محرك","زيت سياره","شحوم تشحيم"],
+    ["غاز","اسطوانه غاز","اسطوانات غاز","بوتاجاز"],
+    ["صاج","الواح معدنيه","بليت"],
+    ["قطع غيار","غيار","سبير بارت"],
+    ["اجهزه طبيه","معدات طبيه","مستلزمات طبيه"],
+    ["نظارات","نظاره","عدسات"],
+    ["ساعات","ساعه","ساعات يد"],
+    ["مجوهرات","ذهب","فضه","مصاغ","حلي"],
+    ["اواني","اواني مطبخ","قدور","طناجر"],
+    ["مكنسه","مكانس","مكنسه كهربائيه"],
+    ["مضخه","مضخات","طلمبه","طلمبات"],
+    ["مولد كهرباء","مولدات","مولده"],
+    ["محول كهربائي","ترانس","محولات"],
+    ["مفتاح كهربائي","مفاتيح كهربائيه","قواطع"],
+    ["نحاس","اسلاك نحاس","نحاسي"],
+    ["بطاريه سياره","بطاريات سيارات"],
+    ["حبال","امراس","حبل"],
+    ["اقفال","قفل","اقفال معدنيه","كالون"],
+    ["دهون صناعيه","شحم","شحوم"],
+    ["مواد بناء","مواد انشائيه"],
+    ["طوب","بلوك","طابوق"],
+    ["فحم","فحم حجري","فحم نباتي"],
+    ["ورق تواليت","مناديل ورقيه"],
+    ["اكياس","اكياس بلاستيك","شناطي بلاستيك"],
+    ["مبرد","مبرده","مبردات صناعيه"],
+    ["مضخم صوت","سماعات","سبيكرز"],
+    ["شاحن","شواحن","محول شحن"],
+    ["ادوات صحيه","خلاطات مياه","مغاسل"]
   ];
 
   var SYNONYM_MAP = (function(){
@@ -3236,7 +3487,9 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       var html = '<span class="facet-label">🧭 تضييق حسب الفصل:</span>';
       html += '<span class="facet-chip ' + (!chapterState.active ? 'active' : '') + '" onclick="window.__setChapter(null)">الكل <b>' + recordsIgnoringChapter.length + '</b></span>';
       chapters.slice(0, 8).forEach(function(c){
-          html += '<span class="facet-chip ' + (chapterState.active === c ? 'active' : '') + '" onclick="window.__setChapter(\'' + c + '\')">الفصل ' + c + ' <b>' + counts[c] + '</b></span>';
+          var t = chapterTitle(c);
+          var label = 'الفصل ' + c + (t ? ' (' + escapeHtml(t.split('،')[0].split(' و')[0]) + ')' : '');
+          html += '<span class="facet-chip ' + (chapterState.active === c ? 'active' : '') + '" onclick="window.__setChapter(\'' + c + '\')" title="' + escapeHtml(t) + '">' + label + ' <b>' + counts[c] + '</b></span>';
       });
       wrap.innerHTML = html;
       wrap.style.display = 'flex';
@@ -3353,6 +3606,31 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       renderChapters();
   }
 
+  // ===== تنبيه "بنود متقاربة": إذا كان أفضل بندين/ثلاثة بنتائج البحث الرئيسي متقاربين جداً بدرجة التطابق،
+  // ننبّه الموظف صراحة بدل ما يعتمد أول نتيجة بالجدول بشكل أعمى، ونعرض له زر مقارنة سريعة بينهم =====
+  function renderAmbiguityHint(filtered){
+      var el = document.getElementById('ambiguityHint');
+      if (!el) return;
+      if (!state.isSearching || filtered.length < 2) { el.style.display = 'none'; el.innerHTML = ''; return; }
+      var top = filtered.slice(0, 3);
+      var s0 = top[0]._matchScore || 0, s1 = top[1]._matchScore || 0;
+      // نعتبرها متقاربة إذا كان الفرق بدرجة التطابق بين أول وثاني نتيجة صغيراً نسبياً (أقل من 20% من درجة الأولى)
+      var close = s0 > 0 && (s0 - s1) / s0 < 0.2;
+      if (!close) { el.style.display = 'none'; el.innerHTML = ''; return; }
+      var codes = top.map(function(r){ return r.code; });
+      var html = '<div style="background:var(--gold-soft);border:1px solid var(--gold);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--warn);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+          '<span>🤔 في أكثر من بند بنفس مستوى التطابق تقريباً بأعلى النتائج — تأكدي من اختيار الأدق قبل الاعتماد عليه.</span>' +
+          '<button class="tool-btn" style="font-size:11px;" onclick="window.__quickCompareTop([' + codes.map(function(c){return "'"+c.replace(/'/g,"")+"'";}).join(',') + '])">⚖️ قارني بينهم الآن</button>' +
+          '</div>';
+      el.innerHTML = html;
+      el.style.display = 'block';
+  }
+  window.__quickCompareTop = function(codes){
+      codes.forEach(function(c){ if (state.compareList.indexOf(c) === -1 && state.compareList.length < 6) state.compareList.push(c); });
+      window.__openCompare();
+      render();
+  };
+
   function render(){
     var filtered = getFilteredRecords();
     var total = filtered.length;
@@ -3366,10 +3644,24 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
         (state.usedFuzzySearch ? ' <span style="color:var(--warn);font-weight:700;font-size:12px;">🔍 لا يوجد تطابق مباشر — نُعرض نتائج تقريبية تحسّباً لخطأ إملائي بكلمة البحث</span>' : '') +
         (state.aiSearchActive ? ' <span style="color:var(--accent-deep);font-weight:700;font-size:12px;">🤖 مُوسّع بالذكاء الاصطناعي</span>' : '');
 
+    renderAmbiguityHint(filtered);
+
     renderSearchFacets();
 
     var start = (state.page - 1) * state.pageSize;
     var slice = filtered.slice(start, start + state.pageSize);
+
+    // ===== رسم "وسيط" لنتائج البحث/العرض الحالية: يُستخدم لتلوين خانة الإجمالي (مرتفع/منخفض نسبياً)
+    // كانطباع بصري سريع، بدل ما يضطر الموظف يقرأ كل رقم بالتفصيل ليقارنه بباقي النتائج =====
+    var feeMedian = null;
+    if (filtered.length > 1) {
+        var feeVals = filtered.map(function(r){
+            var f1 = state.feeMode === "export" ? (Number(r.exp_fee)||0) : (Number(r.imp_fee)||0);
+            var f2 = state.feeMode === "export" ? (Number(r.exp_svc)||0) : (Number(r.imp_svc)||0);
+            return f1 + f2;
+        }).sort(function(a,b){ return a-b; });
+        feeMedian = feeVals[Math.floor(feeVals.length/2)];
+    }
 
     var tbody = document.getElementById("tbody");
     var empty = document.getElementById("emptyState");
@@ -3395,7 +3687,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
     } else {
       empty.style.display = "none";
       var html = "";
-      slice.forEach(function(r){
+      slice.forEach(function(r, idxInSlice){
         var isExpanded = state.expandedId === r.id;
         var mode = state.feeMode;
 
@@ -3407,17 +3699,24 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
 
         var isFav = state.favorites.some(function(f){ return f.code === r.code; });
 
+        var isTopMatch = state.isSearching && state.page === 1 && idxInSlice === 0 && filtered.length > 1;
+        var feeClass = "";
+        if (feeMedian !== null && feeMedian > 0) {
+            if (totalFees > feeMedian * 1.5) feeClass = " fee-high";
+            else if (totalFees < feeMedian * 0.5) feeClass = " fee-low";
+        }
+
         var matchBadge = (state.isSearching && typeof r._matchPercent === "number" && r._matchPercent < 100)
-            ? ' <span class="badge" style="background:var(--gold-soft);color:var(--warn);" title="نسبة تطابق تقريبية مع كلمات بحثك (بحث ذكي)">🎯 تطابق ' + r._matchPercent + '%</span>'
+            ? ' <span class="badge" style="background:var(--gold-soft);color:var(--warn);" title="نسبة تطابق تقريبية مع كلمات بحثك (بحث ذكي)"><span class="match-bar-wrap"><span class="match-bar-fill" style="width:' + r._matchPercent + '%;"></span></span>🎯 تطابق ' + r._matchPercent + '%</span>'
             : '';
         var fuzzyBadge = (state.isSearching && r._fuzzyMatched)
             ? ' <span class="badge" style="background:var(--danger-soft);color:var(--danger);" title="لم يُطابق كلمة بحثك حرفياً، لكنه قريب منها (احتمال خطأ إملائي)">🔍 تصحيح إملائي محتمل</span>'
             : '';
         var synonymBadge = (state.isSearching && r._synonymMatched)
-            ? ' <span class="badge" style="background:var(--accent-soft);color:var(--accent-deep);" title="طابق عبر مرادف جمركي شائع لكلمة بحثك، مش تطابق حرفي">🧠 تطابق بالمعنى</span>'
+            ? ' <span class="badge badge-synonym" style="background:var(--accent-soft);color:var(--accent-deep);" title="طابق عبر مرادف جمركي شائع لكلمة بحثك، مش تطابق حرفي">🧠 تطابق بالمعنى</span>'
             : '';
         var aiBadge = (state.isSearching && r._aiOnlyMatched)
-            ? ' <span class="badge" style="background:var(--accent-soft);color:var(--accent-deep);" title="لم يطابق كلمات بحثك مباشرة، ظهر عبر توسيع دلالي بالذكاء الاصطناعي لوصفك">🤖 اقتراح ذكاء اصطناعي</span>'
+            ? ' <span class="badge badge-ai-match" style="background:var(--accent-soft);color:var(--accent-deep);" title="لم يطابق كلمات بحثك مباشرة، ظهر عبر توسيع دلالي بالذكاء الاصطناعي لوصفك">🤖 اقتراح ذكاء اصطناعي</span>'
             : '';
 
         var labTitle = (r.labAuto ? '⚠️ تصنيف تلقائي تقريبي - يرجى مراجعة الموظف المختص والتأكد. ' : '') + (r.labNote ? ('ملاحظة: ' + r.labNote) : 'يتطلب فحص مخبري / رقابة جودة قبل التخليص الجمركي.');
@@ -3430,14 +3729,14 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
         var feeLabel1 = mode === "export" ? "رسم التصدير" : "رسم الاستيراد";
         var feeLabel2 = mode === "export" ? "بدل خدمة التصدير" : "بدل خدمة الاستيراد";
 
-        html += '<tr data-row-id="' + r.id + '" class="' + (isExpanded ? "expanded" : "") + '" onclick="window.__toggleRow(\'' + r.id + '\')">';
+        html += '<tr data-row-id="' + r.id + '" class="' + (isExpanded ? "expanded" : "") + (isTopMatch ? " top-match-row" : "") + '" onclick="window.__toggleRow(\'' + r.id + '\')">';
         html += '<td class="code" data-label="الرمز الجمركي">' + escapeHtml(r.code) + (r.isDuplicateCode ? ' <span title="رمز مكرر في الملف" style="color:var(--danger)">⚠️</span>' : '') + '</td>';
         var descHtml = state.isSearching ? highlightDesc(escapeHtml(r.desc), rawSearchWords) : escapeHtml(r.desc);
         html += '<td class="desc" data-label="البيان">' + descHtml + labBadge + matchBadge + synonymBadge + aiBadge + fuzzyBadge + '</td>';
-        html += '<td data-label="الوحدة">' + escapeHtml(r.imp_unit || "-") + '</td>';
-        html += '<td class="num" data-label="' + feeLabel1 + '">' + impFee.toLocaleString() + '</td>';
-        html += '<td class="num" data-label="' + feeLabel2 + '">' + impSvc.toLocaleString() + '</td>';
-        html += '<td class="num total-cell" data-label="إجمالي الرسوم">' + totalFees.toLocaleString() + '</td>';
+        html += '<td class="mobile-secondary" data-label="الوحدة">' + escapeHtml(r.imp_unit || "-") + '</td>';
+        html += '<td class="num mobile-secondary" data-label="' + feeLabel1 + '">' + impFee.toLocaleString() + '</td>';
+        html += '<td class="num mobile-secondary" data-label="' + feeLabel2 + '">' + impSvc.toLocaleString() + '</td>';
+        html += '<td class="num total-cell' + feeClass + '" data-label="إجمالي الرسوم">' + totalFees.toLocaleString() + '</td>';
         var bannedTitle = r.banned ? ' title="' + escapeHtml('سبب الحظر: ' + (r.banReason || '')) + '"' : '';
         html += '<td data-label="الحالة"><span class="badge ' + (r.banned ? "badge-banned" : (isActive ? "badge-on" : "badge-off")) + '"' + bannedTitle + '>' + (r.banned ? "🚫 ممنوع استيراد" : (isActive ? "فعّال" : "معطّل")) + '</span></td>';
         
@@ -4005,6 +4304,13 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
         }, function(err){
             console.error("تعذّر تحميل شروحات التعرفة من قاعدة البيانات السحابية:", err);
         });
+
+        // 5) "التعلّم من تصحيحات الموظفين" لاقتراح التصنيف الذكي - مشتركة بين كل الموظفين لحظياً
+        window.TariffCloud.onClassifyCorrectionsChange(function(items){
+            state.cloudCorrections = items || [];
+        }, function(err){
+            console.error("تعذّر تحميل تصحيحات التصنيف المشتركة (سيُكتفى بالتصحيحات المحلية):", err);
+        });
     }).catch(function(err){
         console.error("تعذّر الاتصال بقاعدة بيانات الممنوعات:", err);
     });
@@ -4376,6 +4682,46 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
             if (res.error) throw res.error;
         }
 
+        // ===== مزامنة "التعلّم من تصحيحات الموظف" بين كل الموظفين على كل الأجهزة =====
+        // بدل ما يبقى تعلّم كل موظف محصوراً بمتصفحه هو، أي تصحيح (وصف حر → الكود الذي اختاره الموظف)
+        // يُرفع لجدول مشترك بقاعدة البيانات، فيستفيد منه أي موظف تاني بأي معبر فوراً عبر الاشتراك اللحظي.
+        // مفتاح الصف (id) هو كلمات الوصف نفسها مرتّبة ومدموجة، حتى يتّحد نفس الوصف تلقائياً بصف واحد
+        // بدل تكديس صفوف مكررة، ونزيد عداد "hit_count" في كل مرة يتكرر نفس الوصف تقريباً.
+        const CLASSIFY_CORRECTIONS_TABLE = "classify_corrections";
+
+        async function pushClassifyCorrectionCloud(terms, code, desc){
+            if (!terms || !terms.length || !code) return;
+            var key = terms.slice().sort().join("|").slice(0, 400);
+            var existing = await supabase.from(CLASSIFY_CORRECTIONS_TABLE).select("hit_count").eq("id", key).maybeSingle();
+            var hitCount = (existing.data && existing.data.hit_count) ? existing.data.hit_count + 1 : 1;
+            var res = await supabase.from(CLASSIFY_CORRECTIONS_TABLE).upsert({
+                id: key,
+                terms: terms,
+                code: String(code),
+                desc_snapshot: desc ? String(desc).slice(0, 300) : null,
+                hit_count: hitCount,
+                updated_at: new Date().toISOString()
+            });
+            if (res.error) throw res.error;
+        }
+
+        function onClassifyCorrectionsChange(onItemsReady, onError){
+            function fetchAll(){
+                supabase.from(CLASSIFY_CORRECTIONS_TABLE).select("*").order("hit_count", { ascending: false }).limit(1000).then(function(res){
+                    if (res.error) { console.error("Supabase classify_corrections select error:", res.error); if (onError) onError(res.error); return; }
+                    var items = (res.data || []).map(function(row){
+                        return { terms: row.terms || [], code: row.code, hitCount: row.hit_count || 1 };
+                    });
+                    onItemsReady(items);
+                });
+            }
+            fetchAll();
+            var channel = supabase.channel("classify_corrections_changes")
+                .on("postgres_changes", { event: "*", schema: "public", table: CLASSIFY_CORRECTIONS_TABLE }, fetchAll)
+                .subscribe();
+            return function unsubscribe(){ supabase.removeChannel(channel); };
+        }
+
         // خرائط رسائل أخطاء Supabase Auth الشائعة لرسائل عربية مفهومة
         function friendlyAuthError(err){
             var msg = (err && err.message) || String(err || "");
@@ -4508,7 +4854,9 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
             replaceAllExplanations: replaceAllExplanations,
             incrementSearchCount: incrementSearchCount,
             getSearchCounts: getSearchCounts,
-            clearSearchCounts: clearSearchCounts
+            clearSearchCounts: clearSearchCounts,
+            pushClassifyCorrection: pushClassifyCorrectionCloud,
+            onClassifyCorrectionsChange: onClassifyCorrectionsChange
         };
 
         if (window.__resolveTariffCloud) window.__resolveTariffCloud(window.TariffCloud);
