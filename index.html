@@ -479,6 +479,28 @@ body.search-suggest-open .table-wrap{ visibility:hidden; }
   .admin-usage-card strong{display:block;font-size:21px;line-height:1.2;color:var(--accent-deep);font-variant-numeric:tabular-nums;}
   .admin-usage-card small{display:block;margin-top:3px;font-size:9.5px;color:var(--ink-soft);}
   @media (max-width:420px){.admin-usage-grid{grid-template-columns:1fr 1fr}.admin-usage-card{padding:9px 8px}.admin-usage-card strong{font-size:19px}}
+
+  /* ===== V2.2 لوحة إحصائيات الأدمن الكاملة ===== */
+  .admin-analytics-privacy{font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.75;background:var(--accent-soft);border:1px solid var(--line);padding:9px 10px;border-radius:12px;}
+  .admin-usage-grid-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .admin-analytics-status{font-size:11.5px;color:var(--ink-soft);margin:9px 0 10px;line-height:1.65;}
+  .admin-analytics-actions{margin-bottom:9px;}
+  .admin-analytics-panel{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-top:8px;overflow:hidden;}
+  .admin-analytics-panel>summary{cursor:pointer;list-style:none;padding:10px 11px;font-size:12.5px;font-weight:900;color:var(--ink);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .admin-analytics-panel>summary::-webkit-details-marker{display:none;}
+  .admin-analytics-panel>summary:after{content:'⌄';color:var(--muted);font-size:12px;}
+  .admin-analytics-panel[open]>summary{border-bottom:1px solid var(--line);}
+  .admin-analytics-list{padding:8px 10px 10px;max-height:330px;overflow:auto;}
+  .admin-analytics-row{padding:8px 0;border-bottom:1px solid var(--line-soft);}
+  .admin-analytics-row:last-child{border-bottom:0;}
+  .admin-analytics-row-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;font-size:11.7px;font-weight:800;}
+  .admin-analytics-row-head span:first-child{min-width:0;overflow-wrap:anywhere;}
+  .admin-analytics-count{white-space:nowrap;color:var(--accent-deep);font-variant-numeric:tabular-nums;}
+  .admin-analytics-meta{font-size:9.7px;color:var(--ink-soft);margin-top:3px;line-height:1.45;}
+  .admin-analytics-bar{height:5px;border-radius:5px;background:var(--accent-soft);overflow:hidden;margin-top:5px;}
+  .admin-analytics-bar>i{display:block;height:100%;background:var(--accent-deep);border-radius:inherit;}
+  .admin-analytics-empty{padding:8px 2px;color:var(--ink-soft);font-size:11px;line-height:1.6;}
+  @media(max-width:520px){.admin-usage-grid-3{grid-template-columns:repeat(2,minmax(0,1fr));}}
 </style>
 
 <style id="v18ProfessionalStyles">
@@ -756,22 +778,32 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
   </div>
 
   <div class="sidebar-section" id="adminAnalyticsSection" style="display:none;">
-    <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this)"><h3>📊 استخدام الموقع والبحث (أدمن)</h3><span class="sidebar-caret">›</span></button>
+    <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this)"><h3>📊 لوحة استخدام الموقع (أدمن)</h3><span class="sidebar-caret">›</span></button>
     <div class="sidebar-section-body">
-      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.7;">هذه الإحصائيات لا تظهر إلا لحساب الأدمن. عدد المستخدمين هو عدد الأجهزة/المتصفحات الفريدة تقريبياً، ولا يتم جمع الاسم أو البريد أو الموقع الجغرافي للزائر.</p>
-      <div class="admin-usage-grid" id="adminUsageGrid">
-        <div class="admin-usage-card"><span>👥 المستخدمون</span><strong id="analyticsUsersTotal">—</strong><small>إجمالي فريد تقريبي</small></div>
+      <p class="admin-analytics-privacy">🔒 هذه اللوحة لا تظهر إلا بعد تسجيل الدخول بحساب <b>أدمن</b>. لا يتم جمع اسم الزائر أو بريده أو موقعه الجغرافي؛ فقط معرف عشوائي للمتصفح وأحداث استخدام عامة.</p>
+      <div class="admin-usage-grid admin-usage-grid-3" id="adminUsageGrid">
+        <div class="admin-usage-card"><span>👥 المستخدمون</span><strong id="analyticsUsersTotal">—</strong><small>فريد تقريبي</small></div>
         <div class="admin-usage-card"><span>🟢 النشطون</span><strong id="analyticsUsersToday">—</strong><small>آخر 24 ساعة</small></div>
-        <div class="admin-usage-card"><span>📅 آخر 7 أيام</span><strong id="analyticsUsers7d">—</strong><small>مستخدمون فريدون</small></div>
-        <div class="admin-usage-card"><span>🔁 جلسات الاستخدام</span><strong id="analyticsVisitsTotal">—</strong><small>إجمالي الجلسات</small></div>
+        <div class="admin-usage-card"><span>📅 آخر 7 أيام</span><strong id="analyticsUsers7d">—</strong><small>فريدون</small></div>
+        <div class="admin-usage-card"><span>🔁 الجلسات</span><strong id="analyticsVisitsTotal">—</strong><small>إجمالي</small></div>
+        <div class="admin-usage-card"><span>📐 متوسط الزيارات</span><strong id="analyticsAvgVisits">—</strong><small>لكل مستخدم</small></div>
+        <div class="admin-usage-card"><span>🔎 عمليات البحث</span><strong id="analyticsSearchesTotal">—</strong><small>إجمالي</small></div>
+        <div class="admin-usage-card"><span>❌ بلا نتيجة</span><strong id="analyticsFailedSearches">—</strong><small>بحث يحتاج تحسين</small></div>
+        <div class="admin-usage-card"><span>📄 فتح البنود</span><strong id="analyticsItemOpens">—</strong><small>إجمالي</small></div>
+        <div class="admin-usage-card"><span>⏰ ساعة الذروة</span><strong id="analyticsPeakHour">—</strong><small>بتوقيت دمشق</small></div>
       </div>
-      <div id="usageAnalyticsStatus" style="font-size:11.5px;color:var(--ink-soft);margin:8px 0 10px;line-height:1.6;"></div>
-      <div class="tools-bar">
-        <button class="tool-btn" onclick="window.__loadSearchAnalytics()">🔄 تحديث الإحصائيات</button>
-        <button class="tool-btn" style="color:var(--danger); border-color:var(--danger-soft)" onclick="window.__clearSearchAnalytics()">🗑️ تصفير عداد البنود</button>
+      <div id="usageAnalyticsStatus" class="admin-analytics-status"></div>
+      <div class="tools-bar admin-analytics-actions">
+        <button class="tool-btn" onclick="window.__loadSearchAnalytics()">🔄 تحديث اللوحة</button>
       </div>
-      <div style="margin-top:12px;font-weight:800;font-size:13px;">🔎 البنود التي بحث عنها المستخدمون</div>
-      <div id="searchAnalyticsList" style="margin-top:10px;max-height:360px;overflow-y:auto;"></div>
+
+      <details class="admin-analytics-panel" open><summary>🔥 أكثر البنود فتحاً</summary><div id="analyticsTopItems" class="admin-analytics-list"></div></details>
+      <details class="admin-analytics-panel" open><summary>🔎 أكثر كلمات البحث</summary><div id="analyticsTopSearches" class="admin-analytics-list"></div></details>
+      <details class="admin-analytics-panel"><summary>❌ عمليات بحث بلا نتيجة</summary><div id="analyticsFailedSearchTerms" class="admin-analytics-list"></div></details>
+      <details class="admin-analytics-panel"><summary>🧭 أكثر الأقسام استخداماً</summary><div id="analyticsTopSections" class="admin-analytics-list"></div></details>
+      <details class="admin-analytics-panel"><summary>🧰 أكثر الأدوات استخداماً</summary><div id="analyticsTopTools" class="admin-analytics-list"></div></details>
+      <details class="admin-analytics-panel"><summary>📚 أكثر الفصول الجمركية مشاهدة</summary><div id="analyticsTopChapters" class="admin-analytics-list"></div></details>
+      <details class="admin-analytics-panel"><summary>🕘 آخر النشاطات</summary><div id="analyticsRecentActivity" class="admin-analytics-list"></div></details>
     </div>
   </div>
 
@@ -5022,62 +5054,59 @@ function refreshSettlementChapterFilter(){
   }
 
   window.__loadSearchAnalytics = function(){
-      if (!state.isAdmin || !state.currentUser) { showToast("هذه الميزة متاحة لحساب الأدمن المسجّل فقط.", "err"); return; }
-      var box = document.getElementById('searchAnalyticsList');
-      var status = document.getElementById('usageAnalyticsStatus');
-      var ids = ['analyticsUsersTotal','analyticsUsersToday','analyticsUsers7d','analyticsVisitsTotal'];
-      ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='…'; });
-      if (box) box.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);">جارِ تحميل بيانات البحث...</p>';
-      if (status) status.textContent = 'جارِ تحميل إحصائيات الاستخدام...';
+      if (!state.isAdmin || !state.currentUser) { showToast("هذه اللوحة متاحة فقط للأدمن بعد تسجيل الدخول.", "err"); return; }
+      var status=document.getElementById('usageAnalyticsStatus');
+      var metricIds=['analyticsUsersTotal','analyticsUsersToday','analyticsUsers7d','analyticsVisitsTotal','analyticsAvgVisits','analyticsSearchesTotal','analyticsFailedSearches','analyticsItemOpens','analyticsPeakHour'];
+      metricIds.forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='…';});
+      ['analyticsTopItems','analyticsTopSearches','analyticsFailedSearchTerms','analyticsTopSections','analyticsTopTools','analyticsTopChapters','analyticsRecentActivity'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<div class="admin-analytics-empty">جارِ التحميل...</div>';});
+      if(status)status.textContent='جارِ تحميل لوحة الاستخدام الآمنة...';
 
-      window.__tariffCloudReady.then(function(){
-          return Promise.all([
-              window.TariffCloud.getAdminUsageStats().catch(function(err){ return { __error: err }; }),
-              window.TariffCloud.getSearchCounts(100).catch(function(err){ return { __error: err }; })
-          ]);
-      }).then(function(results){
-          var usage = results[0], rows = results[1];
-          if (usage && !usage.__error) {
-              var f=function(n){ return Number(n||0).toLocaleString('ar-SY'); };
-              document.getElementById('analyticsUsersTotal').textContent=f(usage.totalUnique);
-              document.getElementById('analyticsUsersToday').textContent=f(usage.active24h);
-              document.getElementById('analyticsUsers7d').textContent=f(usage.active7d);
-              document.getElementById('analyticsVisitsTotal').textContent=f(usage.totalVisits);
-              if (status) status.textContent = usage.lastVisitAt ? 'آخر استخدام مسجّل: ' + new Date(usage.lastVisitAt).toLocaleString('ar-SY') : 'لا توجد زيارات مسجّلة بعد.';
-          } else {
-              ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='—'; });
-              if (status) status.innerHTML = '<span style="color:var(--danger);">تعذّر تحميل عدد المستخدمين. فعّل ملف إعداد إحصائيات الأدمن في Supabase مرة واحدة.</span>';
-          }
+      function n(v){return Number(v||0).toLocaleString('ar-SY');}
+      function h(v){return escapeHtml(String(v==null?'':v));}
+      function listRows(target,rows,opts){
+          var el=document.getElementById(target);if(!el)return;rows=Array.isArray(rows)?rows:[];
+          if(!rows.length){el.innerHTML='<div class="admin-analytics-empty">لا توجد بيانات كافية بعد.</div>';return;}
+          opts=opts||{};var max=Math.max.apply(null,rows.map(function(r){return Number(r.count||0);}).concat([1]));
+          el.innerHTML=rows.map(function(r,i){
+              var title=opts.title?opts.title(r):String(r.label||r.key||'');
+              var meta=opts.meta?opts.meta(r):'';
+              var count=Number(r.count||0),pct=Math.max(4,Math.round(count/max*100));
+              return '<div class="admin-analytics-row"><div class="admin-analytics-row-head"><span>'+(i+1)+'. '+h(title)+'</span><span class="admin-analytics-count">'+n(count)+'</span></div>'+(meta?'<div class="admin-analytics-meta">'+h(meta)+'</div>':'')+'<div class="admin-analytics-bar"><i style="width:'+pct+'%"></i></div></div>';
+          }).join('');
+      }
+      function activityRows(rows){
+          var el=document.getElementById('analyticsRecentActivity');if(!el)return;rows=Array.isArray(rows)?rows:[];
+          if(!rows.length){el.innerHTML='<div class="admin-analytics-empty">لا توجد نشاطات مسجّلة بعد.</div>';return;}
+          var labels={search_tariff:'🔎 بحث بالتعرفة',search_global:'🌐 بحث شامل',search_settlement:'⚖️ بحث بالتسويات',search_explanation:'📖 بحث بالشروحات',open_item:'📄 فتح بند',section_view:'🧭 فتح قسم',chapter_view:'📚 فصل جمركي',tool_view:'🧰 أداة'};
+          el.innerHTML=rows.map(function(r){var d='';try{d=new Date(r.created_at).toLocaleString('ar-SY');}catch(e){}var text=(labels[r.event_type]||r.event_type)+(r.event_key?' — '+r.event_key:'')+(r.event_label?' — '+r.event_label:'');return '<div class="admin-analytics-row"><div class="admin-analytics-row-head"><span>'+h(text)+'</span></div><div class="admin-analytics-meta">'+h(d)+(r.result_count!=null?' · النتائج: '+n(r.result_count):'')+'</div></div>';}).join('');
+      }
 
-          if (rows && rows.__error) {
-              if (box) box.innerHTML = '<p style="font-size:12px;color:var(--danger);">تعذّر تحميل البنود التي تم البحث عنها.</p>';
-              return;
-          }
-          rows = rows || [];
-          if (!rows.length) {
-              if (box) box.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);">لا توجد بيانات بحث مسجّلة بعد.</p>';
-              return;
-          }
-          var usageMap = {};
-          rows.forEach(function(row){ if (row.code) usageMap[row.code] = row.count || 0; });
-          state.searchCountsMap = usageMap;
-          state.popularCodes = rows.slice(0, 8).map(function(row){ return row.code; }).filter(Boolean);
-          var maxCount = rows[0].count || 1;
-          if (box) box.innerHTML = rows.map(function(row, i){
-              var pct = Math.max(6, Math.round(((row.count||0) / maxCount) * 100));
-              var when = row.lastSearchedAt ? new Date(row.lastSearchedAt).toLocaleString('ar-SY') : '';
-              return '<div style="margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--line);">' +
-                  '<div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;margin-bottom:3px;">' +
-                  '<span style="min-width:0;overflow-wrap:anywhere;">' + (i+1) + '. ' + escapeHtml(row.code) + (row.desc ? ' — ' + escapeHtml(row.desc) : '') + '</span>' +
-                  '<span style="color:var(--accent-deep);white-space:nowrap;">' + Number(row.count||0).toLocaleString('ar-SY') + ' مرة</span></div>' +
-                  (when ? '<div style="font-size:9.5px;color:var(--ink-soft);margin-bottom:4px;">آخر بحث: ' + escapeHtml(when) + '</div>' : '') +
-                  '<div style="height:6px;border-radius:4px;background:var(--accent-soft);overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:var(--accent-deep);"></div></div>' +
-                  '</div>';
-          }).join("");
+      window.__tariffCloudReady.then(function(cloud){
+          if(!cloud||typeof cloud.getAdminAnalyticsDashboard!=='function')throw new Error('حدّث إعدادات Supabase بلوحة الإحصائيات الكاملة.');
+          return cloud.getAdminAnalyticsDashboard();
+      }).then(function(d){
+          var sum=d.summary||{};
+          document.getElementById('analyticsUsersTotal').textContent=n(sum.total_unique);
+          document.getElementById('analyticsUsersToday').textContent=n(sum.active_24h);
+          document.getElementById('analyticsUsers7d').textContent=n(sum.active_7d);
+          document.getElementById('analyticsVisitsTotal').textContent=n(sum.total_visits);
+          document.getElementById('analyticsAvgVisits').textContent=Number(sum.avg_visits_per_user||0).toLocaleString('ar-SY',{maximumFractionDigits:1});
+          document.getElementById('analyticsSearchesTotal').textContent=n(sum.total_searches);
+          document.getElementById('analyticsFailedSearches').textContent=n(sum.failed_searches);
+          document.getElementById('analyticsItemOpens').textContent=n(sum.total_item_opens);
+          document.getElementById('analyticsPeakHour').textContent=(sum.peak_hour===null||sum.peak_hour===undefined)?'—':String(sum.peak_hour).padStart(2,'0')+':00';
+          if(status){var last=sum.last_activity_at?new Date(sum.last_activity_at).toLocaleString('ar-SY'):'لا يوجد بعد';status.textContent='آخر نشاط مسجّل: '+last+' · البيانات مرئية للأدمن فقط.';}
+          listRows('analyticsTopItems',d.top_items,{title:function(r){return (r.key||'')+(r.label?' — '+r.label:'');},meta:function(r){return 'آخر فتح: '+(r.last_at?new Date(r.last_at).toLocaleString('ar-SY'):'—');}});
+          listRows('analyticsTopSearches',d.top_search_terms,{title:function(r){return r.key||'—';},meta:function(r){return r.result_count_avg!=null?'متوسط النتائج: '+Number(r.result_count_avg).toFixed(1):'';}});
+          listRows('analyticsFailedSearchTerms',d.failed_search_terms,{title:function(r){return r.key||'—';},meta:function(){return 'لم تُرجع نتيجة عند البحث';}});
+          listRows('analyticsTopSections',d.top_sections,{title:function(r){return r.label||r.key||'—';}});
+          listRows('analyticsTopTools',d.top_tools,{title:function(r){return r.label||r.key||'—';}});
+          listRows('analyticsTopChapters',d.top_chapters,{title:function(r){return (r.key?'الفصل '+r.key:'')+(r.label?' — '+r.label:'');}});
+          activityRows(d.recent_activity);
       }).catch(function(err){
-          ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='—'; });
-          if (status) status.textContent = 'تعذّر الاتصال بالإحصائيات السحابية.';
-          if (box) box.innerHTML = '<p style="font-size:12px;color:var(--danger);">تعذّر تحميل الإحصائيات: ' + escapeHtml(err.message || String(err)) + '</p>';
+          metricIds.forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='—';});
+          if(status)status.innerHTML='<span style="color:var(--danger);">تعذّر تحميل اللوحة: '+escapeHtml(err.message||String(err))+'</span>';
+          ['analyticsTopItems','analyticsTopSearches','analyticsFailedSearchTerms','analyticsTopSections','analyticsTopTools','analyticsTopChapters','analyticsRecentActivity'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<div class="admin-analytics-empty">شغّل ملف SQL الجديد في Supabase مرة واحدة ثم أعد المحاولة.</div>';});
       });
   };
 
@@ -5942,6 +5971,28 @@ function refreshSettlementChapterFilter(){
             };
         }
 
+        async function trackSiteEvent(visitorId, eventType, eventKey, eventLabel, resultCount){
+            visitorId = String(visitorId || "").trim();
+            eventType = String(eventType || "").trim();
+            if (!visitorId || !eventType) return;
+            var payload = {
+                p_visitor_id: visitorId.slice(0,100),
+                p_event_type: eventType.slice(0,40),
+                p_event_key: eventKey == null ? null : String(eventKey).slice(0,220),
+                p_event_label: eventLabel == null ? null : String(eventLabel).slice(0,320),
+                p_result_count: Number.isFinite(Number(resultCount)) ? Math.max(0, Math.min(1000000, Math.round(Number(resultCount)))) : null
+            };
+            var res = await supabase.rpc("track_site_event", payload);
+            if (res.error) throw res.error;
+        }
+
+        async function getAdminAnalyticsDashboard(){
+            var res = await supabase.rpc("get_admin_analytics_dashboard");
+            if (res.error) throw res.error;
+            var data = Array.isArray(res.data) ? (res.data[0] || {}) : (res.data || {});
+            return data || {};
+        }
+
         // ===== مزامنة "التعلّم من تصحيحات الموظف" بين كل الموظفين على كل الأجهزة =====
         // بدل ما يبقى تعلّم كل موظف محصوراً بمتصفحه هو، أي تصحيح (وصف حر → الكود الذي اختاره الموظف)
         // يُرفع لجدول مشترك بقاعدة البيانات، فيستفيد منه أي موظف تاني بأي معبر فوراً عبر الاشتراك اللحظي.
@@ -6119,6 +6170,8 @@ function refreshSettlementChapterFilter(){
             clearSearchCounts: clearSearchCounts,
             trackSiteVisit: trackSiteVisit,
             getAdminUsageStats: getAdminUsageStats,
+            trackSiteEvent: trackSiteEvent,
+            getAdminAnalyticsDashboard: getAdminAnalyticsDashboard,
             pushClassifyCorrection: pushClassifyCorrectionCloud,
             onClassifyCorrectionsChange: onClassifyCorrectionsChange
         };
@@ -6132,30 +6185,28 @@ function refreshSettlementChapterFilter(){
 </script>
 
 <script>
-// ===== عداد استخدام مجهول: لا يخزن اسماً أو بريداً أو موقعاً =====
+// ===== عداد واستخدام مجهول: لا يخزن اسماً أو بريداً أو موقعاً =====
 (function(){
   'use strict';
-  var KEY='tariff_visitor_id_v1';
+  var KEY='tariff_visitor_id_v1', recent={};
   function makeId(){
     try { if (window.crypto && typeof window.crypto.randomUUID==='function') return window.crypto.randomUUID(); } catch(e){}
     return 'v-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
   }
   function visitorId(){
-    try {
-      var id=localStorage.getItem(KEY);
-      if(!id){ id=makeId(); localStorage.setItem(KEY,id); }
-      return id;
-    } catch(e){
-      if(!window.__tariffEphemeralVisitorId) window.__tariffEphemeralVisitorId=makeId();
-      return window.__tariffEphemeralVisitorId;
-    }
+    try { var id=localStorage.getItem(KEY); if(!id){id=makeId();localStorage.setItem(KEY,id);} return id; }
+    catch(e){ if(!window.__tariffEphemeralVisitorId)window.__tariffEphemeralVisitorId=makeId();return window.__tariffEphemeralVisitorId; }
   }
+  window.__getTariffVisitorId=visitorId;
+  window.__trackAnalyticsEvent=function(type,key,label,resultCount){
+    if(navigator.onLine===false||!window.__tariffCloudReady)return;
+    type=String(type||'').trim();key=key==null?'':String(key).trim();if(!type)return;
+    var sig=type+'|'+key+'|'+String(label||'');var now=Date.now();if(recent[sig]&&now-recent[sig]<900)return;recent[sig]=now;
+    window.__tariffCloudReady.then(function(cloud){if(cloud&&typeof cloud.trackSiteEvent==='function')return cloud.trackSiteEvent(visitorId(),type,key,label,resultCount);}).catch(function(){});
+  };
   function send(){
-    if(window.__siteVisitTracked || navigator.onLine===false || !window.__tariffCloudReady) return;
-    window.__siteVisitTracked=true;
-    window.__tariffCloudReady.then(function(cloud){
-      if(cloud && typeof cloud.trackSiteVisit==='function') return cloud.trackSiteVisit(visitorId());
-    }).catch(function(){ window.__siteVisitTracked=false; });
+    if(window.__siteVisitTracked||navigator.onLine===false||!window.__tariffCloudReady)return;window.__siteVisitTracked=true;
+    window.__tariffCloudReady.then(function(cloud){if(cloud&&typeof cloud.trackSiteVisit==='function')return cloud.trackSiteVisit(visitorId());}).catch(function(){window.__siteVisitTracked=false;});
   }
   setTimeout(send,900);
 })();
@@ -6533,6 +6584,52 @@ function refreshSettlementChapterFilter(){
   window.addEventListener('offline', function(){
     resetTransientAuthUi();
   });
+})();
+</script>
+
+<script id="v22-full-analytics-hooks">
+(function(){
+  'use strict';
+  function track(t,k,l,c){try{if(typeof window.__trackAnalyticsEvent==='function')window.__trackAnalyticsEvent(t,k,l,c);}catch(e){}}
+  function debounce(fn,ms){var tm;return function(){var a=arguments,s=this;clearTimeout(tm);tm=setTimeout(function(){fn.apply(s,a);},ms);};}
+  function resultCountFromMain(){var e=document.getElementById('emptyState');if(e&&getComputedStyle(e).display!=='none')return 0;var x=document.getElementById('resultCount');if(!x)return null;var m=String(x.textContent||'').replace(/[٬,]/g,'').match(/([0-9]+)/);return m?Number(m[1]):null;}
+  function countSelector(sel){return document.querySelectorAll(sel).length;}
+
+  // الأقسام الرئيسية
+  setTimeout(function(){
+    if(window.V22UI&&!window.V22UI.__analyticsWrapped){
+      window.V22UI.__analyticsWrapped=true;
+      [['openItems','tariff','التعرفة الجمركية'],['openExplanations','explanations','شروحات التعرفة'],['openSettlements','settlements','دليل التسويات'],['openTools','tools','مركز الأدوات']].forEach(function(x){var o=window.V22UI[x[0]];if(typeof o==='function')window.V22UI[x[0]]=function(){track('section_view',x[1],x[2],null);return o.apply(this,arguments);};});
+    }
+    if(window.V20Tools&&!window.V20Tools.__analyticsWrapped){
+      window.V20Tools.__analyticsWrapped=true;
+      var labels={fines:'حاسبة غرامات التسويات',cars:'حاسبة المركبات',manual:'الحاسبة الجمركية اليدوية',stats:'الإحصائيات والفصول',history:'سجل المشاهدة',favorites:'إدارة المفضلة'};
+      var os=window.V20Tools.show;if(typeof os==='function')window.V20Tools.show=function(which){track('tool_view',which,labels[which]||which,null);return os.apply(this,arguments);};
+      var oc=window.V20Tools.openCompare;if(typeof oc==='function')window.V20Tools.openCompare=function(){track('tool_view','compare','مقارنة البنود',null);return oc.apply(this,arguments);};
+      var och=window.V20Tools.openChapter;if(typeof och==='function')window.V20Tools.openChapter=function(c){var title=(window.HS_CHAPTER_TITLES&&window.HS_CHAPTER_TITLES[c])||'';track('chapter_view',c,title,null);return och.apply(this,arguments);};
+    }
+  },0);
+
+  // البحث الرئيسي: يسجل بعد توقف الكتابة، وليس كل حرف
+  var q=document.getElementById('quickSearch');
+  if(q){q.addEventListener('input',debounce(function(){var v=String(q.value||'').trim();if(v.length<2)return;track('search_tariff',v,'بحث التعرفة',resultCountFromMain());},1000));}
+  var g=document.getElementById('v18GlobalSearchInput');
+  if(g){g.addEventListener('input',debounce(function(){var v=String(g.value||'').trim();if(v.length<2)return;track('search_global',v,'البحث الشامل',countSelector('#v18GlobalSearchResults .v18-search-item'));},1000));}
+  var se=document.getElementById('settlementSearchInput');
+  if(se){se.addEventListener('input',debounce(function(){var v=String(se.value||'').trim();if(v.length<2)return;track('search_settlement',v,'بحث دليل التسويات',countSelector('#settlementResultsList .expl-result-item'));},1000));}
+  var ex=document.getElementById('explanationSearchInput');
+  if(ex){ex.addEventListener('input',debounce(function(){var v=String(ex.value||'').trim();if(v.length<2)return;track('search_explanation',v,'بحث الشروحات',countSelector('#explanationResultsList .expl-result-item'));},1000));}
+
+  // فتح البنود والفصول. نغلف بعد اكتمال تحميل كل السكربتات.
+  setTimeout(function(){
+    var ot=window.__toggleRow;
+    if(typeof ot==='function'&&!ot.__fullAnalyticsWrapped){
+      var wrapped=function(id){
+        try{var st=window.state||{};var r=(st.records||[]).find(function(x){return String(x.id)===String(id);});if(r){track('open_item',r.code,r.desc,null);var ch=String(r.code||'').replace(/\D/g,'').slice(0,2);if(ch)track('chapter_view',ch,(window.HS_CHAPTER_TITLES&&window.HS_CHAPTER_TITLES[ch])||'',null);}}catch(e){}
+        return ot.apply(this,arguments);
+      };wrapped.__fullAnalyticsWrapped=true;window.__toggleRow=wrapped;
+    }
+  },120);
 })();
 </script>
 </body>
