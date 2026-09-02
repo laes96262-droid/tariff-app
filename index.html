@@ -471,6 +471,14 @@ body.search-suggest-open .table-wrap{ visibility:hidden; }
     .settlement-menu-btn .sm-selected{max-width:150px;}
   }
 
+
+  /* ===== V2.2 تحليلات الأدمن ===== */
+  .admin-usage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 4px;}
+  .admin-usage-card{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px;min-width:0;}
+  .admin-usage-card span{display:block;font-size:11px;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+  .admin-usage-card strong{display:block;font-size:21px;line-height:1.2;color:var(--accent-deep);font-variant-numeric:tabular-nums;}
+  .admin-usage-card small{display:block;margin-top:3px;font-size:9.5px;color:var(--ink-soft);}
+  @media (max-width:420px){.admin-usage-grid{grid-template-columns:1fr 1fr}.admin-usage-card{padding:9px 8px}.admin-usage-card strong{font-size:19px}}
 </style>
 
 <style id="v18ProfessionalStyles">
@@ -748,14 +756,22 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
   </div>
 
   <div class="sidebar-section" id="adminAnalyticsSection" style="display:none;">
-    <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this)"><h3>📈 أكثر البنود بحثاً (أدمن)</h3><span class="sidebar-caret">›</span></button>
+    <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this)"><h3>📊 استخدام الموقع والبحث (أدمن)</h3><span class="sidebar-caret">›</span></button>
     <div class="sidebar-section-body">
-      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 8px;line-height:1.6;">عداد تلقائي يُحسب كل مرة يفتح فيها أي مستخدم تفاصيل بند معيّن، ليساعدك بمعرفة أكثر البنود التي يبحث عنها المستخدمون.</p>
+      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.7;">هذه الإحصائيات لا تظهر إلا لحساب الأدمن. عدد المستخدمين هو عدد الأجهزة/المتصفحات الفريدة تقريبياً، ولا يتم جمع الاسم أو البريد أو الموقع الجغرافي للزائر.</p>
+      <div class="admin-usage-grid" id="adminUsageGrid">
+        <div class="admin-usage-card"><span>👥 المستخدمون</span><strong id="analyticsUsersTotal">—</strong><small>إجمالي فريد تقريبي</small></div>
+        <div class="admin-usage-card"><span>🟢 النشطون</span><strong id="analyticsUsersToday">—</strong><small>آخر 24 ساعة</small></div>
+        <div class="admin-usage-card"><span>📅 آخر 7 أيام</span><strong id="analyticsUsers7d">—</strong><small>مستخدمون فريدون</small></div>
+        <div class="admin-usage-card"><span>🔁 جلسات الاستخدام</span><strong id="analyticsVisitsTotal">—</strong><small>إجمالي الجلسات</small></div>
+      </div>
+      <div id="usageAnalyticsStatus" style="font-size:11.5px;color:var(--ink-soft);margin:8px 0 10px;line-height:1.6;"></div>
       <div class="tools-bar">
         <button class="tool-btn" onclick="window.__loadSearchAnalytics()">🔄 تحديث الإحصائيات</button>
-        <button class="tool-btn" style="color:var(--danger); border-color:var(--danger-soft)" onclick="window.__clearSearchAnalytics()">🗑️ تصفير العداد</button>
+        <button class="tool-btn" style="color:var(--danger); border-color:var(--danger-soft)" onclick="window.__clearSearchAnalytics()">🗑️ تصفير عداد البنود</button>
       </div>
-      <div id="searchAnalyticsList" style="margin-top:10px;max-height:320px;overflow-y:auto;"></div>
+      <div style="margin-top:12px;font-weight:800;font-size:13px;">🔎 البنود التي بحث عنها المستخدمون</div>
+      <div id="searchAnalyticsList" style="margin-top:10px;max-height:360px;overflow-y:auto;"></div>
     </div>
   </div>
 
@@ -1200,7 +1216,15 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   // "user"  = حساب عادي مسجّل دخول بدون صلاحيات إدارية
 
   // ===== نظام تنبيهات (Toast) بدل alert() الافتراضي للمتصفح =====
+  var __lastToastMessage = '';
+  var __lastToastAt = 0;
   function showToast(msg, kind){
+      msg = String(msg || '');
+      var now = Date.now();
+      // منع ظهور نفس التنبيه مرتين خلال ثوانٍ قليلة (مهم خصوصاً عند فشل اتصال السحابة)
+      if (msg === __lastToastMessage && (now - __lastToastAt) < 3500) return;
+      __lastToastMessage = msg;
+      __lastToastAt = now;
       var stack = document.getElementById('toastStack');
       if (!stack) { return; }
       var t = document.createElement('div');
@@ -2608,6 +2632,12 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   }
 
   window.__openLogin = function(){
+      // تسجيل الدخول وظيفة سحابية فقط. عند فتح النسخة المحلية بدون إنترنت لا نعرض نافذة فارغة/مربكة.
+      if (navigator.onLine === false) {
+          try { window.__closeAuthModal(); } catch(e){}
+          showToast('تسجيل الدخول يحتاج اتصالاً بالإنترنت. التصفح والبحث والحاسبات تعمل بدون تسجيل دخول.', 'info');
+          return;
+      }
       document.getElementById('authModalBody').innerHTML =
           '<div class="auth-title">🔑 تسجيل الدخول</div>' +
           '<p class="auth-hint">التصفح والبحث متاح للجميع بدون حساب. تسجيل الدخول مطلوب فقط للحسابات المسجّلة (أدمن أو مستخدم).</p>' +
@@ -4992,33 +5022,62 @@ function refreshSettlementChapterFilter(){
   }
 
   window.__loadSearchAnalytics = function(){
-      if (!state.isAdmin) { showToast("هذه الميزة متاحة لحساب الأدمن فقط.", "err"); return; }
+      if (!state.isAdmin || !state.currentUser) { showToast("هذه الميزة متاحة لحساب الأدمن المسجّل فقط.", "err"); return; }
       var box = document.getElementById('searchAnalyticsList');
-      box.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);">جارِ التحميل...</p>';
+      var status = document.getElementById('usageAnalyticsStatus');
+      var ids = ['analyticsUsersTotal','analyticsUsersToday','analyticsUsers7d','analyticsVisitsTotal'];
+      ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='…'; });
+      if (box) box.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);">جارِ تحميل بيانات البحث...</p>';
+      if (status) status.textContent = 'جارِ تحميل إحصائيات الاستخدام...';
+
       window.__tariffCloudReady.then(function(){
-          return window.TariffCloud.getSearchCounts(100);
-      }).then(function(rows){
-          if (!rows || !rows.length) {
-              box.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);">لا توجد بيانات بحث مسجّلة بعد.</p>';
+          return Promise.all([
+              window.TariffCloud.getAdminUsageStats().catch(function(err){ return { __error: err }; }),
+              window.TariffCloud.getSearchCounts(100).catch(function(err){ return { __error: err }; })
+          ]);
+      }).then(function(results){
+          var usage = results[0], rows = results[1];
+          if (usage && !usage.__error) {
+              var f=function(n){ return Number(n||0).toLocaleString('ar-SY'); };
+              document.getElementById('analyticsUsersTotal').textContent=f(usage.totalUnique);
+              document.getElementById('analyticsUsersToday').textContent=f(usage.active24h);
+              document.getElementById('analyticsUsers7d').textContent=f(usage.active7d);
+              document.getElementById('analyticsVisitsTotal').textContent=f(usage.totalVisits);
+              if (status) status.textContent = usage.lastVisitAt ? 'آخر استخدام مسجّل: ' + new Date(usage.lastVisitAt).toLocaleString('ar-SY') : 'لا توجد زيارات مسجّلة بعد.';
+          } else {
+              ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='—'; });
+              if (status) status.innerHTML = '<span style="color:var(--danger);">تعذّر تحميل عدد المستخدمين. فعّل ملف إعداد إحصائيات الأدمن في Supabase مرة واحدة.</span>';
+          }
+
+          if (rows && rows.__error) {
+              if (box) box.innerHTML = '<p style="font-size:12px;color:var(--danger);">تعذّر تحميل البنود التي تم البحث عنها.</p>';
               return;
           }
-          // نستفيد من نفس البيانات (متاحة أصلاً للأدمن) لتحديث خريطة الاستخدام المُستخدمة بترتيب نتائج البحث
+          rows = rows || [];
+          if (!rows.length) {
+              if (box) box.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);">لا توجد بيانات بحث مسجّلة بعد.</p>';
+              return;
+          }
           var usageMap = {};
           rows.forEach(function(row){ if (row.code) usageMap[row.code] = row.count || 0; });
           state.searchCountsMap = usageMap;
           state.popularCodes = rows.slice(0, 8).map(function(row){ return row.code; }).filter(Boolean);
           var maxCount = rows[0].count || 1;
-          box.innerHTML = rows.map(function(row, i){
-              var pct = Math.max(6, Math.round((row.count / maxCount) * 100));
-              return '<div style="margin-bottom:9px;">' +
-                  '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px;">' +
-                  '<span>' + (i+1) + '. ' + escapeHtml(row.code) + (row.desc ? ' — ' + escapeHtml(row.desc) : '') + '</span>' +
-                  '<span style="color:var(--accent-deep);">' + row.count.toLocaleString('ar-SY') + '</span></div>' +
+          if (box) box.innerHTML = rows.map(function(row, i){
+              var pct = Math.max(6, Math.round(((row.count||0) / maxCount) * 100));
+              var when = row.lastSearchedAt ? new Date(row.lastSearchedAt).toLocaleString('ar-SY') : '';
+              return '<div style="margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--line);">' +
+                  '<div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;margin-bottom:3px;">' +
+                  '<span style="min-width:0;overflow-wrap:anywhere;">' + (i+1) + '. ' + escapeHtml(row.code) + (row.desc ? ' — ' + escapeHtml(row.desc) : '') + '</span>' +
+                  '<span style="color:var(--accent-deep);white-space:nowrap;">' + Number(row.count||0).toLocaleString('ar-SY') + ' مرة</span></div>' +
+                  (when ? '<div style="font-size:9.5px;color:var(--ink-soft);margin-bottom:4px;">آخر بحث: ' + escapeHtml(when) + '</div>' : '') +
                   '<div style="height:6px;border-radius:4px;background:var(--accent-soft);overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:var(--accent-deep);"></div></div>' +
                   '</div>';
           }).join("");
       }).catch(function(err){
-          box.innerHTML = '<p style="font-size:12px;color:var(--danger);">تعذّر تحميل الإحصائيات: ' + escapeHtml(err.message || String(err)) + '</p>';
+          ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='—'; });
+          if (status) status.textContent = 'تعذّر الاتصال بالإحصائيات السحابية.';
+          if (box) box.innerHTML = '<p style="font-size:12px;color:var(--danger);">تعذّر تحميل الإحصائيات: ' + escapeHtml(err.message || String(err)) + '</p>';
       });
   };
 
@@ -5860,6 +5919,29 @@ function refreshSettlementChapterFilter(){
             if (res.error) throw res.error;
         }
 
+        // ===== إحصائيات استخدام الموقع - بدون بيانات شخصية =====
+        // كل متصفح يحصل على معرف عشوائي محلي. الخادم يخزن فقط المعرف العشوائي وأوقات الزيارة والعداد.
+        // القراءة محمية داخل RPC ولا تُسمح إلا للأدمن.
+        async function trackSiteVisit(visitorId){
+            visitorId = String(visitorId || "").trim();
+            if (!visitorId) return;
+            var res = await supabase.rpc("track_site_visit", { p_visitor_id: visitorId.slice(0, 100) });
+            if (res.error) throw res.error;
+        }
+
+        async function getAdminUsageStats(){
+            var res = await supabase.rpc("get_admin_usage_stats");
+            if (res.error) throw res.error;
+            var row = Array.isArray(res.data) ? (res.data[0] || {}) : (res.data || {});
+            return {
+                totalUnique: Number(row.total_unique || 0),
+                active24h: Number(row.active_24h || 0),
+                active7d: Number(row.active_7d || 0),
+                totalVisits: Number(row.total_visits || 0),
+                lastVisitAt: row.last_visit_at || null
+            };
+        }
+
         // ===== مزامنة "التعلّم من تصحيحات الموظف" بين كل الموظفين على كل الأجهزة =====
         // بدل ما يبقى تعلّم كل موظف محصوراً بمتصفحه هو، أي تصحيح (وصف حر → الكود الذي اختاره الموظف)
         // يُرفع لجدول مشترك بقاعدة البيانات، فيستفيد منه أي موظف تاني بأي معبر فوراً عبر الاشتراك اللحظي.
@@ -6035,6 +6117,8 @@ function refreshSettlementChapterFilter(){
             incrementSearchCount: incrementSearchCount,
             getSearchCounts: getSearchCounts,
             clearSearchCounts: clearSearchCounts,
+            trackSiteVisit: trackSiteVisit,
+            getAdminUsageStats: getAdminUsageStats,
             pushClassifyCorrection: pushClassifyCorrectionCloud,
             onClassifyCorrectionsChange: onClassifyCorrectionsChange
         };
@@ -6047,6 +6131,35 @@ function refreshSettlementChapterFilter(){
     }
 </script>
 
+<script>
+// ===== عداد استخدام مجهول: لا يخزن اسماً أو بريداً أو موقعاً =====
+(function(){
+  'use strict';
+  var KEY='tariff_visitor_id_v1';
+  function makeId(){
+    try { if (window.crypto && typeof window.crypto.randomUUID==='function') return window.crypto.randomUUID(); } catch(e){}
+    return 'v-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  }
+  function visitorId(){
+    try {
+      var id=localStorage.getItem(KEY);
+      if(!id){ id=makeId(); localStorage.setItem(KEY,id); }
+      return id;
+    } catch(e){
+      if(!window.__tariffEphemeralVisitorId) window.__tariffEphemeralVisitorId=makeId();
+      return window.__tariffEphemeralVisitorId;
+    }
+  }
+  function send(){
+    if(window.__siteVisitTracked || navigator.onLine===false || !window.__tariffCloudReady) return;
+    window.__siteVisitTracked=true;
+    window.__tariffCloudReady.then(function(cloud){
+      if(cloud && typeof cloud.trackSiteVisit==='function') return cloud.trackSiteVisit(visitorId());
+    }).catch(function(){ window.__siteVisitTracked=false; });
+  }
+  setTimeout(send,900);
+})();
+</script>
 
 <!-- ===== V2.2 مركز الأدوات الموحّد ===== -->
 <div class="detail-popup-overlay" id="v20ToolOverlay" onclick="if(event.target===this) window.V20Tools.close()"></div>
@@ -6405,5 +6518,22 @@ function refreshSettlementChapterFilter(){
 })();
 </script>
 
+
+<script>
+(function(){
+  function resetTransientAuthUi(){
+    var ov=document.getElementById('authModalOverlay');
+    var md=document.getElementById('authModal');
+    if(ov) ov.classList.remove('active');
+    if(md) md.classList.remove('active');
+  }
+  // عند فتح الملف أو استعادته من ذاكرة المتصفح لا نعيد نافذة تسجيل دخول سابقة.
+  window.addEventListener('pageshow', resetTransientAuthUi);
+  // إذا انقطع الإنترنت بينما نافذة الدخول مفتوحة، نغلقها بهدوء لأن بقية التطبيق محلي وتبقى وظائفه متاحة.
+  window.addEventListener('offline', function(){
+    resetTransientAuthUi();
+  });
+})();
+</script>
 </body>
 </html>
