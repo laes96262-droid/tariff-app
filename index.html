@@ -684,6 +684,13 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
 }
 </style>
 
+
+<style id="v23-performance-admin-style">
+  .admin-account-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+  .admin-account-row:last-child{border-bottom:0}.admin-account-main{min-width:0}.admin-account-name{font-weight:800;color:var(--ink);font-size:13px}.admin-account-email{font-size:11.5px;color:var(--ink-soft);direction:ltr;text-align:right;overflow-wrap:anywhere}.admin-account-meta{font-size:10.5px;color:var(--muted);margin-top:4px}.admin-account-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.admin-account-role{min-height:38px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--ink);padding:0 8px;font-family:inherit}.analytics-delete-btn{border:1px solid var(--danger-soft);background:transparent;color:var(--danger);border-radius:9px;padding:5px 8px;font:700 10.5px inherit;cursor:pointer;white-space:nowrap}.analytics-delete-btn:active{transform:scale(.97)}
+  .v23-cache-note{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-soft);margin-top:6px}
+  @media(max-width:520px){.admin-account-row{grid-template-columns:1fr}.admin-account-actions{justify-content:flex-start}.admin-account-role{flex:1;min-width:140px}}
+</style>
 </head>
 <body>
 
@@ -693,7 +700,7 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
       <div class="brand-mark"><img src="data:image/jpeg;base64,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" alt="شعار الجمهورية العربية السورية"></div>
       <div class="brand-text">
         <h1>التعرفة الجمركية السورية</h1>
-        <p>🟢 الهيئة العامة للمنافذ والجمارك <span class="v22-unofficial">نسخة غير رسمية</span> <span class="v22-version-chip">V2.2</span></p>
+        <p>🟢 الهيئة العامة للمنافذ والجمارك <span class="v22-unofficial">نسخة غير رسمية</span> <span class="v22-version-chip">V2.3</span></p>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -754,6 +761,19 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
     </div>
   </div>
 
+  <div class="sidebar-section" id="adminAccountsSection" style="display:none;">
+    <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this); window.__loadAdminAccountsOnce && window.__loadAdminAccountsOnce();"><h3>👥 إدارة الحسابات (أدمن)</h3><span class="sidebar-caret">›</span></button>
+    <div class="sidebar-section-body">
+      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.65;">إنشاء الحسابات وتحديد صلاحية <b>مستخدم</b> أو <b>أدمن</b>. هذه الأدوات لا تظهر ولا تعمل إلا لحساب أدمن مسجّل الدخول.</p>
+      <div class="tools-bar">
+        <button class="tool-btn" onclick="window.__openCreateAccount()">➕ إنشاء حساب</button>
+        <button class="tool-btn" onclick="window.__loadAdminAccounts(true)">🔄 تحديث الحسابات</button>
+      </div>
+      <div id="adminAccountsStatus" class="admin-analytics-status"></div>
+      <div id="adminAccountsList" class="admin-analytics-list"><div class="admin-analytics-empty">افتح هذا القسم لتحميل الحسابات.</div></div>
+    </div>
+  </div>
+
   <div class="sidebar-section" id="adminBanSection" style="display:none;">
     <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this)"><h3>🚫 إدارة المواد الممنوعة (أدمن)</h3><span class="sidebar-caret">›</span></button>
     <div class="sidebar-section-body">
@@ -783,6 +803,7 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
       <p class="admin-analytics-privacy">🔒 هذه اللوحة لا تظهر إلا بعد تسجيل الدخول بحساب <b>أدمن</b>. لا يتم جمع اسم الزائر أو بريده أو موقعه الجغرافي؛ فقط معرف عشوائي للمتصفح وأحداث استخدام عامة.</p>
       <div class="admin-usage-grid admin-usage-grid-3" id="adminUsageGrid">
         <div class="admin-usage-card"><span>👥 المستخدمون</span><strong id="analyticsUsersTotal">—</strong><small>فريد تقريبي</small></div>
+        <div class="admin-usage-card"><span>🟢 النشطون الآن</span><strong id="analyticsUsersNow">—</strong><small>آخر 5 دقائق</small></div>
         <div class="admin-usage-card"><span>🟢 النشطون</span><strong id="analyticsUsersToday">—</strong><small>آخر 24 ساعة</small></div>
         <div class="admin-usage-card"><span>📅 آخر 7 أيام</span><strong id="analyticsUsers7d">—</strong><small>فريدون</small></div>
         <div class="admin-usage-card"><span>🔁 الجلسات</span><strong id="analyticsVisitsTotal">—</strong><small>إجمالي</small></div>
@@ -795,6 +816,7 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
       <div id="usageAnalyticsStatus" class="admin-analytics-status"></div>
       <div class="tools-bar admin-analytics-actions">
         <button class="tool-btn" onclick="window.__loadSearchAnalytics()">🔄 تحديث اللوحة</button>
+        <button class="tool-btn" style="color:var(--danger);border-color:var(--danger-soft);" onclick="window.__clearAnalyticsSearchTerms()">🗑️ حذف كل سجل البحث</button>
       </div>
 
       <details class="admin-analytics-panel" open><summary>🔥 أكثر البنود فتحاً</summary><div id="analyticsTopItems" class="admin-analytics-list"></div></details>
@@ -1079,7 +1101,7 @@ body.search-suggest-open .table-wrap{visibility:visible!important}
   </div>
 </div>
 
-<footer class="v22-site-footer" id="siteFooter" aria-label="حقوق النشر">الحقوق محفوظة:ليث ابوعلي🤍</footer>
+<footer class="v22-site-footer" id="siteFooter" aria-label="حقوق النشر">الحقوق محفوظة:ليث ابوعلي🤍<span class="v23-cache-note" id="v23CacheStatus">⚡ تخزين محلي سريع مفعّل</span></footer>
 
 <div class="detail-popup-overlay" id="detailPopupOverlay" onclick="if(event.target===this) window.__closeDetailPopup()"></div>
 <div class="detail-popup" id="detailPopup">
@@ -2645,6 +2667,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       var loggedIn = !!state.currentUser;
       document.getElementById('adminLoggedOutBox').style.display = loggedIn ? 'none' : 'block';
       document.getElementById('adminLoggedInBox').style.display = loggedIn ? 'block' : 'none';
+      document.getElementById('adminAccountsSection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('adminBanSection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('adminItemsSection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('adminExplanationsBox').style.display = state.isAdmin ? 'block' : 'none';
@@ -2654,7 +2677,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       document.getElementById('filtersSection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('quickStatsSection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('createAccountBtn').style.display = state.isAdmin ? 'inline-flex' : 'none';
-      if (state.isAdmin && loggedIn) window.__loadSearchAnalytics();
+      if (state.isAdmin && loggedIn) setTimeout(function(){ if(state.isAdmin) window.__loadSearchAnalytics(); }, 700);
       var txt = document.getElementById('loggedInAsText');
       if (loggedIn) {
           var roleLabel = state.isAdmin ? 'أدمن' : 'مستخدم';
@@ -2697,6 +2720,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       var email = (document.getElementById('loginEmailInput').value || "").trim();
       var pass = document.getElementById('loginPasswordInput').value || "";
       if (!email) { showToast("الرجاء إدخال البريد الإلكتروني.", "err"); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email)) { showToast("صيغة البريد الإلكتروني غير صحيحة.", "err"); return; }
       var btn = document.querySelector('#authModalBody .btn-primary');
       if (btn) { btn.disabled = true; btn.innerText = '⏳ جاري التحقق...'; }
 
@@ -2766,7 +2790,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           '<div class="auth-title">➕ إنشاء حساب جديد</div>' +
           '<p class="auth-hint">الحساب الجديد بينحفظ فوراً بقاعدة البيانات السحابية، وبيقدر يستخدمه صاحبه للدخول من أي جهاز.</p>' +
           '<input type="text" id="newAccUsername" class="modal-input" placeholder="اسم المستخدم" autocomplete="off">' +
-          '<input type="email" id="newAccEmail" class="modal-input" placeholder="البريد الإلكتروني" autocomplete="off">' +
+          '<input type="email" id="newAccEmail" class="modal-input" placeholder="البريد الإلكتروني" autocomplete="off" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" dir="ltr" style="text-align:left;">' +
           '<input type="password" id="newAccPassword" class="modal-input" placeholder="كلمة السر (6 أحرف على الأقل)" autocomplete="new-password">' +
           '<select id="newAccRole" class="modal-input">' +
               '<option value="user">مستخدم عادي (صلاحيات محدودة)</option>' +
@@ -2780,7 +2804,8 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   window.__submitCreateAccount = function(){
       if (!state.isAdmin) return;
       var username = (document.getElementById('newAccUsername').value || "").trim();
-      var email = (document.getElementById('newAccEmail').value || "").trim();
+      var email = (document.getElementById('newAccEmail').value || "").normalize('NFKC').replace(/[\u200B-\u200D\uFEFF\u00A0]/g,'').replace(/\s+/g,'').toLowerCase();
+      document.getElementById('newAccEmail').value = email;
       var pass = document.getElementById('newAccPassword').value || "";
       var role = document.getElementById('newAccRole').value || "user";
       if (!username) { showToast("الرجاء إدخال اسم المستخدم.", "err"); return; }
@@ -2797,6 +2822,31 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           showToast((err && err.message) || "تعذّر إنشاء الحساب.", "err");
           if (btn) { btn.disabled = false; btn.innerText = 'إنشاء الحساب'; }
       });
+  };
+
+  var __adminAccountsLoaded=false;
+  window.__loadAdminAccountsOnce=function(){ if(!__adminAccountsLoaded) window.__loadAdminAccounts(false); };
+  window.__loadAdminAccounts=function(force){
+      if(!state.isAdmin||!state.currentUser)return;
+      if(__adminAccountsLoaded&&!force)return;
+      var list=document.getElementById('adminAccountsList'),status=document.getElementById('adminAccountsStatus');
+      if(list)list.innerHTML='<div class="admin-analytics-empty">جارِ تحميل الحسابات...</div>';
+      if(status)status.textContent='يتم جلب الحسابات للأدمن فقط...';
+      window.__tariffCloudReady.then(function(cloud){if(!cloud||typeof cloud.listAdminAccounts!=='function')throw new Error('شغّل تحديث SQL الخاص بالحسابات أولاً.');return cloud.listAdminAccounts();}).then(function(rows){
+          rows=Array.isArray(rows)?rows:[];__adminAccountsLoaded=true;
+          if(status)status.textContent='عدد الحسابات: '+rows.length.toLocaleString('ar-SY');
+          if(!list)return;if(!rows.length){list.innerHTML='<div class="admin-analytics-empty">لا توجد حسابات.</div>';return;}
+          list.innerHTML=rows.map(function(r){
+              var id=String(r.id||''),name=escapeHtml(r.username||'بدون اسم'),email=escapeHtml(r.email||''),role=r.role==='admin'?'admin':'user';
+              var created=r.created_at?new Date(r.created_at).toLocaleString('ar-SY'):'—';var last=r.last_sign_in_at?new Date(r.last_sign_in_at).toLocaleString('ar-SY'):'لم يسجل دخولاً بعد';
+              return '<div class="admin-account-row"><div class="admin-account-main"><div class="admin-account-name">'+name+'</div><div class="admin-account-email">'+email+'</div><div class="admin-account-meta">أنشئ: '+escapeHtml(created)+' · آخر دخول: '+escapeHtml(last)+'</div></div><div class="admin-account-actions"><select class="admin-account-role" id="role_'+id+'"><option value="user" '+(role==='user'?'selected':'')+'>مستخدم</option><option value="admin" '+(role==='admin'?'selected':'')+'>أدمن</option></select><button class="tool-btn" onclick="window.__saveAdminAccountRole(\''+id+'\')">حفظ الصلاحية</button></div></div>';
+          }).join('');
+      }).catch(function(err){if(status)status.innerHTML='<span style="color:var(--danger)">'+escapeHtml(err.message||String(err))+'</span>';if(list)list.innerHTML='<div class="admin-analytics-empty">تعذر تحميل الحسابات.</div>';});
+  };
+  window.__saveAdminAccountRole=function(userId){
+      if(!state.isAdmin)return;var sel=document.getElementById('role_'+userId);if(!sel)return;var role=sel.value==='admin'?'admin':'user';
+      if(!confirm('تغيير صلاحية هذا الحساب إلى '+(role==='admin'?'أدمن':'مستخدم')+'؟'))return;
+      window.__tariffCloudReady.then(function(c){return c.setAdminAccountRole(userId,role);}).then(function(){showToast('تم تحديث الصلاحية.','ok');window.__loadAdminAccounts(true);}).catch(function(err){showToast(err.message||'تعذر تغيير الصلاحية.','err');});
   };
 
   window.__toggleBan = function(id){
@@ -3513,20 +3563,9 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   var SETTLEMENTS_CACHE_KEY = 'tariff_settlement_guide_cache_v3_fulltext';
   var SETTLEMENT_VIEW_COUNTS_KEY = 'tariff_settlement_guide_views_v1';
 
-  function loadSettlementsFromCache(){
-      try {
-          var raw = localStorage.getItem(SETTLEMENTS_CACHE_KEY);
-          if (!raw) return null;
-          var arr = JSON.parse(raw);
-          return Array.isArray(arr) && arr.length ? arr : null;
-      } catch(e) {
-          console.warn("تعذّر قراءة نسخة دليل التسويات المحفوظة محلياً:", e);
-          return null;
-      }
-  }
+  function loadSettlementsFromCache(){ return null; }
   function saveSettlementsToCache(items){
-      try { localStorage.setItem(SETTLEMENTS_CACHE_KEY, JSON.stringify(items || [])); }
-      catch(e) { console.warn("تعذّر حفظ نسخة دليل التسويات محلياً:", e); }
+      if (window.TariffIDB) TariffIDB.set('settlements', items || [], 'cloud').then(function(){try{localStorage.removeItem(SETTLEMENTS_CACHE_KEY);}catch(e){}}).catch(function(e){console.warn('تعذر حفظ التسويات في IndexedDB:',e);});
   }
   function getSettlementViewCounts(){
       try { return JSON.parse(localStorage.getItem(SETTLEMENT_VIEW_COUNTS_KEY)) || {}; } catch(e){ return {}; }
@@ -4078,53 +4117,41 @@ function refreshSettlementChapterFilter(){
     };
   }
 
-  // ===== تخزين محلي لبنود التعريفة (كاش) =====
-  // أول مرة تفتح الصفحة، البيانات تُحمَّل من قاعدة البيانات السحابية.
-  // بعدها تُحفظ نسخة بالمتصفح (localStorage) لتظهر فوراً بالمرات القادمة حتى قبل اكتمال الاتصال،
-  // مع تحديثها تلقائياً بالخلفية من السحابة عند كل زيارة.
+  // ===== V2.3 تخزين سريع ودائم عبر IndexedDB =====
+  // البيانات الكبيرة لا تُقرأ من localStorage عند بدء الصفحة؛ هذا يمنع تجميد الهاتف بسبب JSON.parse الكبير.
   var ITEMS_CACHE_KEY = 'tariff_items_cache_v1';
-
-  function loadItemsFromCache(){
-      try {
-          var raw = localStorage.getItem(ITEMS_CACHE_KEY);
-          if (!raw) return null;
-          var arr = JSON.parse(raw);
-          return Array.isArray(arr) && arr.length ? arr : null;
-      } catch(e) {
-          console.warn("تعذّر قراءة نسخة البنود المحفوظة محلياً:", e);
-          return null;
-      }
-  }
-
-  function saveItemsToCache(items){
-      try {
-          localStorage.setItem(ITEMS_CACHE_KEY, JSON.stringify(items || []));
-      } catch(e) {
-          console.warn("تعذّر حفظ نسخة البنود محلياً (قد يكون حجم البيانات كبيراً جداً على المتصفح):", e);
-      }
-  }
-
-  // ===== تخزين محلي لشروحات التعرفة (نفس أسلوب كاش البنود تماماً) =====
   var EXPLANATIONS_CACHE_KEY = 'tariff_explanations_cache_v1';
+  var TARIFF_IDB_NAME = 'syrian_tariff_cache_v23';
+  var TARIFF_IDB_STORE = 'cache';
 
-  function loadExplanationsFromCache(){
-      try {
-          var raw = localStorage.getItem(EXPLANATIONS_CACHE_KEY);
-          if (!raw) return null;
-          var arr = JSON.parse(raw);
-          return Array.isArray(arr) && arr.length ? arr : null;
-      } catch(e) {
-          console.warn("تعذّر قراءة نسخة الشروحات المحفوظة محلياً:", e);
-          return null;
+  var TariffIDB = (function(){
+      var dbp = null;
+      function open(){
+          if (!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB غير مدعوم'));
+          if (dbp) return dbp;
+          dbp = new Promise(function(resolve,reject){
+              var req = indexedDB.open(TARIFF_IDB_NAME,1);
+              req.onupgradeneeded=function(){var db=req.result;if(!db.objectStoreNames.contains(TARIFF_IDB_STORE))db.createObjectStore(TARIFF_IDB_STORE,{keyPath:'key'});};
+              req.onsuccess=function(){resolve(req.result);};
+              req.onerror=function(){reject(req.error||new Error('تعذر فتح التخزين المحلي'));};
+          });
+          return dbp;
       }
+      function get(key){return open().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction(TARIFF_IDB_STORE,'readonly'),r=tx.objectStore(TARIFF_IDB_STORE).get(key);r.onsuccess=function(){resolve(r.result||null);};r.onerror=function(){reject(r.error);};});});}
+      function set(key,value,source){return open().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction(TARIFF_IDB_STORE,'readwrite');tx.objectStore(TARIFF_IDB_STORE).put({key:key,value:value,savedAt:Date.now(),source:source||'local'});tx.oncomplete=function(){resolve(true);};tx.onerror=function(){reject(tx.error);};});});}
+      return {get:get,set:set,open:open};
+  })();
+  window.TariffIDB = TariffIDB;
+
+  // لم نعد نقرأ JSON ضخماً بشكل متزامن عند بدء الصفحة. البيانات المدمجة تظهر فوراً ثم IndexedDB يتزامن بالخلفية.
+  function loadItemsFromCache(){ return null; }
+  function saveItemsToCache(items){
+      if (!items || !items.length) return;
+      TariffIDB.set('items', items, 'cloud').then(function(){try{localStorage.removeItem(ITEMS_CACHE_KEY);}catch(e){}}).catch(function(e){console.warn('تعذر حفظ البنود في IndexedDB:',e);});
   }
-
+  function loadExplanationsFromCache(){ return null; }
   function saveExplanationsToCache(items){
-      try {
-          localStorage.setItem(EXPLANATIONS_CACHE_KEY, JSON.stringify(items || []));
-      } catch(e) {
-          console.warn("تعذّر حفظ نسخة الشروحات محلياً (قد يكون حجم البيانات كبيراً جداً على المتصفح):", e);
-      }
+      TariffIDB.set('explanations', items || [], 'cloud').then(function(){try{localStorage.removeItem(EXPLANATIONS_CACHE_KEY);}catch(e){}}).catch(function(e){console.warn('تعذر حفظ الشروحات في IndexedDB:',e);});
   }
 
   // دالة تنظيف النصوص العربية
@@ -4349,14 +4376,18 @@ function refreshSettlementChapterFilter(){
   function buildVocabulary(){
       var set = {};
       state.records.forEach(function(r){
+          ensureRecordSearchFields(r);
           (r.searchWordsArr || []).forEach(function(w){ if (w && w.length >= 2) set[w] = true; });
       });
       state.vocabWords = Object.keys(set);
   }
+  function ensureVocabulary(){ if (!state.vocabWords || !state.vocabWords.length) buildVocabulary(); }
 
   // لكلمة بحث معيّنة لم تُطابق حرفياً، نبحث عن أقرب كلمات فعلية بالبيانات (خطأ إملائي بحرف أو حرفين)
   function findFuzzyVariants(term){
-      if (!term || term.length < 3 || !state.vocabWords) return [];
+      if (!term || term.length < 3) return [];
+      ensureVocabulary();
+      if (!state.vocabWords) return [];
       var maxDist = term.length <= 5 ? 1 : 2;
       var matches = [];
       for (var i = 0; i < state.vocabWords.length; i++){
@@ -5056,7 +5087,7 @@ function refreshSettlementChapterFilter(){
   window.__loadSearchAnalytics = function(){
       if (!state.isAdmin || !state.currentUser) { showToast("هذه اللوحة متاحة فقط للأدمن بعد تسجيل الدخول.", "err"); return; }
       var status=document.getElementById('usageAnalyticsStatus');
-      var metricIds=['analyticsUsersTotal','analyticsUsersToday','analyticsUsers7d','analyticsVisitsTotal','analyticsAvgVisits','analyticsSearchesTotal','analyticsFailedSearches','analyticsItemOpens','analyticsPeakHour'];
+      var metricIds=['analyticsUsersTotal','analyticsUsersNow','analyticsUsersToday','analyticsUsers7d','analyticsVisitsTotal','analyticsAvgVisits','analyticsSearchesTotal','analyticsFailedSearches','analyticsItemOpens','analyticsPeakHour'];
       metricIds.forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='…';});
       ['analyticsTopItems','analyticsTopSearches','analyticsFailedSearchTerms','analyticsTopSections','analyticsTopTools','analyticsTopChapters','analyticsRecentActivity'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<div class="admin-analytics-empty">جارِ التحميل...</div>';});
       if(status)status.textContent='جارِ تحميل لوحة الاستخدام الآمنة...';
@@ -5071,7 +5102,8 @@ function refreshSettlementChapterFilter(){
               var title=opts.title?opts.title(r):String(r.label||r.key||'');
               var meta=opts.meta?opts.meta(r):'';
               var count=Number(r.count||0),pct=Math.max(4,Math.round(count/max*100));
-              return '<div class="admin-analytics-row"><div class="admin-analytics-row-head"><span>'+(i+1)+'. '+h(title)+'</span><span class="admin-analytics-count">'+n(count)+'</span></div>'+(meta?'<div class="admin-analytics-meta">'+h(meta)+'</div>':'')+'<div class="admin-analytics-bar"><i style="width:'+pct+'%"></i></div></div>';
+              var action=''; if(opts.deletable&&r.key){action='<button class="analytics-delete-btn" data-term="'+h(encodeURIComponent(String(r.key)))+'" onclick="window.__deleteAnalyticsSearchTerm(decodeURIComponent(this.dataset.term))">🗑️ حذف</button>';}
+              return '<div class="admin-analytics-row"><div class="admin-analytics-row-head"><span>'+(i+1)+'. '+h(title)+'</span><span style="display:flex;align-items:center;gap:6px"><span class="admin-analytics-count">'+n(count)+'</span>'+action+'</span></div>'+(meta?'<div class="admin-analytics-meta">'+h(meta)+'</div>':'')+'<div class="admin-analytics-bar"><i style="width:'+pct+'%"></i></div></div>';
           }).join('');
       }
       function activityRows(rows){
@@ -5083,10 +5115,12 @@ function refreshSettlementChapterFilter(){
 
       window.__tariffCloudReady.then(function(cloud){
           if(!cloud||typeof cloud.getAdminAnalyticsDashboard!=='function')throw new Error('حدّث إعدادات Supabase بلوحة الإحصائيات الكاملة.');
-          return cloud.getAdminAnalyticsDashboard();
-      }).then(function(d){
+          return Promise.all([cloud.getAdminAnalyticsDashboard(), (typeof cloud.getAdminActiveNow==='function'?cloud.getAdminActiveNow():Promise.resolve(0))]);
+      }).then(function(pack){
+          var d=pack[0]||{}, activeNow=Number(pack[1]||0);
           var sum=d.summary||{};
           document.getElementById('analyticsUsersTotal').textContent=n(sum.total_unique);
+          document.getElementById('analyticsUsersNow').textContent=n(activeNow);
           document.getElementById('analyticsUsersToday').textContent=n(sum.active_24h);
           document.getElementById('analyticsUsers7d').textContent=n(sum.active_7d);
           document.getElementById('analyticsVisitsTotal').textContent=n(sum.total_visits);
@@ -5097,8 +5131,8 @@ function refreshSettlementChapterFilter(){
           document.getElementById('analyticsPeakHour').textContent=(sum.peak_hour===null||sum.peak_hour===undefined)?'—':String(sum.peak_hour).padStart(2,'0')+':00';
           if(status){var last=sum.last_activity_at?new Date(sum.last_activity_at).toLocaleString('ar-SY'):'لا يوجد بعد';status.textContent='آخر نشاط مسجّل: '+last+' · البيانات مرئية للأدمن فقط.';}
           listRows('analyticsTopItems',d.top_items,{title:function(r){return (r.key||'')+(r.label?' — '+r.label:'');},meta:function(r){return 'آخر فتح: '+(r.last_at?new Date(r.last_at).toLocaleString('ar-SY'):'—');}});
-          listRows('analyticsTopSearches',d.top_search_terms,{title:function(r){return r.key||'—';},meta:function(r){return r.result_count_avg!=null?'متوسط النتائج: '+Number(r.result_count_avg).toFixed(1):'';}});
-          listRows('analyticsFailedSearchTerms',d.failed_search_terms,{title:function(r){return r.key||'—';},meta:function(){return 'لم تُرجع نتيجة عند البحث';}});
+          listRows('analyticsTopSearches',d.top_search_terms,{deletable:true,title:function(r){return r.key||'—';},meta:function(r){return r.result_count_avg!=null?'متوسط النتائج: '+Number(r.result_count_avg).toFixed(1):'';}});
+          listRows('analyticsFailedSearchTerms',d.failed_search_terms,{deletable:true,title:function(r){return r.key||'—';},meta:function(){return 'لم تُرجع نتيجة عند البحث';}});
           listRows('analyticsTopSections',d.top_sections,{title:function(r){return r.label||r.key||'—';}});
           listRows('analyticsTopTools',d.top_tools,{title:function(r){return r.label||r.key||'—';}});
           listRows('analyticsTopChapters',d.top_chapters,{title:function(r){return (r.key?'الفصل '+r.key:'')+(r.label?' — '+r.label:'');}});
@@ -5108,6 +5142,15 @@ function refreshSettlementChapterFilter(){
           if(status)status.innerHTML='<span style="color:var(--danger);">تعذّر تحميل اللوحة: '+escapeHtml(err.message||String(err))+'</span>';
           ['analyticsTopItems','analyticsTopSearches','analyticsFailedSearchTerms','analyticsTopSections','analyticsTopTools','analyticsTopChapters','analyticsRecentActivity'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<div class="admin-analytics-empty">شغّل ملف SQL الجديد في Supabase مرة واحدة ثم أعد المحاولة.</div>';});
       });
+  };
+
+  window.__deleteAnalyticsSearchTerm=function(term){
+      if(!state.isAdmin||!term)return;if(!confirm('حذف كل سجلات البحث عن: '+term+' ؟'))return;
+      window.__tariffCloudReady.then(function(c){if(!c||typeof c.deleteAdminSearchTerm!=='function')throw new Error('شغّل تحديث SQL الجديد أولاً.');return c.deleteAdminSearchTerm(term);}).then(function(){showToast('تم حذف سجل البحث المطلوب.','ok');window.__loadSearchAnalytics();}).catch(function(err){showToast(err.message||'تعذر الحذف.','err');});
+  };
+  window.__clearAnalyticsSearchTerms=function(){
+      if(!state.isAdmin)return;if(!confirm('حذف جميع كلمات وسجلات البحث من لوحة الإحصائيات؟ لا يمكن التراجع.'))return;
+      window.__tariffCloudReady.then(function(c){if(!c||typeof c.clearAdminSearchHistory!=='function')throw new Error('شغّل تحديث SQL الجديد أولاً.');return c.clearAdminSearchHistory();}).then(function(){state.searchCountsMap={};state.popularCodes=[];showToast('تم حذف سجل البحث بالكامل.','ok');window.__loadSearchAnalytics();}).catch(function(err){showToast(err.message||'تعذر حذف سجل البحث.','err');});
   };
 
   window.__clearSearchAnalytics = function(){
@@ -5140,18 +5183,18 @@ function refreshSettlementChapterFilter(){
       if (r.labNote === undefined) r.labNote = "";
       if (r.labAuto === undefined) r.labAuto = false;
       if (r.labConfidence === undefined) r.labConfidence = 0;
+      // V2.3: حقول البحث الثقيلة تُبنى عند أول بحث/حاجة بدل تجهيز 5900 بند عند فتح الصفحة.
+      return r;
+  }
+
+  function ensureRecordSearchFields(r){
+      if (!r) return r;
       if (!r.searchText) {
           var cc = String(r.code || "").replace(/[\.\-\s]/g,"");
-          r.searchText = normalizeAr(cc + " " + r.code + " " + r.desc + " " + (r.imp_unit||""));
+          r.searchText = normalizeAr(cc + " " + (r.code||"") + " " + (r.desc||"") + " " + (r.imp_unit||""));
       }
-      // مصفوفة كلمات مفردة (لمطابقة "كلمة كاملة" بدقة أعلى بالبحث الذكي، بدل مطابقة جزء من كلمة فقط)
-      if (!r.searchWordsArr) {
-          r.searchWordsArr = r.searchText.split(/\s+/).filter(Boolean);
-      }
-      // مصفوفة كلمات البيان فقط (بدون الرمز) - تُستخدم لحساب التشابه بين البنود (بنود مشابهة + كشف الازدواجية التقريبية)
-      if (!r.descWordsArr) {
-          r.descWordsArr = normalizeAr(String(r.desc || "")).split(/\s+/).filter(function(w){ return w && w.length >= 2; });
-      }
+      if (!r.searchWordsArr) r.searchWordsArr = r.searchText.split(/\s+/).filter(Boolean);
+      if (!r.descWordsArr) r.descWordsArr = normalizeAr(String(r.desc || "")).split(/\s+/).filter(function(w){ return w && w.length >= 2; });
       return r;
   }
 
@@ -5173,11 +5216,13 @@ function refreshSettlementChapterFilter(){
   // مفيد كتوصية "قد يهمّك أيضاً" بنافذة تفاصيل البند: بنود من نفس نوع البضاعة تقريباً حتى لو رمزها مختلف كلياً.
   function findSimilarItems(r, limit){
       limit = limit || 4;
+      ensureRecordSearchFields(r);
       if (!r.descWordsArr || !r.descWordsArr.length) return [];
       var results = [];
       for (var i = 0; i < state.records.length; i++){
           var other = state.records[i];
           if (other.id === r.id) continue;
+          ensureRecordSearchFields(other);
           var sim = jaccardSim(r.descWordsArr, other.descWordsArr);
           if (sim >= 0.2) results.push({ r: other, sim: sim });
       }
@@ -5202,6 +5247,35 @@ function refreshSettlementChapterFilter(){
       });
       updateClearBansBtn();
       render();
+  }
+
+  function __v23Idle(fn, timeout){
+      if ('requestIdleCallback' in window) requestIdleCallback(fn,{timeout:timeout||1800});
+      else setTimeout(fn, Math.min(timeout||1200,1200));
+  }
+  function hydrateFromIndexedDB(){
+      if (!window.TariffIDB) return;
+      Promise.all([
+          TariffIDB.get('items').catch(function(){return null;}),
+          TariffIDB.get('explanations').catch(function(){return null;}),
+          TariffIDB.get('settlements').catch(function(){return null;})
+      ]).then(function(vals){
+          var itemBox=vals[0], expBox=vals[1], setBox=vals[2], changed=false;
+          if (itemBox && Array.isArray(itemBox.value) && itemBox.value.length) {
+              state.records=itemBox.value.map(function(r){return normalizeRecord(Object.assign({},r));});
+              state.vocabWords=null; refreshUnitFilterOptions(); changed=true;
+          }
+          if (expBox && Array.isArray(expBox.value)) { state.explanations=expBox.value; window.__searchExplanations(''); }
+          if (setBox && Array.isArray(setBox.value) && setBox.value.length) { state.settlements=mergeSettlementIndex(setBox.value); refreshSettlementChapterFilter(); window.__searchSettlements(''); }
+          if (changed) render();
+          try { localStorage.setItem('tariff_idb_ready_v23','1'); } catch(e){}
+      }).catch(function(e){console.warn('تعذر استعادة IndexedDB:',e);});
+
+      // أول تشغيل: احفظ النسخة المدمجة بالخلفية بعد أن تظهر الواجهة، دون تعطيل الدخول.
+      __v23Idle(function(){
+          TariffIDB.get('items').then(function(box){if(!box||!Array.isArray(box.value)||!box.value.length)return TariffIDB.set('items',window.__STATIC_TARIFF_DATA__||[],'embedded');}).catch(function(){});
+          TariffIDB.get('settlements').then(function(box){if(!box||!Array.isArray(box.value)||!box.value.length)return TariffIDB.set('settlements',state.settlements||[],'embedded');}).catch(function(){});
+      },1200);
   }
 
   function init(){
@@ -5230,7 +5304,7 @@ function refreshSettlementChapterFilter(){
     if (cachedItems) {
         state.records = cachedItems.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
     }
-    buildVocabulary();
+    state.vocabWords = null; // يُبنى فقط عند الحاجة للبحث التقريبي
     refreshUnitFilterOptions();
     render();
 
@@ -5243,8 +5317,10 @@ function refreshSettlementChapterFilter(){
     refreshSettlementChapterFilter();
     window.__searchSettlements('');
 
-    // محاولة تحميل عداد البحث الإجمالي بالنظام (لترتيب النتائج + اقتراحات البحث) - قدر الإمكان فقط
-    loadGlobalSearchCounts();
+    // استعادة أحدث نسخة محفوظة من IndexedDB بالخلفية؛ لا تمنع ظهور الصفحة أبداً.
+    hydrateFromIndexedDB();
+
+    // عدادات البحث السحابية لا تُحمّل عند البداية للزائر لتسريع الفتح. لوحة الأدمن تحملها عند الحاجة.
 
     // رابط مباشر لبند معيّن عبر ?code=xxxx
     try {
@@ -5307,7 +5383,7 @@ function refreshSettlementChapterFilter(){
                 state.records = items.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
                 applyBannedMap(state.lastBannedMap || {});
                 applyLabMap(state.lastLabMap || {});
-                buildVocabulary();
+                state.vocabWords = null;
                 refreshUnitFilterOptions();
                 render();
                 saveItemsToCache(items); // حفظ آخر نسخة سحابية محلياً لتُستخدم بالمرة القادمة فوراً
@@ -5752,7 +5828,7 @@ function refreshSettlementChapterFilter(){
                     onItemsReady(items);
                 });
             }
-            fetchAll();
+            (window.requestIdleCallback ? requestIdleCallback(fetchAll,{timeout:3500}) : setTimeout(fetchAll,2200));
             var channel = supabase.channel("tariff_items_changes")
                 .on("postgres_changes", { event: "*", schema: "public", table: ITEMS_TABLE }, fetchAll)
                 .subscribe();
@@ -5830,7 +5906,7 @@ function refreshSettlementChapterFilter(){
                     onItemsReady(items);
                 });
             }
-            fetchAll();
+            (window.requestIdleCallback ? requestIdleCallback(fetchAll,{timeout:4200}) : setTimeout(fetchAll,2800));
             var channel = supabase.channel("tariff_explanations_changes")
                 .on("postgres_changes", { event: "*", schema: "public", table: EXPLANATIONS_TABLE }, fetchAll)
                 .subscribe();
@@ -5881,7 +5957,7 @@ function refreshSettlementChapterFilter(){
                     onItemsReady(items);
                 });
             }
-            fetchAll();
+            (window.requestIdleCallback ? requestIdleCallback(fetchAll,{timeout:4500}) : setTimeout(fetchAll,3200));
             var channel = supabase.channel("settlement_guide_changes")
                 .on("postgres_changes", { event: "*", schema: "public", table: SETTLEMENTS_TABLE }, fetchAll)
                 .subscribe();
@@ -6084,23 +6160,66 @@ function refreshSettlementChapterFilter(){
 
         // إنشاء حساب جديد (اسم مستخدم + بريد + كلمة سر + صلاحية) - يُستخدم فقط من قبل حساب أدمن حالي.
         // نستخدم عميل Supabase ثانوي منفصل لإنشاء الحساب حتى لا تنقطع جلسة الأدمن الحالي.
+        function cleanAccountEmail(email){
+            return String(email || '').normalize ? String(email || '').normalize('NFKC').replace(/[\u200B-\u200D\uFEFF\u00A0]/g,'').replace(/\s+/g,'').toLowerCase() : String(email || '').replace(/\s+/g,'').toLowerCase();
+        }
+        function validAccountEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email); }
+
+        // إنشاء المستخدم عبر Auth، ثم تعيين الصلاحية من جلسة الأدمن الحالية بواسطة RPC محمية.
+        // المستخدم الجديد لا يستطيع منح نفسه صلاحية أدمن، لأن admin_upsert_profile تتحقق من جلسة الأدمن على الخادم.
         async function createAccount(username, email, password, role){
+            username = String(username || '').trim();
+            email = cleanAccountEmail(email);
+            role = role === 'admin' ? 'admin' : 'user';
+            if (!validAccountEmail(email)) throw new Error('صيغة البريد الإلكتروني غير صحيحة.');
+            if (String(password || '').length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
             try {
-                var signUpRes = await secondarySupabase.auth.signUp({ email: email, password: password });
+                var sessionRes = await supabase.auth.getSession();
+                if (!sessionRes.data || !sessionRes.data.session) throw new Error('يجب تسجيل الدخول بحساب الأدمن أولاً.');
+                try { await secondarySupabase.auth.signOut(); } catch(e){}
+                var signUpRes = await secondarySupabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: { data: { username: username } }
+                });
                 if (signUpRes.error) throw signUpRes.error;
                 var uid = signUpRes.data && signUpRes.data.user && signUpRes.data.user.id;
-                if (!uid) throw new Error("تعذّر إنشاء الحساب: لم يتم إرجاع معرّف المستخدم من قاعدة البيانات.");
-                var profileRes = await secondarySupabase.from(PROFILES_TABLE).insert({
-                    id: uid,
-                    username: username,
-                    email: email,
-                    role: role === "admin" ? "admin" : "user"
+                if (!uid) throw new Error('تعذّر إنشاء الحساب: لم يتم إرجاع معرّف المستخدم.');
+                var profileRes = await supabase.rpc('admin_upsert_profile', {
+                    p_user_id: uid,
+                    p_username: username,
+                    p_email: email,
+                    p_role: role
                 });
                 if (profileRes.error) throw profileRes.error;
-                await secondarySupabase.auth.signOut(); // ننظّف جلسة العميل الثانوي بعد الإنشاء
-            } catch(err) {
-                throw friendlyAuthError(err);
-            }
+                try { await secondarySupabase.auth.signOut(); } catch(e){}
+                return { id:uid, email:email, role:role, confirmationRequired: !(signUpRes.data && signUpRes.data.session) };
+            } catch(err) { throw friendlyAuthError(err); }
+        }
+
+        async function listAdminAccounts(){
+            var res = await supabase.rpc('admin_list_profiles');
+            if (res.error) throw res.error;
+            return res.data || [];
+        }
+        async function setAdminAccountRole(userId, role){
+            var res = await supabase.rpc('admin_set_profile_role',{p_user_id:userId,p_role:role==='admin'?'admin':'user'});
+            if (res.error) throw res.error;
+            return true;
+        }
+        async function getAdminActiveNow(){
+            var res = await supabase.rpc('get_admin_active_now');
+            if (res.error) throw res.error;
+            var row=Array.isArray(res.data)?(res.data[0]||{}):(res.data||{});
+            return Number(row.active_now||0);
+        }
+        async function deleteAdminSearchTerm(term){
+            var res=await supabase.rpc('admin_delete_search_term',{p_term:String(term||'').trim()});
+            if(res.error)throw res.error;return res.data;
+        }
+        async function clearAdminSearchHistory(){
+            var res=await supabase.rpc('admin_clear_search_history');
+            if(res.error)throw res.error;return res.data;
         }
 
         // عند تغيّر حالة تسجيل الدخول، نجيب بيانات الحساب (الاسم + الصلاحية) من جدول profiles.
@@ -6158,6 +6277,11 @@ function refreshSettlementChapterFilter(){
             logout: logout,
             changePassword: changePassword,
             createAccount: createAccount,
+            listAdminAccounts: listAdminAccounts,
+            setAdminAccountRole: setAdminAccountRole,
+            getAdminActiveNow: getAdminActiveNow,
+            deleteAdminSearchTerm: deleteAdminSearchTerm,
+            clearAdminSearchHistory: clearAdminSearchHistory,
             onAuthChange: onAuthChange,
             onItemsChange: onItemsChange,
             replaceAllItems: replaceAllItems,
@@ -6208,7 +6332,12 @@ function refreshSettlementChapterFilter(){
     if(window.__siteVisitTracked||navigator.onLine===false||!window.__tariffCloudReady)return;window.__siteVisitTracked=true;
     window.__tariffCloudReady.then(function(cloud){if(cloud&&typeof cloud.trackSiteVisit==='function')return cloud.trackSiteVisit(visitorId());}).catch(function(){window.__siteVisitTracked=false;});
   }
-  setTimeout(send,900);
+  setTimeout(send,1200);
+  setInterval(function(){
+    if(document.visibilityState==='visible' && navigator.onLine!==false && window.__tariffCloudReady){
+      window.__tariffCloudReady.then(function(cloud){if(cloud&&typeof cloud.trackSiteVisit==='function')return cloud.trackSiteVisit(visitorId());}).catch(function(){});
+    }
+  },120000);
 })();
 </script>
 
@@ -6483,7 +6612,7 @@ function refreshSettlementChapterFilter(){
     var specs=[
       ['v22GroupQuick','الوصول السريع',['favSection','v20ToolsSection','explanationsSection','settlementsSection']],
       ['v22GroupExplore','البحث والتصفح',['filtersSection','chaptersSection','tariffQaSection','classifyHelperSection']],
-      ['v22GroupAdmin','الحساب والإدارة',['adminAuthSection','adminBanSection','adminItemsSection','adminAnalyticsSection','dataQualitySection','quickStatsSection']],
+      ['v22GroupAdmin','الحساب والإدارة',['adminAuthSection','adminAccountsSection','adminBanSection','adminItemsSection','adminAnalyticsSection','dataQualitySection','quickStatsSection']],
       ['v22GroupSettings','الإعدادات والمساعدة',['languageSection','tourHelpSection']]
     ];
     specs.forEach(function(sp){var g=document.createElement('div');g.className='v22-side-group';g.id=sp[0];var l=document.createElement('div');l.className='v22-side-label';l.textContent=sp[1];g.appendChild(l);sp[2].forEach(function(id){var el=byId(id);if(el)g.appendChild(el);});sidebar.appendChild(g);});
