@@ -11,6 +11,9 @@ try { window.__TARIFF_OFFLINE_SNAPSHOT__ = JSON.parse(document.getElementById('t
 
 <!-- ===== إعدادات تطبيق PWA ===== -->
 <meta name="theme-color" content="#0e1b2b">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1341,6 +1344,14 @@ if(typeof module!=='undefined'&&module.exports)module.exports=createTariffSearch
 @media print{.notification-bell,.notification-panel{display:none!important}}
 </style>
 
+
+<style id="totalFeeRedOverride">
+/* إبراز قيمة إجمالي الرسوم باللون الأحمر */
+html[data-theme] #resultsTable td.total-cell,
+.detail-popup-item.total .dv {
+  color: var(--danger) !important;
+}
+</style>
 </head>
 <body>
 
@@ -5040,7 +5051,7 @@ function refreshSettlementChapterFilter(){
     async function preparePage(){
       if(portable||location.protocol==='file:'||!window.isSecureContext||!('serviceWorker' in navigator))return;
       try{
-        var worker=new URL('tariff-offline-sw.js',location.href);
+        var worker=new URL('sw.js',location.href);
         var existing=await navigator.serviceWorker.getRegistration();
         if(existing&&existing.active&&new URL(existing.active.scriptURL).pathname!==worker.pathname)return;
         var reg=await navigator.serviceWorker.register(worker.href+'?page='+encodeURIComponent(location.pathname),{scope:'./',updateViaCache:'none'});
@@ -5715,25 +5726,20 @@ function refreshSettlementChapterFilter(){
 
   window.__setPage = function(p){ state.page = p; render(); };
 
-  // ===== إعدادات الحاسبة: عملة العرض بالدولار فقط + ضريبة/رسم إضافي اختياري =====
-  var calcState = { qty: 1, extraPct: 0 };
+  // ===== إعدادات الحاسبة: عملة العرض بالدولار فقط =====
+  var calcState = { qty: 1 };
 
   window.__updateCalcQty = function(v){
       calcState.qty = Math.max(0, cleanNumber(v)) || 0;
       renderDetailPopup();
   };
-  window.__updateCalcExtra = function(v){
-      calcState.extraPct = Math.max(0, cleanNumber(v)) || 0;
-      renderDetailPopup();
-  };
-
   function fmtMoney(n){
       return n.toLocaleString(undefined, {maximumFractionDigits: 2}) + ' $';
   }
 
   window.__toggleRow = function(id){
       state.expandedId = id;
-      calcState.qty = 1; calcState.extraPct = 0;
+      calcState.qty = 1;
       renderDetailPopup();
       document.getElementById('detailPopupOverlay').classList.add('active');
       var popupEl = document.getElementById('detailPopup');
@@ -5769,9 +5775,7 @@ function refreshSettlementChapterFilter(){
       var perUnitTotal = fee + svc;
       var perPiece = isPerPieceUnit(r.imp_unit);
       var qty = perPiece ? (calcState.qty || 1) : 1;
-      var beforeExtra = perUnitTotal * qty;
-      var extraAmount = beforeExtra * (calcState.extraPct / 100);
-      var grandTotal = beforeExtra + extraAmount;
+      var grandTotal = perUnitTotal * qty;
       var shareUrl = location.origin + location.pathname + '?code=' + encodeURIComponent(r.code);
 
       var html = "";
@@ -5803,11 +5807,9 @@ function refreshSettlementChapterFilter(){
           html += '<div class="detail-popup-item"><div class="dk">🧠 ملاحظة ذكية</div><div class="dv" style="font-size:13.5px;color:var(--accent-deep);">هذا البند يُحسب بالقطعة (الوحدة: ' + escapeHtml(r.imp_unit) + '). أدخل عدد القطع أدناه لحساب الإجمالي الفعلي.</div></div>';
           html += '<div class="detail-popup-item"><div class="dk">عدد القطع</div><input type="number" min="0" class="modal-input" style="margin-bottom:0" value="' + calcState.qty + '" oninput="window.__updateCalcQty(this.value)"></div>';
       }
-      html += '<div class="detail-popup-item"><div class="dk">رسم/ضريبة إضافية اختيارية (%)</div><input type="number" min="0" class="modal-input" style="margin-bottom:0" value="' + calcState.extraPct + '" placeholder="مثال: نسبة إضافية إن وجدت" oninput="window.__updateCalcExtra(this.value)"></div>';
-      if (calcState.extraPct > 0 || (perPiece && qty !== 1)) {
+      if (perPiece && qty !== 1) {
           html += '<div class="detail-popup-item"><div class="dk">تفصيل الحساب</div><div class="dv" style="font-size:12.5px;line-height:1.9;font-weight:600;">' +
-              'الرسم الأساسي: ' + fmtMoney(perUnitTotal) + (perPiece ? (' × ' + qty + ' = ' + fmtMoney(beforeExtra)) : '') +
-              (calcState.extraPct > 0 ? ('<br>الرسم الإضافي (' + calcState.extraPct + '%): ' + fmtMoney(extraAmount)) : '') +
+              'الرسم الأساسي: ' + fmtMoney(perUnitTotal) + ' × ' + qty + ' = ' + fmtMoney(grandTotal) +
               '</div></div>';
       }
       html += '<div class="detail-popup-item total"><div class="dk">إجمالي الرسوم (' + (mode === "export" ? "تصدير" : "استيراد") + ')</div><div class="dv">' + fmtMoney(grandTotal) + '</div></div>';
@@ -5853,9 +5855,7 @@ function refreshSettlementChapterFilter(){
       var svc = mode === "export" ? (Number(r.exp_svc) || 0) : (Number(r.imp_svc) || 0);
       var perPiece = isPerPieceUnit(r.imp_unit);
       var qty = perPiece ? (calcState.qty || 1) : 1;
-      var beforeExtra = (fee + svc) * qty;
-      var extraAmount = beforeExtra * (calcState.extraPct / 100);
-      var grandTotal = beforeExtra + extraAmount;
+      var grandTotal = (fee + svc) * qty;
       var now = new Date().toLocaleString('ar-SY');
 
       var html = '<h2>إيصال تسعيرة جمركية</h2>';
@@ -5867,7 +5867,6 @@ function refreshSettlementChapterFilter(){
       if (perPiece) html += '<tr><th>عدد القطع</th><td>' + qty + '</td></tr>';
       html += '<tr><th>' + (mode === "export" ? "رسم التصدير" : "رسم الاستيراد") + '</th><td>' + fmtMoney(fee) + '</td></tr>';
       html += '<tr><th>' + (mode === "export" ? "بدل خدمة التصدير" : "بدل خدمة الاستيراد") + '</th><td>' + fmtMoney(svc) + '</td></tr>';
-      if (calcState.extraPct > 0) html += '<tr><th>رسم/ضريبة إضافية (' + calcState.extraPct + '%)</th><td>' + fmtMoney(extraAmount) + '</td></tr>';
       html += '<tr><th style="background:#e3f5ee;">الإجمالي</th><td style="background:#e3f5ee;font-weight:800;">' + fmtMoney(grandTotal) + '</td></tr>';
       html += '</table>';
       if (r.banned) {
