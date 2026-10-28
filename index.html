@@ -7,7 +7,7 @@
 try { window.__TARIFF_OFFLINE_SNAPSHOT__ = JSON.parse(document.getElementById('tariff-offline-snapshot').textContent); } catch(e) { window.__TARIFF_OFFLINE_SNAPSHOT__ = {}; }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>التعرفة الجمركية السورية — V.29.3</title>
+<title>التعرفة الجمركية السورية — V.29.2</title>
 
 <!-- ===== إعدادات تطبيق PWA ===== -->
 <meta name="theme-color" content="#0e1b2b">
@@ -1214,7 +1214,7 @@ function createTariffSearchEngine() {
   const stop = new Set(['من','الي','في','علي','عن','مع','او','و','الذي','التي','هذا','هذه','هو','هي','هل','ما','اريد','بدي','ابحث','بحث','بند','بضاعه','مصنوع','مصنوعه','مخصص','مخصصه','للاستخدام']);
   const groups = [
     ['انبوب','انابيب','مواسير','ماسوره'],['هاتف','هواتف','موبايل','جوال','تلفون'],
-    ['ثلاجه','ثلاجات','براد','برادات'],['غساله','غسالات'],['حاسوب','حواسيب','كمبيوتر','كومبيوتر'],
+    ['ثلاجه','ثلاجات','براد','برادات'],['رادياتير','ردياتير','مشع','مشعات','مبرد محرك','مبردات محركات'],['غساله','غسالات'],['حاسوب','حواسيب','كمبيوتر','كومبيوتر'],
     ['سياره','سيارات'],['اطار','اطارات','دواليب'],['اجزاء','جزء','قطع','قطعه'],
     ['بلاستيك','بلاستيكي','بلاستيكيه','لدائن','لدينه'],['حديد','حديدي','حديديه','صلب','فولاذ','فولاذي'],
     ['المنيوم','الومنيوم','المونيوم'],['خشب','خشبي','خشبيه'],['زجاج','زجاجي','زجاجيه'],
@@ -1248,27 +1248,43 @@ function createTariffSearchEngine() {
     return {found,negative:Array.from(negative),exclusion:/باستثناء|(?:^|\s)عدا\s|غير\s+(?:مذكور|ذلك)/.test(n)};
   }
   function parse(raw){
-    const n=normalize(raw).slice(0,500),code=n.replace(/[.\s\-–]/g,'');
+    // Context-sensitive Syrian trade names: a car radiator is not a household refrigerator.
+    const original=normalize(raw).slice(0,500);
+    const n=original.replace(/(?:براد|مبرد)\s+(?:سياره|السياره|سيارات|محرك|المحرك|موتور|الموتور)/g,'رادياتير سياره')
+      .replace(/(?:ردياتور|راديتر|رادياتور)/g,'رادياتير')
+      .replace(/(?:موبيل|موبايـل)/g,'موبايل')
+      .replace(/(?:ال)?سامسونغ/g,'سامسونج');
+    const code=n.replace(/[.\s\-–]/g,'');
     const a=attrs(n),ts=Array.from(new Set(tokens(n).filter(t=>!stop.has(t)&&!['غير','باستثناء','عدا','بدون'].includes(t)))).slice(0,24);
     return {raw:n,tokens:ts,concepts:ts.map(canonical),code:/^\d{2,12}$/.test(code)?code:null,attrs:a};
   }
-  let docs=[], postings=new Map(),codeIndex=new Map(),vocab=[],buckets=new Map(),cache=new Map(),stats={builds:0,queries:0,hits:0,candidates:0};
-  function reset(){docs=[];postings=new Map();codeIndex=new Map();vocab=[];buckets=new Map();cache.clear();stats.builds++;}
+  let docs=[], postings=new Map(),codeIndex=new Map(),prefixIndex=new Map(),vocab=[],buckets=new Map(),cache=new Map(),stats={builds:0,queries:0,hits:0,candidates:0};
+  function reset(){docs=[];postings=new Map();codeIndex=new Map();prefixIndex=new Map();vocab=[];buckets=new Map();cache.clear();variantCache.clear();stats.builds++;}
   function add(rows,start=0,end=rows.length){for(let i=start;i<end;i++){
     const r=rows[i],text=normalize(r.desc),ts=tokens(text),unique=new Set(ts),concepts=new Set(ts.map(canonical)),code=normalize(r.code).replace(/[.\s-]/g,'');
-    const d={i:docs.length,id:String(r.id),code,text,tokens:unique,concepts,attrs:attrs(text)};docs.push(d);
+    const d={i:docs.length,id:String(r.id),code,text,tokens:unique,concepts,attrs:attrs(text),
+      prefixes:new Set(ts.filter(w=>w.length>=4).flatMap(w=>{const p=[];for(let n=4;n<=w.length;n++)p.push(w.slice(0,n));return p;}))};docs.push(d);
     unique.forEach(t=>{if(!postings.has(t))postings.set(t,[]);postings.get(t).push(d.i);});
     concepts.forEach(t=>{const k='@'+t;if(!postings.has(k))postings.set(k,[]);postings.get(k).push(d.i);});
     for(let n=2;n<=code.length;n++){let k=code.slice(0,n);if(!codeIndex.has(k))codeIndex.set(k,[]);codeIndex.get(k).push(d.i);}
   }}
-  function finish(){vocab=Array.from(postings.keys()).filter(w=>w[0]!=='@'&&!/^\d+$/.test(w));vocab.forEach(w=>{if(!buckets.has(w.length))buckets.set(w.length,[]);buckets.get(w.length).push(w);});}
+  function finish(){vocab=Array.from(postings.keys()).filter(w=>w[0]!=='@'&&!/^\d+$/.test(w));vocab.forEach(w=>{
+    if(!buckets.has(w.length))buckets.set(w.length,[]);buckets.get(w.length).push(w);
+    for(let n=4;n<=w.length;n++){const key=w.slice(0,n);if(!prefixIndex.has(key))prefixIndex.set(key,[]);prefixIndex.get(key).push(w);}
+  });}
   function build(rows){reset();add(rows);finish();}
   // Optimal-string-alignment distance: insertion/deletion/substitution + adjacent transposition.
   function distance(a,b,max){if(Math.abs(a.length-b.length)>max)return max+1;let prev=Array.from({length:b.length+1},(_,i)=>i),prev2;
     for(let i=1;i<=a.length;i++){const cur=[i];let min=i;for(let j=1;j<=b.length;j++){cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])cur[j]=Math.min(cur[j],prev2[j-2]+1);min=Math.min(min,cur[j]);}if(min>max)return max+1;prev2=prev;prev=cur;}return prev[b.length];}
-  function variants(t){if(t.length<4||/\d/.test(t))return [];const limit=t.length>=8?2:1,out=[];
+  const variantCache=new Map();
+  function variants(t){
+    if(variantCache.has(t))return variantCache.get(t).slice();
+    if(t.length<4||/\d/.test(t))return [];
+    const limit=t.length>=8?2:1,out=[];
     for(let len=t.length-limit;len<=t.length+limit;len++)for(const w of buckets.get(len)||[]){const d=distance(t,w,limit);if(d<=limit&&w!==t)out.push({word:w,d,count:postings.get(w).length});}
-    return out.sort((a,b)=>a.d-b.d||b.count-a.count||a.word.localeCompare(b.word)).slice(0,3).map(x=>x.word);
+    const result=out.sort((a,b)=>a.d-b.d||b.count-a.count||a.word.localeCompare(b.word)).slice(0,3).map(x=>x.word);
+    variantCache.set(t,result);if(variantCache.size>150)variantCache.delete(variantCache.keys().next().value);
+    return result.slice();
   }
   function evaluate(doc,q,fuzzy){
     let score=0,matched=0,exact=0,syn=false,approx=false;const reasons=[],missing=[],corrections=[];
@@ -1277,7 +1293,7 @@ function createTariffSearchEngine() {
       const t=q.tokens[i],c=q.concepts[i];let weight=0,label='';
       if(doc.tokens.has(t)){weight=1;exact++;label='كلمة مطابقة: '+t;}
       else if(doc.concepts.has(c)){weight=.78;syn=true;label='صيغة أو مرادف: '+t;}
-      else if(t.length>=4&&Array.from(doc.tokens).some(w=>w.startsWith(t))){weight=.4;label='بداية كلمة: '+t;}
+      else if(t.length>=4&&doc.prefixes.has(t)){weight=.4;label='بداية كلمة: '+t;}
       else if(fuzzy&&fuzzy[t]){const hit=fuzzy[t].find(w=>doc.tokens.has(w));if(hit){weight=.48;approx=true;corrections.push({from:t,to:hit});label='تصحيح محتمل: '+t+' ← '+hit;}}
       if(weight){matched++;const df=(postings.get('@'+c)||postings.get(t)||[]).length;score+=weight*(1+Math.log(1+docs.length/(1+df)));reasons.push(label);}else missing.push(t);
     }
@@ -1301,7 +1317,7 @@ function createTariffSearchEngine() {
   function query(raw){const q=parse(raw),key=q.raw;if(cache.has(key)){stats.hits++;return cache.get(key);}stats.queries++;
     const candidates=new Set(),fuzzy={};
     function include(list){(list||[]).forEach(i=>candidates.add(i));}
-    if(q.code)include(codeIndex.get(q.code));else q.tokens.forEach((t,i)=>{include(postings.get(t));include(postings.get('@'+q.concepts[i]));if(t.length>=4)for(const w of vocab)if(w.startsWith(t))include(postings.get(w));});
+    if(q.code)include(codeIndex.get(q.code));else q.tokens.forEach((t,i)=>{include(postings.get(t));include(postings.get('@'+q.concepts[i]));if(t.length>=4){const words=prefixIndex.get(t)||[];for(const w of words)include(postings.get(w));}});
     let ranked=Array.from(candidates,i=>evaluate(docs[i],q,null)).filter(Boolean).sort(compare);
     // Fuzzy fallback only if no complete direct/concept match; partial words cannot suppress typo recovery.
     if(!q.code&&q.tokens.length&&!ranked.some(r=>r.percent===100&&!r.conflicts.length)){
@@ -1352,6 +1368,98 @@ html[data-theme] #resultsTable td.total-cell,
   color: var(--danger) !important;
 }
 </style>
+<style id="inspector-ui-legibility-v293">
+/* V29.3: inspector-first legibility refinements; preserve existing theme tokens. */
+#resultsTable td.code{
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+  letter-spacing:.015em;
+}
+#resultsTable td.desc{
+  overflow-wrap:anywhere;
+  line-height:1.8;
+}
+#resultsTable td.total-cell{
+  font-variant-numeric:tabular-nums;
+  font-weight:800;
+}
+#resultsTable td:focus-within,
+#resultsTable tbody tr:focus-within{
+  outline:2px solid var(--accent2);
+  outline-offset:2px;
+}
+@media (max-width:720px){
+  #itemsTableWrap{overflow-x:hidden;}
+  #resultsTable tbody tr{
+    margin:10px 6px;
+    padding:12px;
+    max-width:calc(100% - 12px);
+  }
+  #resultsTable td{
+    min-width:0;
+    text-align:start;
+    line-height:1.6;
+  }
+  #resultsTable td.code{
+    font-size:clamp(15px,4.1vw,18px);
+    font-weight:800;
+    color:var(--accent-deep);
+    direction:ltr;
+    unicode-bidi:isolate;
+    text-align:start;
+  }
+  #resultsTable td.desc{
+    font-size:clamp(14px,3.8vw,16px);
+    line-height:1.85;
+    white-space:normal;
+  }
+  #resultsTable td.total-cell{
+    font-size:clamp(15px,4vw,18px);
+    color:var(--accent-deep);
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  #resultsTable td.total-cell::before{font-size:12px;}
+  #resultsTable td[data-label="إجراءات"] button,
+  #resultsTable td[data-label="إجراءات"] a{
+    min-height:40px;
+    min-width:40px;
+    touch-action:manipulation;
+  }
+  #resultsTable tbody tr::after{line-height:1.6;}
+  .search-main input,#searchInput{font-size:16px;}
+  .pager button{min-height:40px;min-width:40px;}
+}
+@media (max-width:380px){
+  #resultsTable tbody tr{padding:10px;}
+  #resultsTable td{gap:7px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .search-hero{animation:none!important;}
+  #resultsTable tbody tr{transition:none!important;}
+}
+</style>
+
+<style id="v293-inspector-readability">
+/* Inspector-first hierarchy: tariff code, description, then total. No palette changes. */
+#resultsTable td.code{font-variant-numeric:tabular-nums;unicode-bidi:isolate;direction:ltr;letter-spacing:.035em;font-weight:800}
+#resultsTable td.desc{overflow-wrap:anywhere;word-break:normal;line-height:1.8}
+#resultsTable td.total-cell{font-variant-numeric:tabular-nums;font-weight:800}
+#resultsTable tbody tr.expanded{outline:2px solid var(--accent2);outline-offset:-2px}
+#resultsTable tbody tr:focus-within{outline:2px solid var(--accent2);outline-offset:-2px}
+@media(max-width:720px){
+  #resultsTable tbody tr{box-sizing:border-box;width:calc(100% - 20px);margin:10px;overflow:hidden}
+  html[data-theme] #resultsTable tbody tr.expanded{box-shadow:var(--shadow-sm);border-color:var(--accent2)}
+  html[data-theme] #resultsTable td{padding:9px 4px;text-align:start;min-width:0}
+  html[data-theme] #resultsTable td.code{display:flex;align-items:center;direction:ltr;justify-content:flex-start;font-size:clamp(16px,4.3vw,19px);line-height:1.5;letter-spacing:.045em;overflow-wrap:anywhere}
+  html[data-theme] #resultsTable td.desc{display:flex;flex-direction:column;align-items:stretch;gap:5px;font-size:clamp(15px,4vw,17px);font-weight:550;line-height:1.85;text-align:start}
+  html[data-theme] #resultsTable td.desc::before{font-size:12px}
+  html[data-theme] #resultsTable td.total-cell{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:clamp(16px,4.2vw,18px);line-height:1.6;border-radius:8px;padding:11px 10px;margin-top:5px}
+  html[data-theme] #resultsTable td.total-cell::before{font-size:12px;max-width:46%;line-height:1.5}
+  #resultsTable td[data-label="إجراءات"]{flex-wrap:wrap}
+  #resultsTable td[data-label="إجراءات"] .action-btn{min-width:38px;min-height:38px}
+}
+</style>
 </head>
 <body>
 
@@ -1361,7 +1469,7 @@ html[data-theme] #resultsTable td.total-cell,
       <div class="brand-mark"><img src="data:image/jpeg;base64,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" alt="شعار الجمهورية العربية السورية"></div>
       <div class="brand-text">
         <h1>التعرفة الجمركية السورية</h1>
-        <p>🟢 الهيئة العامة للمنافذ والجمارك <span class="v22-unofficial">نسخة غير رسمية</span> <span class="v22-version-chip">V.29.1</span></p>
+        <p>🟢 الهيئة العامة للمنافذ والجمارك <span class="v22-unofficial">نسخة غير رسمية</span> <span class="v22-version-chip">V.29.2</span></p>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -1513,6 +1621,7 @@ html[data-theme] #resultsTable td.total-cell,
       <div class="tools-bar admin-analytics-actions">
         <button class="tool-btn" onclick="window.__loadSearchAnalytics()">🔄 تحديث اللوحة</button>
         <button class="tool-btn" style="color:var(--danger);border-color:var(--danger-soft);" onclick="window.__clearAnalyticsSearchTerms()">🗑️ حذف كل سجل البحث</button>
+        <button id="clearAllActivityBtn" class="tool-btn" style="color:var(--danger);border:1.5px solid var(--danger);" onclick="window.__clearAllActivityAnalytics()">🗑️ حذف جميع سجلات النشاط والإحصائيات</button>
       </div>
 
       <details class="admin-analytics-panel" open><summary>🔥 أكثر البنود فتحاً</summary><div id="analyticsTopItems" class="admin-analytics-list"></div></details>
@@ -1725,7 +1834,7 @@ html[data-theme] #resultsTable td.total-cell,
 
   <div class="table-wrap" id="settlementsView" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
-      <h2 style="margin:0;font-size:15px;font-family:var(--serif);color:var(--ink);">⚖️ دليل التسويات <span style="font-size:10px;color:var(--muted);font-family:var(--sans);">— نسخة V.29.1 النصية</span></h2>
+      <h2 style="margin:0;font-size:15px;font-family:var(--serif);color:var(--ink);">⚖️ دليل التسويات <span style="font-size:10px;color:var(--muted);font-family:var(--sans);">— نسخة V.29.2 النصية</span></h2>
       <div class="tools-bar" style="margin:0;">
         <button class="mini-btn" onclick="window.__closeSettlementsView()">🔙 رجوع للبنود</button>
       </div>
@@ -1794,7 +1903,18 @@ html[data-theme] #resultsTable td.total-cell,
   </div>
 </div>
 
-<footer class="v22-site-footer" id="siteFooter" aria-label="اسم المطوّر ورقم النسخة"><span>ليث ابو علي🧑‍💻⚡️</span><br><span dir="ltr">V.29.1</span></footer>
+<style id="developer-signature-v292">
+/* A subtle ornamental frame around the developer credit; move it slightly up. */
+#siteFooter.v22-site-footer{margin-top:10px;padding-top:9px;}
+#siteFooter .developer-name-ornament{display:inline-flex;align-items:center;justify-content:center;gap:12px;max-width:100%;padding:4px 10px 6px;color:var(--ink-soft);}
+#siteFooter .developer-name-ornament::before,#siteFooter .developer-name-ornament::after{content:"✦ ❧";color:var(--accent2);font-size:13px;letter-spacing:2px;opacity:.8;white-space:nowrap;}
+#siteFooter .developer-name-ornament::after{transform:scaleX(-1);}
+#siteFooter .developer-name-text{font-weight:900;font-size:13px;line-height:1.8;white-space:nowrap;}
+@media(max-width:380px){#siteFooter .developer-name-ornament{gap:5px;padding-inline:2px}#siteFooter .developer-name-ornament::before,#siteFooter .developer-name-ornament::after{font-size:10px;letter-spacing:0}}
+@media print{#siteFooter .developer-name-ornament::before,#siteFooter .developer-name-ornament::after{display:none}}
+</style>
+
+<footer class="v22-site-footer" id="siteFooter" aria-label="اسم المطوّر ورقم النسخة"><span class="developer-name-ornament"><span class="developer-name-text">ليث ابو علي🧑‍💻⚡️</span></span><br><span dir="ltr">V.29.2</span></footer>
 
 <div class="detail-popup-overlay" id="detailPopupOverlay" onclick="if(event.target===this) window.__closeDetailPopup()"></div>
 <div class="detail-popup" id="detailPopup">
@@ -2446,7 +2566,8 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   function getCompareItems(){
       var codes = state.favorites.map(function(f){ return f.code; }).concat(state.compareList);
       codes = Array.from(new Set(codes));
-      return state.records.filter(function(r){ return codes.indexOf(r.code) !== -1; });
+      var wanted = new Set(codes);
+      return state.records.filter(function(r){ return wanted.has(r.code); });
   }
 
   window.__openCompare = function(){
@@ -2807,10 +2928,28 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       return null;
   }
 
+  // أسئلة سياقية محلية، لا تدّعي حسم التصنيف أو وجود نص قانوني غير مسجّل.
+  var INSPECTOR_QUESTIONS = [
+    {test:/مضخ|طرمب|طلمب|مياه|سوائل/, title:'مضخات وسوائل', questions:['هل المضخة للسوائل أم للهواء؟','هل تعمل كهربائياً أم يدوياً؟','ما الاستخدام الأساسي للمضخة؟']},
+    {test:/هاتف|جوال|موبايل|اتصال/, title:'أجهزة الاتصال', questions:['هل الجهاز هاتف متكامل أم قطعة غيار؟','هل وظيفته الأساسية الاتصال الخلوي؟']},
+    {test:/سيار|مركب|محرك|رادياتير|اطار/, title:'المركبات وقطعها', questions:['هل البضاعة مركبة كاملة أم قطعة منفصلة؟','ما وظيفة القطعة الأساسية؟','هل هي مخصصة لنوع محدد من المركبات؟']},
+    {test:/قماش|ملابس|نسيج|قطن|صوف|بوليستر/, title:'المنسوجات', questions:['ما المادة الأساسية ونسبتها؟','هل هي خام أم منتج جاهز؟','هل البضاعة محاكة أم منسوجة؟']},
+    {test:/غذاء|اكل|طعام|عصير|حليب|سكر/, title:'المنتجات الغذائية', questions:['هل المنتج طازج أم مصنّع؟','ما المكونات الأساسية؟','هل هو محفوظ أو مجمّد أو مجفف؟']},
+    {test:/دواء|طبي|جهاز طبي|مخبر/, title:'المستلزمات الطبية', questions:['هل البضاعة دواء أم جهاز أم مستلزم؟','ما وظيفتها الأساسية؟','هل تُباع كمنتج كامل أم جزء؟']}
+  ];
+  function inspectorGuidance(raw,top){
+    var norm=normalizeAr(raw), group=INSPECTOR_QUESTIONS.find(function(g){return g.test.test(norm);});
+    var questions=group?group.questions:['ما المادة التي صنعت منها البضاعة؟','ما استخدامها الأساسي؟','هل هي منتج كامل أم جزء أو ملحق؟'];
+    var html='<details style="margin:9px 0;padding:10px;border:1px solid var(--line-soft);border-radius:9px" open><summary style="font-weight:800;cursor:pointer">🧭 أسئلة تساعد الكشّاف على تضييق التصنيف'+(group?' — '+group.title:'')+'</summary><p class="review-note">أجب في خانة الوصف ثم أعد البحث؛ الأسئلة إرشادية ولا تحسم البند.</p><ul style="padding-inline-start:20px;font-size:12px;line-height:1.9">'+questions.map(function(q){return '<li>'+escapeHtml(q)+'</li>';}).join('')+'</ul></details>';
+    if(top&&top.length>1){
+      html+='<details style="margin:9px 0;padding:10px;border:1px solid var(--line-soft);border-radius:9px"><summary style="font-weight:800;cursor:pointer">⚖️ مقارنة أقرب بندين</summary><div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr><th>الرمز</th><th>وصف التعرفة</th><th>أساس الترشيح</th></tr></thead><tbody>'+top.slice(0,2).map(function(item){return '<tr><td dir="ltr">'+escapeHtml(String(item.r.code))+'</td><td>'+escapeHtml(String(item.r.desc||''))+'</td><td>تشابه ألفاظ الوصف: '+escapeHtml(String(item.percent))+'% (ليس احتمال صحة)</td></tr>';}).join('')+'</tbody></table></div></details>';
+    }
+    return html;
+  }
   function renderClassifyRow(item){
       var r=item.r;
       return '<div class="expl-result-item review-choice"><b>'+escapeHtml(String(r.code))+'</b> — '+escapeHtml(r.desc)+
-          '<div class="review-note">'+(item.learned?'اختيار راجعه الأدمن محلياً للوصف نفسه؛ ليس ضماناً لصحة التصنيف.':'تشابه كلمات '+item.percent+'% — ليس نسبة صحة التصنيف')+'</div>'+rvClassifyActions(r)+'</div>';
+          '<div class="review-note">'+(item.learned?'اختيار راجعه الأدمن محلياً للوصف نفسه؛ ليس ضماناً لصحة التصنيف.':'تشابه كلمات '+item.percent+'% — ليس نسبة صحة التصنيف')+'</div>'+rvExplanationBlock(r,true)+rvClassifyActions(r)+'</div>';
   }
   function renderDecisivePick(item){
       return '<div class="review-recommended"><b>اقتراح للمراجعة</b>'+renderClassifyRow(item)+'</div>';
@@ -2834,7 +2973,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   function renderClassifyAttrChips(){
       var wrap = document.getElementById('classifyAttrChips');
       if (!wrap) return;
-      var html = '<div style="font-size:10.5px;color:var(--muted);margin:4px 0 6px;">🔧 بحث بالخصائص (اختياري) — اضغطي أي كلمة لإضافتها للوصف:</div>';
+      var html = '<div style="font-size:10.5px;color:var(--muted);margin:4px 0 6px;">🔧 بحث بالخصائص (اختياري) — اضغط على أي كلمة لإضافتها للوصف:</div>';
       CLASSIFY_ATTR_GROUPS.forEach(function(g, gi){
           html += '<details style="margin-bottom:5px;border:1px solid var(--line-soft);border-radius:8px;padding:4px 8px;">' +
               '<summary style="cursor:pointer;font-size:11px;font-weight:700;color:var(--ink-soft);padding:3px 0;">' + g.label + '</summary>' +
@@ -2963,7 +3102,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           html += '<p style="font-size:11.5px;color:var(--muted);margin:0 0 8px;">أقرب ' + top.length + ' رموز محتملة (الأعلى تطابقاً أولاً):</p>';
           top.forEach(function(item){ html += renderClassifyRow(item); });
       }
-      box.innerHTML = html;
+      box.innerHTML = inspectorGuidance(raw,top) + html;
   };
 
   // ===== مساعد أسئلة وأجوبة داخلي: "اسأل عن التعرفة" =====
@@ -3568,7 +3707,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       var cur = document.getElementById('curPasswordInput').value || "";
       var n1 = document.getElementById('newPasswordInput').value || "";
       var n2 = document.getElementById('newPasswordInput2').value || "";
-      if (n1.length < 6) { showToast("يجب أن تكون كلمة المرور الجديدة 6 أحرف على الأقل (متطلب Supabase).", "err"); return; }
+      if (n1.length < 12) { showToast("يجب أن تكون كلمة المرور الجديدة 12 حرفًا على الأقل.", "err"); return; }
       if (n1 !== n2) { showToast("كلمتا المرور الجديدتان غير متطابقتين.", "err"); return; }
       window.TariffCloud.changePassword(cur, n1).then(function(){
           window.__closeAuthModal();
@@ -3585,7 +3724,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           '<p class="auth-hint">الحساب الجديد بينحفظ فوراً بقاعدة البيانات السحابية، وبيقدر يستخدمه صاحبه للدخول من أي جهاز.</p>' +
           '<input type="text" id="newAccUsername" class="modal-input" placeholder="اسم المستخدم" autocomplete="off">' +
           '<input type="email" id="newAccEmail" class="modal-input" placeholder="البريد الإلكتروني" autocomplete="off" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" dir="ltr" style="text-align:left;">' +
-          '<input type="password" id="newAccPassword" class="modal-input" placeholder="كلمة السر (6 أحرف على الأقل)" autocomplete="new-password">' +
+          '<input type="password" id="newAccPassword" class="modal-input" minlength="12" maxlength="128" placeholder="كلمة السر (12 حرفًا على الأقل)" autocomplete="new-password">' +
           '<select id="newAccRole" class="modal-input">' +
               '<option value="user">مستخدم عادي (صلاحيات محدودة)</option>' +
               '<option value="admin">أدمن (صلاحيات كاملة)</option>' +
@@ -3604,7 +3743,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       var role = document.getElementById('newAccRole').value || "user";
       if (!username) { showToast("الرجاء إدخال اسم المستخدم.", "err"); return; }
       if (!email) { showToast("الرجاء إدخال البريد الإلكتروني.", "err"); return; }
-      if (pass.length < 6) { showToast("يجب أن تكون كلمة السر 6 أحرف على الأقل (متطلب Supabase).", "err"); return; }
+      if (pass.length < 12) { showToast("يجب أن تكون كلمة السر 12 حرفًا على الأقل.", "err"); return; }
 
       var btn = document.querySelector('#authModalBody .btn-primary');
       if (btn) { btn.disabled = true; btn.innerText = '⏳ جاري الإنشاء...'; }
@@ -4108,12 +4247,15 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
               for (var i = 1; i < rows.length; i++) {
                   var row = rows[i];
                   if (!row || row.length === 0) continue;
-                  var code = String(row[headerMap.code] || "").trim();
+                  var code = String(row[headerMap.code] == null ? "" : row[headerMap.code]).trim()
+                    .replace(/[٠-٩]/g,function(c){return String(c.charCodeAt(0)-1632);})
+                    .replace(/[۰-۹]/g,function(c){return String(c.charCodeAt(0)-1776);});
+                  var normalizedCode = code.replace(/[.\s-]/g,"");
                   var text = String(row[headerMap.text] || "").trim();
                   var note = headerMap.note !== undefined ? String(row[headerMap.note] || "").trim() : "";
-                  if (!code || !text) { if (code || text) incompleteRowCount++; continue; }
-                  if (seenCodes[code]) { duplicateInFileCount++; continue; } // كود البند فريد، أول ظهور له فقط يُعتمد
-                  seenCodes[code] = true;
+                  if (!/^\d{4,12}$/.test(normalizedCode) || !text) { if (code || text) incompleteRowCount++; continue; }
+                  if (seenCodes[normalizedCode]) { duplicateInFileCount++; continue; } // لا تكرار بين 02.01 و0201
+                  seenCodes[normalizedCode] = true;
                   records.push({ id: code, code: code, text: text, note: note });
               }
 
@@ -4132,17 +4274,17 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
 
               // ===== مقارنة (Diff) مع الشروحات الحالية قبل الاستبدال الكامل، بدل استبدال صامت =====
               var oldMap = {};
-              state.explanations.forEach(function(e){ oldMap[e.code] = e; });
+              state.explanations.forEach(function(e){ oldMap[String(e.code||"").replace(/[.\s-]/g,"")] = e; });
               var added = 0, modified = 0, unchanged = 0;
               records.forEach(function(r){
-                  var old = oldMap[r.code];
+                  var old = oldMap[String(r.code).replace(/[.\s-]/g,"")];
                   if (!old) added++;
                   else if (String(old.text || "") !== r.text) modified++;
                   else unchanged++;
               });
               var newCodes = {};
-              records.forEach(function(r){ newCodes[r.code] = true; });
-              var removed = state.explanations.filter(function(e){ return !newCodes[e.code]; }).length;
+              records.forEach(function(r){ newCodes[String(r.code).replace(/[.\s-]/g,"")] = true; });
+              var removed = state.explanations.filter(function(e){ return !newCodes[String(e.code||"").replace(/[.\s-]/g,"")]; }).length;
 
               var msg = "مراجعة قبل الاستبدال (" + records.length + " شرح بالملف الجديد):\n" +
                   "• جديدة: " + added + "\n" +
@@ -4237,12 +4379,13 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           listEl.innerHTML = html0;
           return;
       }
-      var qCode = q.replace(/\s+/g, "");
+      var qCode = q.replace(/[^0-9]/g, "");
+      var codeQuery = /[0-9٠-٩۰-۹]/.test(qRaw) ? String(qRaw).replace(/[٠-٩]/g,function(c){return String(c.charCodeAt(0)-1632);}).replace(/[۰-۹]/g,function(c){return String(c.charCodeAt(0)-1776);}).replace(/[.\s-]/g,"") : "";
       var terms = q.split(/\s+/).filter(Boolean);
       var codeMatches = [], scored = [];
       state.explanations.forEach(function(ex){
           var codeNorm = String(ex.code || "").toLowerCase();
-          if (codeNorm.indexOf(qCode) !== -1) { codeMatches.push(ex); return; }
+          if (codeQuery && codeNorm.replace(/[.\s-]/g,"").indexOf(codeQuery) !== -1) { codeMatches.push(ex); return; }
           var score = scoreExplanationMatch(ex, terms);
           if (score > 0) scored.push({ ex: ex, score: score });
       });
@@ -4314,7 +4457,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
               '</div>';
       if (quickSummary) {
           html += '<div class="expl-popup-note" style="background:var(--accent-soft);color:var(--accent-deep);border-color:transparent;">' +
-                  '📌 <b>ملخص سريع:</b> ' + escapeHtml(quickSummary) +
+                  '📌 <b>مقتطف من بداية الشرح (ليس ملخصاً قانونياً):</b> ' + escapeHtml(quickSummary) +
                   '</div>';
       }
       html += '<div class="expl-popup-body"><div class="expl-popup-text">' +
@@ -4915,8 +5058,8 @@ function refreshSettlementChapterFilter(){
   };
 
   function escapeHtml(s){
-    if(!s) return "";
-    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    if(s == null) return "";
+    return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});
   }
 
   function debounce(fn, ms){
@@ -4941,14 +5084,25 @@ function refreshSettlementChapterFilter(){
           dbp = new Promise(function(resolve,reject){
               var req = indexedDB.open(TARIFF_IDB_NAME,1);
               req.onupgradeneeded=function(){var db=req.result;if(!db.objectStoreNames.contains(TARIFF_IDB_STORE))db.createObjectStore(TARIFF_IDB_STORE,{keyPath:'key'});};
-              req.onsuccess=function(){resolve(req.result);};
-              req.onerror=function(){reject(req.error||new Error('تعذر فتح التخزين المحلي'));};
+              req.onsuccess=function(){var db=req.result;db.onversionchange=function(){db.close();dbp=null;};resolve(db);};
+              req.onerror=function(){dbp=null;reject(req.error||new Error('تعذر فتح التخزين المحلي'));};
+              req.onblocked=function(){dbp=null;reject(new Error('تخزين البيانات مشغول في نافذة أخرى'));};
           });
           return dbp;
       }
-      function get(key){return open().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction(TARIFF_IDB_STORE,'readonly'),r=tx.objectStore(TARIFF_IDB_STORE).get(key);r.onsuccess=function(){resolve(r.result||null);};r.onerror=function(){reject(r.error);};});});}
-      function set(key,value,source,savedAt){return open().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction(TARIFF_IDB_STORE,'readwrite');tx.objectStore(TARIFF_IDB_STORE).put({key:key,value:value,savedAt:savedAt||Date.now(),source:source||'local'});tx.oncomplete=function(){resolve(true);};tx.onerror=tx.onabort=function(){reject(tx.error||new Error('تعذر الحفظ'));};});});}
-      return {get:get,set:set,open:open};
+      function get(key){return open().then(function(db){return new Promise(function(resolve,reject){
+        var tx=db.transaction(TARIFF_IDB_STORE,'readonly'),r=tx.objectStore(TARIFF_IDB_STORE).get(key);
+        r.onsuccess=function(){resolve(r.result||null);};r.onerror=function(){reject(r.error);};
+      });});}
+      function getBackup(key){return get('__backup__'+key);}
+      function set(key,value,source,savedAt,previous){return open().then(function(db){return new Promise(function(resolve,reject){
+        var tx=db.transaction(TARIFF_IDB_STORE,'readwrite'),store=tx.objectStore(TARIFF_IDB_STORE);
+        // A single transaction commits the backup and the new version together.
+        if(previous&&previous.value!==undefined)store.put({key:'__backup__'+key,value:previous.value,savedAt:previous.savedAt,source:previous.source});
+        store.put({key:key,value:value,savedAt:savedAt||Date.now(),source:source||'local'});
+        tx.oncomplete=function(){resolve(true);};tx.onerror=tx.onabort=function(){reject(tx.error||new Error('تعذر الحفظ'));};
+      });});}
+      return {get:get,getBackup:getBackup,set:set,open:open};
   })();
   window.TariffIDB = TariffIDB;
   // Only public reference data is persisted or included in portable copies.
@@ -4959,7 +5113,18 @@ function refreshSettlementChapterFilter(){
     var snapshot=window.__TARIFF_OFFLINE_SNAPSHOT__;
     var portable=!!(snapshot&&snapshot.version===1);
     var template='';
-    function valid(key,box){return !!box&&Number.isFinite(box.savedAt)&&box.savedAt>0&&(key==='banned'||key==='lab'?box.value&&typeof box.value==='object'&&!Array.isArray(box.value):Array.isArray(box.value)&&(key!=='items'||box.value.length>0));}
+    function valid(key,box){
+      if(!box||!Number.isFinite(box.savedAt)||box.savedAt<=0)return false;
+      if(key==='banned'||key==='lab')return !!box.value&&typeof box.value==='object'&&!Array.isArray(box.value);
+      if(!Array.isArray(box.value))return false;
+      if(key!=='items')return box.value.every(function(r){return !!r&&typeof r==='object'&&!Array.isArray(r);});
+      // Empty cloud data is authoritative; empty embedded data is not useful as a recovery source.
+      if(!box.value.length)return box.source==='cloud';
+      return box.value.every(function(r){
+        return !!r&&typeof r==='object'&&!Array.isArray(r)&&
+          (r.code!==undefined||r.desc!==undefined||r.id!==undefined);
+      });
+    }
     function date(t){return t?new Date(t).toLocaleString('ar-SY',{dateStyle:'medium',timeStyle:'short'}):'غير متاح';}
     function readOnly(){return portable||navigator.onLine===false;}
     function paint(){
@@ -4988,11 +5153,18 @@ function refreshSettlementChapterFilter(){
     async function persist(key,value,source){
       if(portable)return false;
       var box={key:key,value:value,savedAt:Date.now(),source:source||'cloud'};
-      if(!valid(key,box))return false;
+      if(!valid(key,box)||
+         (key==='items'&&source==='cloud'&&Array.isArray(value)&&!value.length&&
+          boxes.items&&Array.isArray(boxes.items.value)&&boxes.items.value.length)){
+        storageFailed[key]=true;paint();return false;
+      }
       observed[key]=box;
       pending++;delete failed[key];paint();
       try{
-        await TariffIDB.set(key,value,source,box.savedAt);
+        var previous=boxes[key]||null;
+        // Never replace the last known good backup with an invalid primary.
+        if(!previous){try{var stored=await TariffIDB.get(key);if(valid(key,stored))previous=stored;}catch(e){}}
+        await TariffIDB.set(key,value,source,box.savedAt,previous);
         boxes[key]=box;delete storageFailed[key];return true;
       }catch(e){storageFailed[key]=true;return false;}
       finally{pending--;paint();}
@@ -5000,9 +5172,21 @@ function refreshSettlementChapterFilter(){
     async function restore(){
       if(portable){keys.forEach(function(k){if(valid(k,snapshot.boxes&&snapshot.boxes[k]))boxes[k]=snapshot.boxes[k];});}
       else{
-        await Promise.all(keys.map(async function(k){try{var b=await TariffIDB.get(k);if(valid(k,b))boxes[k]=b;}catch(e){storageFailed[k]=true;}}));
+        await Promise.all(keys.map(async function(k){
+          try{
+            var b=await TariffIDB.get(k);
+            if(valid(k,b)){boxes[k]=b;return;}
+            // Recover from a missing or malformed primary using the previous valid version.
+            var backup=await TariffIDB.getBackup(k);
+            if(valid(k,backup)){boxes[k]=Object.assign({},backup,{key:k});storageFailed[k]=true;}
+            else if(b)storageFailed[k]=true;
+          }catch(e){storageFailed[k]=true;}
+        }));
       }
-      if(boxes.items)state.records=boxes.items.value.map(function(r){return normalizeRecord(Object.assign({},r));});
+      if(boxes.items){
+        try{state.records=boxes.items.value.map(function(r){return normalizeRecord(Object.assign({},r));});}
+        catch(e){delete boxes.items;storageFailed.items=true;}
+      }
       if(boxes.explanations)state.explanations=boxes.explanations.value;
       if(boxes.settlements)state.settlements=mergeSettlementIndex(boxes.settlements.value);
       state.lastBannedMap=boxes.banned?boxes.banned.value:{};
@@ -5068,7 +5252,13 @@ function refreshSettlementChapterFilter(){
       document.getElementById('offlineDownload').addEventListener('click',download);
       document.getElementById('offlineRefresh').addEventListener('click',refresh);
       window.addEventListener('offline',paint);
-      window.addEventListener('online',function(){paint();if(window.__refreshOfflineSources)refresh();});
+      var lastReconnectRefresh=0;
+      window.addEventListener('online',function(){
+        paint();
+        if(Date.now()-lastReconnectRefresh<60000)return;
+        lastReconnectRefresh=Date.now();
+        if(window.__refreshOfflineSources)refresh();
+      });
       if(!portable)window.__tariffCloudReady.catch(function(){keys.forEach(function(k){failed[k]=true;});paint();});
       paint();preparePage();
     }
@@ -5368,9 +5558,11 @@ function refreshSettlementChapterFilter(){
 
       if (!opts.ignoreChapter && typeof chapterState !== "undefined" && chapterState.active && chapterOf(r.code) !== chapterState.active) return false;
 
-      var fee = fMode === "export" ? (Number(r.exp_fee)||0) + (Number(r.exp_svc)||0) : (Number(r.imp_fee)||0) + (Number(r.imp_svc)||0);
-      if (fMin !== null && !isNaN(fMin) && fee < fMin) return false;
-      if (fMax !== null && !isNaN(fMax) && fee > fMax) return false;
+      if ((fMin !== null && !isNaN(fMin)) || (fMax !== null && !isNaN(fMax))) {
+        var fee = fMode === "export" ? (Number(r.exp_fee)||0) + (Number(r.exp_svc)||0) : (Number(r.imp_fee)||0) + (Number(r.imp_svc)||0);
+        if (fMin !== null && !isNaN(fMin) && fee < fMin) return false;
+        if (fMax !== null && !isNaN(fMax) && fee > fMax) return false;
+      }
 
       return true;
     });
@@ -5390,7 +5582,7 @@ function refreshSettlementChapterFilter(){
     }
     var allowed=new Set(base),scored=Algo.apply(result).filter(function(r){r._searchReviewed=false;return allowed.has(r);});
     var learned=findLearnedMatch(result.query.tokens,q);
-    if(learned&&!result.query.code){var chosen=base.find(function(r){return r.id===learned.recordId;});if(chosen){chosen._searchReviewed=true;if(!result.results.some(function(m){return m.id===String(chosen.id);})){chosen._searchEvidence=null;chosen._matchPercent=0;chosen._fuzzyMatched=false;chosen._synonymMatched=false;chosen._aiOnlyMatched=false;}scored=scored.filter(function(r){return r!==chosen;});scored.unshift(chosen);}}
+    if(learned&&!result.query.code){var chosen=base.find(function(r){return r.id===learned.recordId;});if(chosen){chosen._searchReviewed=true;if(!scored.some(function(r){return r.id===chosen.id;})){chosen._searchEvidence=null;chosen._matchPercent=0;chosen._fuzzyMatched=false;chosen._synonymMatched=false;chosen._aiOnlyMatched=false;}scored=scored.filter(function(r){return r!==chosen;});scored.unshift(chosen);}}
     state.usedSynonymSearch=scored.some(function(r){return r._synonymMatched;});
     state.usedFuzzySearch=scored.some(function(r){return r._fuzzyMatched;});
     if(typeof sortState!=='undefined'&&sortState.key)return applySort(scored);
@@ -5578,17 +5770,32 @@ function refreshSettlementChapterFilter(){
     var start = (state.page - 1) * state.pageSize;
     var slice = filtered.slice(start, start + state.pageSize);
 
-    // ===== رسم "وسيط" لنتائج البحث/العرض الحالية: يُستخدم لتلوين خانة الإجمالي (مرتفع/منخفض نسبياً)
-    // كانطباع بصري سريع، بدل ما يضطر الموظف يقرأ كل رقم بالتفصيل ليقارنه بباقي النتائج =====
+    // Compute median in expected O(n) rather than sorting the entire tariff on every render.
+    function selectMedian(values){
+      var target=Math.floor(values.length/2),left=0,right=values.length-1;
+      while(left<right){
+        var pivot=values[left+Math.floor((right-left)/2)],i=left,j=right;
+        while(i<=j){
+          while(values[i]<pivot)i++;
+          while(values[j]>pivot)j--;
+          if(i<=j){var tmp=values[i];values[i]=values[j];values[j]=tmp;i++;j--;}
+        }
+        if(target<=j)right=j;
+        else if(target>=i)left=i;
+        else break;
+      }
+      return values[target];
+    }
     var feeMedian = null;
     if (filtered.length > 1) {
-        var feeVals = filtered.map(function(r){
-            var f1 = state.feeMode === "export" ? (Number(r.exp_fee)||0) : (Number(r.imp_fee)||0);
-            var f2 = state.feeMode === "export" ? (Number(r.exp_svc)||0) : (Number(r.imp_svc)||0);
-            return f1 + f2;
-        }).sort(function(a,b){ return a-b; });
-        feeMedian = feeVals[Math.floor(feeVals.length/2)];
+      var isExport=state.feeMode==="export";
+      var feeVals=filtered.map(function(r){
+        return (Number(isExport?r.exp_fee:r.imp_fee)||0)+(Number(isExport?r.exp_svc:r.imp_svc)||0);
+      });
+      feeMedian=selectMedian(feeVals);
     }
+    // O(1) favorite lookup for each visible row, instead of scanning favorites repeatedly.
+    var favoriteCodes=new Set(state.favorites.map(function(f){return f.code;}));
 
     var tbody = document.getElementById("tbody");
     var empty = document.getElementById("emptyState");
@@ -5628,7 +5835,7 @@ function refreshSettlementChapterFilter(){
         var totalFees = impFee + impSvc;
         var isActive = mode === "export" ? (r.exp_active !== undefined ? r.exp_active : r.active) : (r.imp_active !== undefined ? r.imp_active : r.active);
 
-        var isFav = state.favorites.some(function(f){ return f.code === r.code; });
+        var isFav = favoriteCodes.has(r.code);
 
         var isTopMatch = state.isSearching && state.page === 1 && idxInSlice === 0 && filtered.length > 1;
         var feeClass = "";
@@ -6041,6 +6248,23 @@ function refreshSettlementChapterFilter(){
       window.__tariffCloudReady.then(function(c){if(!c||typeof c.clearAdminSearchHistory!=='function')throw new Error('شغّل تحديث SQL الجديد أولاً.');return c.clearAdminSearchHistory();}).then(function(){state.searchCountsMap={};state.popularCodes=[];showToast('تم حذف سجل البحث بالكامل.','ok');window.__loadSearchAnalytics();}).catch(function(err){showToast(err.message||'تعذر حذف سجل البحث.','err');});
   };
 
+  window.__clearAllActivityAnalytics = async function(){
+      if(!state.isAdmin || !state.currentUser){showToast('هذه العملية متاحة للمدير فقط.','err');return;}
+      if(!confirm('سيتم حذف جميع سجلات البحث والزيارات والنشاط والإحصائيات نهائياً. لن تُحذف بيانات التعرفة أو الحسابات. هل تريد المتابعة؟'))return;
+      if(prompt('للتأكيد النهائي، اكتب كلمة حذف') !== 'حذف'){showToast('تم إلغاء العملية.','info');return;}
+      var btn=document.getElementById('clearAllActivityBtn');
+      if(btn){btn.disabled=true;btn.textContent='جارٍ حذف السجلات...';}
+      try{
+          var cloud=await window.__tariffCloudReady;
+          if(!cloud || typeof cloud.clearAllActivityAnalytics!=='function')throw new Error('الاتصال السحابي غير جاهز.');
+          var result=await cloud.clearAllActivityAnalytics();
+          if(!result || result.ok!==true)throw new Error('لم يؤكد الخادم اكتمال الحذف.');
+          state.searchCountsMap={};state.popularCodes=[];
+          showToast('تم حذف سجلات النشاط والإحصائيات بنجاح.','ok');
+          window.__loadSearchAnalytics();
+      }catch(err){showToast('تعذر الحذف: '+(err.message||String(err)),'err');}
+      finally{if(btn){btn.disabled=false;btn.textContent='🗑️ حذف جميع سجلات النشاط والإحصائيات';}}
+  };
   window.__clearSearchAnalytics = function(){
       if (!state.isAdmin) { showToast("هذه الميزة متاحة لحساب الأدمن فقط.", "err"); return; }
       if (!confirm("هل تريدين تصفير عداد البحث بالكامل لكل البنود؟ لا يمكن التراجع عن هذا الإجراء.")) return;
@@ -6151,8 +6375,7 @@ function refreshSettlementChapterFilter(){
 
     updateAdminUI();
 
-    // حالة تحميل مؤقتة (skeleton) قبل ظهور أي بيانات فعلية
-    renderSkeleton();
+    // Offline-first: no loading skeleton; embedded tariff renders immediately.
 
     // استرجاع اللغة المحفوظة سابقاً
     try {
@@ -6161,15 +6384,10 @@ function refreshSettlementChapterFilter(){
     } catch(e) {}
 
     // 1) جدول التعريفة الأساسي مدمج مباشرة بالكود - يظهر فوراً بدون أي اتصال أو انتظار
-    var staticData = window.__STATIC_TARIFF_DATA__ || [];
-    state.records = staticData.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
-
-    // 1ب) لو عنّا نسخة محفوظة محلياً من رفعة إكسل سابقة (من زيارة سابقة)، نعرضها فوراً
-    // بدل الجدول الفارغ لحين اكتمال الاتصال بالسحابة والتأكد من أحدث نسخة.
+    // استخدم مصدراً واحداً فقط عند البداية لتجنّب معالجة التعرفة مرتين.
     var cachedItems = loadItemsFromCache();
-    if (cachedItems) {
-        state.records = cachedItems.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
-    }
+    var initialItems = cachedItems || window.__STATIC_TARIFF_DATA__ || [];
+    state.records = initialItems.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
     state.vocabWords = null; // يُبنى فقط عند الحاجة للبحث التقريبي
     refreshUnitFilterOptions();
     render();
@@ -6251,19 +6469,18 @@ function refreshSettlementChapterFilter(){
         // لا نعرض للمستخدم أي بطاقة حالة/فشل/حفظ؛ التنبيه المرئي الوحيد للتغييرات هو مركز الإشعارات.
         // لو توجد بيانات سحابية، تحل محل الجدول الثابت المدمج بالكود.
         window.TariffCloud.onItemsChange(function(items){
-            var embeddedFallback = !items || !items.length;
-            if (embeddedFallback) items = window.__STATIC_TARIFF_DATA__ || [];
-            if (items && items.length) {
-                state.records = items.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
-                if (Offline.has('banned')) applyBannedMap(state.lastBannedMap || {});
-                applyLabMap(state.lastLabMap || {});
-                state.vocabWords = null;
-                refreshUnitFilterOptions();
-                render();
-                Offline.persist('items', items, embeddedFallback ? 'embedded' : 'cloud');
-                try { localStorage.setItem('tariff_last_updated', new Date().toLocaleString('ar-SY')); } catch(e){}
-                renderStats();
-            }
+            // [] is a valid authoritative cloud result. Never silently resurrect embedded rows.
+            if (!Array.isArray(items)) return;
+            state.records = items.map(function(r){ return normalizeRecord(Object.assign({}, r)); });
+            if (Offline.has('banned')) applyBannedMap(state.lastBannedMap || {});
+            applyLabMap(state.lastLabMap || {});
+            state.vocabWords = null;
+            state.page = 1;
+            refreshUnitFilterOptions();
+            render();
+            Offline.persist('items', items, 'cloud');
+            try { localStorage.setItem('tariff_last_updated', new Date().toLocaleString('ar-SY')); } catch(e){}
+            renderStats();
         }, function(err){
             Offline.error('items');
             console.warn("تعذّر تحديث بنود التعريفة سحابياً:", err);
@@ -6382,7 +6599,7 @@ function refreshSettlementChapterFilter(){
         }catch(e){fallback();}
       });
     }
-    function key(raw){return normalized.normalize(raw).slice(0,500);}
+    function key(raw){return normalized.parse(raw).raw;}
     function peek(raw){ensure();return cache.get(key(raw));}
     function search(raw){
       ensure();var k=key(raw),v=generation;if(cache.has(k))return Promise.resolve(cache.get(k));if(inflight.has(k))return inflight.get(k);
@@ -6731,13 +6948,37 @@ function refreshSettlementChapterFilter(){
         // Supabase تُرجع 1000 صف كحد أقصى بكل طلب افتراضياً، لذلك أي جدول ممكن يحتوي أكثر من
         // 1000 صف (مثل بنود التعريفة) لازم يُقرأ على دفعات (صفحات) حتى نضمن سحب كل الصفوف كاملة.
         const READ_PAGE_SIZE = 1000;
+        // Retries only read-only requests. Writes are never automatically replayed.
+        function waitForReadRetry(ms){
+            return new Promise(function(resolve){setTimeout(resolve,ms);});
+        }
+        function retryableReadError(err){
+            var status=Number(err && (err.status||err.code));
+            if(status===429||status===408||status>=500)return true;
+            if(status>=400&&status<500)return false;
+            var msg=String((err&&err.message)||err||'').toLowerCase();
+            return /network|fetch|timeout|timed out|offline|failed to fetch|connection|استغرقت وقت/.test(msg);
+        }
+        async function readPageWithRetry(query,from){
+            var attempts=3;
+            for(var attempt=0;attempt<attempts;attempt++){
+                if(navigator.onLine===false)return {data:null,error:new Error('offline')};
+                try{
+                    var res=await withTimeout(query.range(from,from+READ_PAGE_SIZE-1),OP_TIMEOUT_MS,'تحميل البيانات');
+                    if(!res.error||!retryableReadError(res.error)||attempt===attempts-1)return res;
+                }catch(err){
+                    if(!retryableReadError(err)||attempt===attempts-1)throw err;
+                }
+                await waitForReadRetry(600*Math.pow(2,attempt)+Math.floor(Math.random()*200));
+            }
+        }
         async function fetchAllRows(query){
             try {
             if (navigator.onLine === false) return {data:null,error:new Error('offline')};
             var all = [];
             var from = 0;
             while (true) {
-                var res = await withTimeout(query.range(from, from + READ_PAGE_SIZE - 1), OP_TIMEOUT_MS, "تحميل البيانات");
+                var res = await readPageWithRetry(query, from);
                 if (res.error) return res;
                 var batch = res.data || [];
                 all = all.concat(batch);
@@ -6820,21 +7061,41 @@ function refreshSettlementChapterFilter(){
         function onItemsChange(onItemsReady, onError){
             function readAll(){
                 return fetchAllRows(supabase.from(ITEMS_TABLE).select("*")).then(function(res){
-                    if (res.error) { console.error("Supabase tariff_items select error:", res.error); if (onError) onError(res.error); return; }
+                    if (res.error) { console.error("Supabase tariff_items select error:", res.error); if (onError) onError(res.error); return false; }
                     var items = (res.data || []).map(function(row){
                         return Object.assign({ id: row.id }, row.data || {});
                     });
                     onItemsReady(items);
+                    return true;
                 });
             }
-            var running=null;
-            function fetchAll(){if(running)return running;running=readAll().finally(function(){running=null;});return running;}
-            offlineRefreshers.push(fetchAll);
-            (window.requestIdleCallback ? requestIdleCallback(fetchAll,{timeout:3500}) : setTimeout(fetchAll,2200));
+            var running=null, lastFetched=0, pendingRefresh=false, CACHE_TTL=60*60*1000;
+            function fetchAll(force){
+                if(running)return running;
+                if(!force && lastFetched && Date.now()-lastFetched<CACHE_TTL)return Promise.resolve();
+                if(!navigator.onLine)return Promise.resolve();
+                running=readAll().then(function(ok){if(ok)lastFetched=Date.now();}).finally(function(){running=null;if(pendingRefresh){pendingRefresh=false;fetchAll(true);}});
+                return running;
+            }
+            function forceRefresh(){return fetchAll(true);}
+            offlineRefreshers.push(forceRefresh);
+            var hourlyTimer=setInterval(function(){
+                if(document.visibilityState==='visible')fetchAll(false);
+            },60*60*1000);
+            TariffIDB.get('items').then(function(box){
+                if(box && box.source==='cloud' && Number.isFinite(box.savedAt)) lastFetched=box.savedAt;
+            }).catch(function(){}).then(function(){
+                if(document.visibilityState==='visible')fetchAll(false);
+            });
+            var realtimeTimer=null;
+            function queueRealtimeRefresh(){
+                clearTimeout(realtimeTimer);
+                realtimeTimer=setTimeout(function(){fetchAll(true);},1200);
+            }
             var channel = supabase.channel("tariff_items_changes")
-                .on("postgres_changes", { event: "*", schema: "public", table: ITEMS_TABLE }, fetchAll)
+                .on("postgres_changes", { event: "*", schema: "public", table: ITEMS_TABLE }, queueRealtimeRefresh)
                 .subscribe();
-            return function unsubscribe(){ offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==fetchAll;});supabase.removeChannel(channel); };
+            return function unsubscribe(){clearInterval(hourlyTimer);clearTimeout(realtimeTimer); offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==forceRefresh;});supabase.removeChannel(channel); };
         }
 
         // ينظّف قيمة حقل قبل إرسالها لقاعدة البيانات (يرفض undefined/NaN/Infinity ويسبب فشل الدفعة كاملة)
@@ -6863,6 +7124,26 @@ function refreshSettlementChapterFilter(){
         // (بدل حذف القديم أولاً) حتى لو صار خطأ بمنتصف الرفع، البيانات القديمة تبقى موجودة كنسخة احتياطية
         // بدل ما تختفي البيانات بالكامل ويبقى جزء بسيط فقط مرفوع.
         async function replaceAllItems(records, onProgress){
+            if (!Array.isArray(records) || !records.length) throw new Error('لا يمكن استبدال الشروحات بملف فارغ.');
+            var uniqueIds=new Set();
+            records.forEach(function(rec){
+                var key=String(rec.code||'').replace(/[.\s-]/g,'');
+                if(!/^\d{4,12}$/.test(key)||!String(rec.text||'').trim()||uniqueIds.has(key))
+                    throw new Error('الملف يحتوي رموزاً غير صالحة أو مكررة بعد توحيد الصيغة.');
+                uniqueIds.add(key);
+            });
+            // Obtain an authoritative remote backup before the first destructive operation.
+            var before = await fetchAllRows(supabase.from(EXPLANATIONS_TABLE).select('*'));
+            if(before.error || !Array.isArray(before.data)) throw new Error('تعذّر جلب النسخة الحالية من السيرفر؛ تم إلغاء الاستبدال لحماية الشروحات.');
+            var snapshot={createdAt:new Date().toISOString(),type:'tariff-explanations-pre-replace',rows:before.data};
+            var backupOk=await Offline.persist('explanations',before.data.map(function(r){return Object.assign({id:r.id},r.data||{});}), 'cloud');
+            if(!backupOk) throw new Error('تعذّر حفظ نسخة احتياطية محلية قبل الاستبدال. أُلغيت العملية.');
+            try {
+                var blob=new Blob([JSON.stringify(snapshot)],{type:'application/json;charset=utf-8'});
+                var url=URL.createObjectURL(blob),a=document.createElement('a');
+                a.href=url;a.download='tariff-explanations-backup-'+new Date().toISOString().slice(0,10)+'.json';
+                document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},10000);
+            }catch(e){console.warn('تعذر تنزيل نسخة الشروحات الاحتياطية:',e);}
             var total = records.length;
             var newIds = {};
             var uploaded = 0;
@@ -6901,21 +7182,41 @@ function refreshSettlementChapterFilter(){
         function onExplanationsChange(onItemsReady, onError){
             function readAll(){
                 return fetchAllRows(supabase.from(EXPLANATIONS_TABLE).select("*")).then(function(res){
-                    if (res.error) { console.error("Supabase tariff_explanations select error:", res.error); if (onError) onError(res.error); return; }
+                    if (res.error) { console.error("Supabase tariff_explanations select error:", res.error); if (onError) onError(res.error); return false; }
                     var items = (res.data || []).map(function(row){
                         return Object.assign({ id: row.id }, row.data || {});
                     });
                     onItemsReady(items);
+                    return true;
                 });
             }
-            var running=null;
-            function fetchAll(){if(running)return running;running=readAll().finally(function(){running=null;});return running;}
-            offlineRefreshers.push(fetchAll);
-            (window.requestIdleCallback ? requestIdleCallback(fetchAll,{timeout:4200}) : setTimeout(fetchAll,2800));
+            var running=null, lastFetched=0, pendingRefresh=false, CACHE_TTL=60*60*1000;
+            function fetchAll(force){
+                if(running)return running;
+                if(!force && lastFetched && Date.now()-lastFetched<CACHE_TTL)return Promise.resolve();
+                if(!navigator.onLine)return Promise.resolve();
+                running=readAll().then(function(ok){if(ok)lastFetched=Date.now();}).finally(function(){running=null;if(pendingRefresh){pendingRefresh=false;fetchAll(true);}});
+                return running;
+            }
+            function forceRefresh(){return fetchAll(true);}
+            offlineRefreshers.push(forceRefresh);
+            var hourlyTimer=setInterval(function(){
+                if(document.visibilityState==='visible')fetchAll(false);
+            },60*60*1000);
+            TariffIDB.get('explanations').then(function(box){
+                if(box && box.source==='cloud' && Number.isFinite(box.savedAt)) lastFetched=box.savedAt;
+            }).catch(function(){}).then(function(){
+                if(document.visibilityState==='visible')fetchAll(false);
+            });
+            var realtimeTimer=null;
+            function queueRealtimeRefresh(){
+                clearTimeout(realtimeTimer);
+                realtimeTimer=setTimeout(function(){fetchAll(true);},1200);
+            }
             var channel = supabase.channel("tariff_explanations_changes")
-                .on("postgres_changes", { event: "*", schema: "public", table: EXPLANATIONS_TABLE }, fetchAll)
+                .on("postgres_changes", { event: "*", schema: "public", table: EXPLANATIONS_TABLE }, queueRealtimeRefresh)
                 .subscribe();
-            return function unsubscribe(){ offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==fetchAll;});supabase.removeChannel(channel); };
+            return function unsubscribe(){clearInterval(hourlyTimer);clearTimeout(realtimeTimer); offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==forceRefresh;});supabase.removeChannel(channel); };
         }
 
         // استبدال كامل شروحات التعرفة (أدمن فقط) - نفس منطق replaceAllItems (رفع الجديد أولاً ثم حذف القديم المتبقي)
@@ -6957,19 +7258,39 @@ function refreshSettlementChapterFilter(){
         function onSettlementsChange(onItemsReady, onError){
             function readAll(){
                 return fetchAllRows(supabase.from(SETTLEMENTS_TABLE).select("*")).then(function(res){
-                    if (res.error) { console.error("Supabase settlement_guide select error:", res.error); if (onError) onError(res.error); return; }
+                    if (res.error) { console.error("Supabase settlement_guide select error:", res.error); if (onError) onError(res.error); return false; }
                     var items = (res.data || []).map(function(row){ return Object.assign({ id: row.id }, row.data || {}); });
                     onItemsReady(items);
+                    return true;
                 });
             }
-            var running=null;
-            function fetchAll(){if(running)return running;running=readAll().finally(function(){running=null;});return running;}
-            offlineRefreshers.push(fetchAll);
-            (window.requestIdleCallback ? requestIdleCallback(fetchAll,{timeout:4500}) : setTimeout(fetchAll,3200));
+            var running=null, lastFetched=0, pendingRefresh=false, CACHE_TTL=60*60*1000;
+            function fetchAll(force){
+                if(running)return running;
+                if(!force && lastFetched && Date.now()-lastFetched<CACHE_TTL)return Promise.resolve();
+                if(!navigator.onLine)return Promise.resolve();
+                running=readAll().then(function(ok){if(ok)lastFetched=Date.now();}).finally(function(){running=null;if(pendingRefresh){pendingRefresh=false;fetchAll(true);}});
+                return running;
+            }
+            function forceRefresh(){return fetchAll(true);}
+            offlineRefreshers.push(forceRefresh);
+            var hourlyTimer=setInterval(function(){
+                if(document.visibilityState==='visible')fetchAll(false);
+            },60*60*1000);
+            TariffIDB.get('settlements').then(function(box){
+                if(box && box.source==='cloud' && Number.isFinite(box.savedAt)) lastFetched=box.savedAt;
+            }).catch(function(){}).then(function(){
+                if(document.visibilityState==='visible')fetchAll(false);
+            });
+            var realtimeTimer=null;
+            function queueRealtimeRefresh(){
+                clearTimeout(realtimeTimer);
+                realtimeTimer=setTimeout(function(){fetchAll(true);},1200);
+            }
             var channel = supabase.channel("settlement_guide_changes")
-                .on("postgres_changes", { event: "*", schema: "public", table: SETTLEMENTS_TABLE }, fetchAll)
+                .on("postgres_changes", { event: "*", schema: "public", table: SETTLEMENTS_TABLE }, queueRealtimeRefresh)
                 .subscribe();
-            return function unsubscribe(){ offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==fetchAll;});supabase.removeChannel(channel); };
+            return function unsubscribe(){clearInterval(hourlyTimer);clearTimeout(realtimeTimer); offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==forceRefresh;});supabase.removeChannel(channel); };
         }
 
         // استبدال كامل دليل التسويات - نرفع الجديد أولاً ثم نحذف السجلات القديمة المتبقية
@@ -7070,6 +7391,12 @@ function refreshSettlementChapterFilter(){
             if (res.error) throw res.error;
         }
 
+        async function clearAllActivityAnalytics(){
+            var res=await supabase.rpc('admin_clear_all_activity_analytics');
+            if(res.error)throw res.error;
+            return res.data;
+        }
+
         async function getAdminAnalyticsDashboard(){
             var res = await supabase.rpc("get_admin_analytics_dashboard");
             if (res.error) throw res.error;
@@ -7125,7 +7452,7 @@ function refreshSettlementChapterFilter(){
                 return new Error("هذا البريد الإلكتروني مستخدم مسبقاً لحساب آخر.");
             }
             if (low.indexOf("password") !== -1 && (low.indexOf("least") !== -1 || low.indexOf("short") !== -1 || low.indexOf("weak") !== -1 || low.indexOf("6 char") !== -1)) {
-                return new Error("كلمة السر ضعيفة جداً، يجب أن تكون 6 أحرف على الأقل.");
+                return new Error("كلمة السر ضعيفة جداً، يجب أن تكون 12 حرفًا على الأقل.");
             }
             return new Error(msg || "حدث خطأ غير متوقع.");
         }
@@ -7168,7 +7495,7 @@ function refreshSettlementChapterFilter(){
             email = cleanAccountEmail(email);
             role = role === 'admin' ? 'admin' : 'user';
             if (!validAccountEmail(email)) throw new Error('صيغة البريد الإلكتروني غير صحيحة.');
-            if (String(password || '').length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
+            if (String(password || '').length < 12) throw new Error('كلمة المرور يجب أن تكون 12 حرفًا على الأقل.');
             try {
                 var sessionRes = await supabase.auth.getSession();
                 if (!sessionRes.data || !sessionRes.data.session) throw new Error('يجب تسجيل الدخول بحساب الأدمن أولاً.');
@@ -7357,6 +7684,7 @@ function refreshSettlementChapterFilter(){
             getAdminUsageStats: getAdminUsageStats,
             trackSiteEvent: trackSiteEvent,
             getAdminAnalyticsDashboard: getAdminAnalyticsDashboard,
+            clearAllActivityAnalytics: clearAllActivityAnalytics,
             pushClassifyCorrection: pushClassifyCorrectionCloud,
             onClassifyCorrectionsChange: onClassifyCorrectionsChange,
             onNotificationsChange: onNotificationsChange,
@@ -7477,7 +7805,7 @@ function refreshSettlementChapterFilter(){
       '<button class="v20-tool-card" onclick="V20Tools.show(\'favorites\')"><b>⭐ إدارة المفضلة</b><span>نسخة احتياطية للمفضلة واسترجاعها عند الحاجة.</span></button>'+
       '<button class="v20-tool-card" onclick="V20Tools.openCompare()"><b>⚖️ مقارنة البنود</b><span>مقارنة البنود المحفوظة في نافذة واحدة.</span></button>'+
       '</div></section>'+
-      '<div class="v20-source-pill">V.29.1 · واجهة منظمة · حاسبة التسويات تعمل دون إنترنت</div>';
+      '<div class="v20-source-pill">V.29.2 · واجهة منظمة · حاسبة التسويات تعمل دون إنترنت</div>';
     },
     show:function(which){
       if(which==='cars')this.renderCars();
@@ -7578,7 +7906,7 @@ function refreshSettlementChapterFilter(){
       this.fineGroups={};this.fineData.forEach(function(item){var s=item.Section||'قسم غير محدد';(api.fineGroups[s]||(api.fineGroups[s]=[])).push(item);});
       var sections=Object.keys(this.fineGroups),sopts=sections.map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>';}).join('');
       document.getElementById('v20FineArea').innerHTML=
-      '<div class="v22-calc-intro"><b>حاسبة التسويات V.29.1</b><br>تعمل محلياً باستخدام 99 قاعدة حساب مدمجة. ابحث عن المخالفة مباشرة أو اختر القسم ثم المخالفة.</div>'+
+      '<div class="v22-calc-intro"><b>حاسبة التسويات V.29.2</b><br>تعمل محلياً باستخدام 99 قاعدة حساب مدمجة. ابحث عن المخالفة مباشرة أو اختر القسم ثم المخالفة.</div>'+
       '<div class="v20-field"><label>بحث سريع عن المخالفة</label><input id="v22FineSearch" class="v20-input" type="search" placeholder="مثال: مانيفست، تأخير، منشأ، تهريب، سلاح..." oninput="V20Tools.searchFineRules(this.value)"></div><div id="v22FineSearchResults" class="v22-fine-search-results"></div>'+
       '<div class="v20-form-grid"><div class="v20-field"><label>القسم الرئيسي</label><select id="v20FineSection" class="v20-select" onchange="V20Tools.onFineSection()">'+sopts+'</select></div>'+
       '<div class="v20-field"><label>المخالفة التفصيلية</label><select id="v20FineViolation" class="v20-select" onchange="V20Tools.onFineSelection()"></select></div></div>'+
@@ -8038,24 +8366,74 @@ BEGIN
  IF clean THEN DELETE FROM tariff_monitor_private.sessions WHERE last_seen<now()-interval '30 days'; DELETE FROM tariff_monitor_private.audit WHERE created_at<now()-interval '180 days'; END IF;
  RETURN jsonb_build_object('ok',true,'server_time',now());
 END;$$;
+-- معرّفات رقمية للأدمن فقط — نفّذ مرة واحدة بعد SQL مراقبة المستخدمين
+
+CREATE SEQUENCE IF NOT EXISTS tariff_monitor_private.numeric_id_seq AS bigint START WITH 100001;
+CREATE TABLE IF NOT EXISTS tariff_monitor_private.numeric_identifiers (
+  identity_key text PRIMARY KEY,
+  numeric_id bigint NOT NULL UNIQUE DEFAULT nextval('tariff_monitor_private.numeric_id_seq'),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+REVOKE ALL ON tariff_monitor_private.numeric_identifiers FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON SEQUENCE tariff_monitor_private.numeric_id_seq FROM PUBLIC, anon, authenticated;
+
+CREATE OR REPLACE FUNCTION tariff_monitor_private.assign_numeric_id()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
+BEGIN
+  INSERT INTO tariff_monitor_private.numeric_identifiers(identity_key)
+  VALUES (CASE WHEN NEW.user_id IS NOT NULL THEN 'user:'||NEW.user_id::text ELSE 'guest:'||NEW.visitor_id::text END)
+  ON CONFLICT (identity_key) DO NOTHING;
+  RETURN NEW;
+END; $$;
+DROP TRIGGER IF EXISTS trg_assign_numeric_id ON tariff_monitor_private.sessions;
+CREATE TRIGGER trg_assign_numeric_id AFTER INSERT OR UPDATE OF user_id,visitor_id
+ON tariff_monitor_private.sessions FOR EACH ROW EXECUTE FUNCTION tariff_monitor_private.assign_numeric_id();
+
+INSERT INTO tariff_monitor_private.numeric_identifiers(identity_key)
+SELECT DISTINCT CASE WHEN user_id IS NOT NULL THEN 'user:'||user_id::text ELSE 'guest:'||visitor_id::text END
+FROM tariff_monitor_private.sessions
+ON CONFLICT (identity_key) DO NOTHING;
+
 CREATE OR REPLACE FUNCTION public.tariff_monitor_dashboard(p_search text DEFAULT '',p_status text DEFAULT 'all',p_device text DEFAULT 'all',p_kind text DEFAULT 'all',p_days int DEFAULT 1,p_page int DEFAULT 0)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
-DECLARE result jsonb; counts jsonb;
+DECLARE result jsonb;
 BEGIN
  PERFORM tariff_monitor_private.require_admin();
- SELECT jsonb_build_object('connected',count(*) FILTER(WHERE last_seen>now()-interval '120 seconds' AND ended_at IS NULL AND revoked_at IS NULL),
- 'active',count(*) FILTER(WHERE last_seen>now()-interval '120 seconds' AND last_active>now()-interval '60 seconds' AND visible AND ended_at IS NULL AND revoked_at IS NULL),
- 'accounts',count(DISTINCT user_id) FILTER(WHERE last_seen>now()-interval '120 seconds' AND ended_at IS NULL AND revoked_at IS NULL),
- 'guests',count(DISTINCT visitor_id) FILTER(WHERE user_id IS NULL AND last_seen>now()-interval '120 seconds' AND ended_at IS NULL AND revoked_at IS NULL)) INTO counts FROM tariff_monitor_private.sessions;
- WITH base AS (SELECT s.id,s.visitor_id,s.user_id,s.started_at,s.last_seen,s.last_active,s.active_seconds,s.device_type,s.os_name,s.browser_name,s.model,s.current_section,s.revoked_at,
- coalesce(p.username,CASE WHEN s.user_id IS NOT NULL THEN 'حساب مسجّل' ELSE 'زائر '||left(s.visitor_id::text,8) END) display_name,coalesce(p.role,'visitor') role,coalesce(c.suspended,false) suspended,
- CASE WHEN s.revoked_at IS NOT NULL THEN 'ended' WHEN s.ended_at IS NOT NULL OR s.last_seen<=now()-interval '120 seconds' THEN 'offline' WHEN s.visible AND s.last_active>now()-interval '60 seconds' THEN 'active' ELSE 'idle' END status
- FROM tariff_monitor_private.sessions s LEFT JOIN public.profiles p ON p.id=s.user_id LEFT JOIN tariff_monitor_private.user_controls c ON c.user_id=s.user_id WHERE s.last_seen>now()-make_interval(days=>greatest(1,least(coalesce(p_days,1),30)))),
- filtered AS(SELECT * FROM base WHERE (coalesce(p_search,'')='' OR display_name ILIKE '%'||left(p_search,100)||'%' OR model ILIKE '%'||left(p_search,100)||'%')
- AND (p_status='all' OR status=p_status OR (p_status='connected' AND status IN ('active','idle')))
- AND(p_device='all' OR device_type=p_device) AND(p_kind='all' OR (p_kind='accounts' AND user_id IS NOT NULL) OR(p_kind='guests' AND user_id IS NULL))),
- page AS(SELECT * FROM filtered ORDER BY last_seen DESC,id LIMIT 50 OFFSET greatest(0,least(coalesce(p_page,0),10000))*50)
- SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(page)) FROM page),'[]'::jsonb),'total',(SELECT count(*) FROM filtered),'counts',counts,'server_time',now()) INTO result;
+ WITH ranked AS (
+  SELECT s.*, row_number() OVER (
+   PARTITION BY CASE WHEN s.user_id IS NOT NULL THEN 'user:'||s.user_id::text ELSE 'guest:'||s.visitor_id::text END
+   ORDER BY (s.ended_at IS NULL AND s.revoked_at IS NULL AND s.last_seen > now()-interval '120 seconds') DESC,
+            s.last_seen DESC, s.id DESC
+  ) AS display_rank
+  FROM tariff_monitor_private.sessions s
+  WHERE s.last_seen > now()-make_interval(days=>greatest(1,least(coalesce(p_days,1),30)))
+ ), base AS (
+  SELECT s.id,s.visitor_id,s.user_id,n.numeric_id AS numeric_id,s.started_at,s.last_seen,s.last_active,s.active_seconds,s.device_type,s.os_name,s.browser_name,s.model,s.current_section,s.revoked_at,
+   coalesce(p.username,CASE WHEN s.user_id IS NOT NULL THEN 'حساب مسجّل' ELSE coalesce(n.numeric_id::text,'—') END) display_name,
+   coalesce(p.role,'visitor') role,coalesce(c.suspended,false) suspended,
+   CASE WHEN s.revoked_at IS NOT NULL THEN 'ended' WHEN s.ended_at IS NOT NULL OR s.last_seen<=now()-interval '120 seconds' THEN 'offline'
+    WHEN s.visible AND s.last_active>now()-interval '60 seconds' THEN 'active' ELSE 'idle' END status
+  FROM ranked s LEFT JOIN tariff_monitor_private.numeric_identifiers n ON n.identity_key = CASE WHEN s.user_id IS NOT NULL THEN 'user:'||s.user_id::text ELSE 'guest:'||s.visitor_id::text END LEFT JOIN public.profiles p ON p.id=s.user_id
+  LEFT JOIN tariff_monitor_private.user_controls c ON c.user_id=s.user_id
+  WHERE s.display_rank=1
+ ), filtered AS (
+  SELECT * FROM base WHERE (coalesce(p_search,'')='' OR display_name ILIKE '%'||left(p_search,100)||'%' OR model ILIKE '%'||left(p_search,100)||'%')
+  AND (p_status='all' OR status=p_status OR (p_status='connected' AND status IN ('active','idle')))
+  AND (p_device='all' OR device_type=p_device)
+  AND (p_kind='all' OR (p_kind='accounts' AND user_id IS NOT NULL) OR (p_kind='guests' AND user_id IS NULL))
+ ), page AS (
+  SELECT * FROM filtered ORDER BY last_seen DESC,id LIMIT 50 OFFSET greatest(0,least(coalesce(p_page,0),10000))*50
+ )
+ SELECT jsonb_build_object(
+  'rows',coalesce((SELECT jsonb_agg(to_jsonb(page)) FROM page),'[]'::jsonb),
+  'total',(SELECT count(*) FROM filtered),
+  'counts', (SELECT jsonb_build_object(
+    'connected',count(*) FILTER(WHERE status IN ('active','idle')),
+    'active',count(*) FILTER(WHERE status='active'),
+    'accounts',count(*) FILTER(WHERE user_id IS NOT NULL AND status IN ('active','idle')),
+    'guests',count(*) FILTER(WHERE user_id IS NULL AND status IN ('active','idle'))
+   ) FROM base),
+  'server_time',now()) INTO result;
  RETURN result;
 END;$$;
 CREATE OR REPLACE FUNCTION public.tariff_monitor_user_card(p_session uuid) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
@@ -8064,7 +8442,7 @@ BEGIN
  PERFORM tariff_monitor_private.require_admin();
  SELECT * INTO target FROM tariff_monitor_private.sessions WHERE id=p_session;
  IF NOT FOUND THEN RAISE EXCEPTION 'SESSION_NOT_FOUND'; END IF;
- SELECT jsonb_build_object('profile',jsonb_build_object('id',target.user_id,'name',coalesce(p.username,'زائر '||left(target.visitor_id::text,8)),'role',coalesce(p.role,'visitor'),'suspended',coalesce(c.suspended,false),'reason',c.reason),
+ SELECT jsonb_build_object('profile',jsonb_build_object('numeric_id',(SELECT n.numeric_id FROM tariff_monitor_private.numeric_identifiers n WHERE n.identity_key=CASE WHEN target.user_id IS NOT NULL THEN 'user:'||target.user_id::text ELSE 'guest:'||target.visitor_id::text END),'id',target.user_id,'name',coalesce(p.username,(SELECT n.numeric_id::text FROM tariff_monitor_private.numeric_identifiers n WHERE n.identity_key='guest:'||target.visitor_id::text),'—'),'role',coalesce(p.role,'visitor'),'suspended',coalesce(c.suspended,false),'reason',c.reason),
  'stats',(SELECT jsonb_build_object('visits',count(*),'first_seen',min(started_at),'last_seen',max(last_seen),'active_seconds',sum(active_seconds)) FROM tariff_monitor_private.sessions WHERE (target.user_id IS NOT NULL AND user_id=target.user_id) OR(target.user_id IS NULL AND user_id IS NULL AND visitor_id=target.visitor_id)),
  'sessions',coalesce((SELECT jsonb_agg(x) FROM(SELECT id,device_type,os_name,browser_name,model,started_at,last_seen,current_section,active_seconds,revoked_at,ended_at FROM tariff_monitor_private.sessions WHERE (target.user_id IS NOT NULL AND user_id=target.user_id) OR(target.user_id IS NULL AND user_id IS NULL AND visitor_id=target.visitor_id) ORDER BY last_seen DESC LIMIT 50)x),'[]'::jsonb),
  'errors',coalesce((SELECT jsonb_agg(x) FROM(SELECT e.kind,e.component,e.http_status,e.created_at FROM tariff_monitor_private.errors e JOIN tariff_monitor_private.sessions s ON s.id=e.session_id WHERE (target.user_id IS NOT NULL AND s.user_id=target.user_id) OR(target.user_id IS NULL AND s.user_id IS NULL AND s.visitor_id=target.visitor_id) ORDER BY e.created_at DESC LIMIT 30)x),'[]'::jsonb),
@@ -8148,31 +8526,57 @@ function time(s){if(!s)return 'غير متاح';var d=new Date(s);return Number.
 function duration(n){n=Math.max(0,Number(n)||0);return n<60?Math.floor(n)+' ث':Math.floor(n/60)+' د '+Math.floor(n%60)+' ث';}
 function setStatus(text,error){var e=document.getElementById('monitorStatus');e.textContent=text;e.classList.toggle('error',!!error);}
 function clearAdmin(){monitor.epoch++;monitor.request++;monitor.cardRequest++;monitor.data=null;monitor.card=null;monitor.selected=null;['monitorConfirm','monitorUserCard','monitorDashboard'].forEach(function(id){var d=document.getElementById(id);if(d&&d.open)d.close();});['monitorRows','monitorCardContent'].forEach(function(id){var el=document.getElementById(id);if(el)el.replaceChildren();});document.querySelectorAll('[data-monitor-count]').forEach(function(e){e.textContent='—'});}
-function syncRole(){var yes=admin(),section=document.getElementById('monitorAdminSection');if(section){section.hidden=!yes;section.style.display=yes?'block':'none';}if(!yes)clearAdmin();if(uid()!==monitor.owner){monitor.epoch++;resetSession();heartbeat(false);}}
+function syncRole(){var yes=admin(),section=document.getElementById('monitorAdminSection');if(section){section.hidden=!yes;section.style.display=yes?'block':'none';}if(!yes && monitor.data)clearAdmin();if(uid()!==monitor.owner){monitor.epoch++;resetSession();heartbeat(false);}}
 function filters(){return {p_search:document.getElementById('monitorSearch').value.trim().slice(0,100),p_status:document.getElementById('monitorState').value,p_device:document.getElementById('monitorDevice').value,p_kind:document.getElementById('monitorKind').value,p_days:Number(document.getElementById('monitorDays').value),p_page:monitor.page};}
 function errorText(e){var msg=String(e.message||'');if(e.code==='PGRST202'||e.code==='42883'||/Could not find the function/.test(msg))return 'يلزم تشغيل ملف admin-users-devices.sql في قاعدة البيانات أولاً، ثم اضغط تحديث. لا توجد بيانات تجريبية.';if(e.code==='42501'||/ADMIN_ONLY/.test(msg))return 'الوصول مرفوض: يجب أن تكون صلاحية الحساب admin محفوظة في قاعدة البيانات.';if(msg.includes('TARIFF_ACCESS_ENDED'))return 'أُنهي وصول هذه الجلسة أو عُلّق الحساب.';return 'تعذّر الاتصال باللوحة. تحقق من الاتصال وإعداد قاعدة البيانات ثم أعد المحاولة.';}
-async function refresh(){if(!admin()){clearAdmin();return;}if(!monitor.transport){setStatus('خدمة الاتصال غير جاهزة. افتح الموقع مع اتصال بالإنترنت وتحقق من تفعيل قاعدة البيانات.',true);return;}var request=++monitor.request,epoch=monitor.epoch;setStatus('جارٍ تحديث الجلسات…');document.getElementById('monitorRefresh').disabled=true;
-try{var result=await monitor.transport.dashboard(filters());if(!admin()||request!==monitor.request||epoch!==monitor.epoch)return;monitor.data=result;renderDashboard();setStatus('آخر تحديث: '+time(result.server_time)+' — التحديث التلقائي كل 30 ثانية أثناء فتح اللوحة.');}
-catch(e){if(!admin()||request!==monitor.request||epoch!==monitor.epoch)return;monitor.data=null;document.getElementById('monitorRows').innerHTML='<div class="monitor-empty">لا توجد بيانات متاحة للعرض.</div>';document.querySelectorAll('[data-monitor-count]').forEach(function(el){el.textContent='—'});setStatus(errorText(e),true);if(String(e.message||'').includes('TARIFF_ACCESS_ENDED'))ended();}
-finally{document.getElementById('monitorRefresh').disabled=false;}}
-function renderDashboard(){var d=monitor.data||{},counts=d.counts||{};document.querySelectorAll('[data-monitor-count]').forEach(function(e){e.textContent=Number(counts[e.dataset.monitorCount]||0).toLocaleString('ar-SY')});var rows=d.rows||[];document.getElementById('monitorRows').innerHTML=rows.length?rows.map(function(r){return '<article class="monitor-row"><div><strong>'+h(r.display_name)+'</strong><small>'+h(labels[r.role]||r.role)+(r.suspended?' · الحساب معلّق':'')+'</small><span class="monitor-badge '+h(r.status)+'">'+h(labels[r.status]||r.status)+'</span></div><div><strong>'+h(labels[r.device_type]||'غير متاح')+' · '+h(r.os_name)+'</strong><small>'+h(r.browser_name)+'</small><small>الموديل: '+h(r.model)+'</small></div><div><strong>'+h(labels[r.current_section]||r.current_section)+'</strong><small>نشاط فعلي تقديري: '+h(duration(r.active_seconds))+'</small></div><div><small>آخر تواصل</small>'+h(time(r.last_seen))+'<small>بدأت: '+h(time(r.started_at))+'</small></div><button type="button" data-monitor-card="'+h(r.id)+'">بطاقة المستخدم</button></article>';}).join(''):'<div class="monitor-empty">لا توجد جلسات تطابق الفلاتر الحالية.</div>';document.getElementById('monitorPage').textContent='صفحة '+(monitor.page+1)+' · '+Number(d.total||0).toLocaleString('ar-SY')+' جلسة';document.getElementById('monitorPrev').disabled=monitor.page===0;document.getElementById('monitorNext').disabled=(monitor.page+1)*50>=Number(d.total||0);}
+var monitorRefreshRunning=false,monitorRefreshQueued=false;
+async function refresh(){
+if(!admin()){clearAdmin();return;}
+if(document.visibilityState==='hidden'){monitorRefreshQueued=true;return;}
+if(monitorRefreshRunning){monitorRefreshQueued=true;return;}
+if(!monitor.transport){setStatus('خدمة الاتصال غير جاهزة. افتح الموقع مع اتصال بالإنترنت وتحقق من تفعيل قاعدة البيانات.',true);return;}
+monitorRefreshRunning=true;monitorRefreshQueued=false;
+var request=++monitor.request,epoch=monitor.epoch;
+setStatus(monitor.data?'جارٍ تحديث البيانات مع الاحتفاظ بالنتائج الحالية…':'جارٍ تحميل الجلسات…');document.getElementById('monitorRefresh').disabled=true;
+try{var result=await monitor.transport.dashboard(filters());if(!admin()||request!==monitor.request||epoch!==monitor.epoch)return;monitor.data=result;renderDashboard();setStatus('آخر تحديث: '+time(result.server_time)+' — إجمالي النتائج المطابقة: '+Number(result.total||0).toLocaleString('ar-SY')+' — التحديث التلقائي كل 30 ثانية أثناء فتح اللوحة.');}
+catch(e){if(!admin()||request!==monitor.request||epoch!==monitor.epoch)return;
+if(!monitor.data){document.getElementById('monitorRows').innerHTML='<div class="monitor-empty">لا توجد بيانات متاحة للعرض.</div>';document.querySelectorAll('[data-monitor-count]').forEach(function(el){el.textContent='—'});}
+setStatus(errorText(e)+(monitor.data?' — تُعرض آخر بيانات تم تحميلها؛ قد تكون قديمة.':''),true);
+if(String(e.message||'').includes('TARIFF_ACCESS_ENDED'))ended();}
+finally{monitorRefreshRunning=false;document.getElementById('monitorRefresh').disabled=false;
+if(monitorRefreshQueued&&admin()&&document.getElementById('monitorDashboard').open&&document.visibilityState==='visible'){monitorRefreshQueued=false;refresh();}}}
+function phoneDisplayName(model,os,deviceType){
+ var raw=String(model||'').trim(),key=raw.toUpperCase().replace(/\s+/g,'');
+ var samsung={"SM-S928B":"Samsung Galaxy S24 Ultra","SM-S928U":"Samsung Galaxy S24 Ultra","SM-S928U1":"Samsung Galaxy S24 Ultra","SM-S928N":"Samsung Galaxy S24 Ultra","SM-S918B":"Samsung Galaxy S23 Ultra","SM-S918U":"Samsung Galaxy S23 Ultra","SM-S938B":"Samsung Galaxy S25 Ultra","SM-S938U":"Samsung Galaxy S25 Ultra","SM-S921B":"Samsung Galaxy S24","SM-S926B":"Samsung Galaxy S24+","SM-S911B":"Samsung Galaxy S23","SM-S916B":"Samsung Galaxy S23+","SM-A546B":"Samsung Galaxy A54 5G","SM-A556B":"Samsung Galaxy A55 5G","SM-A356B":"Samsung Galaxy A35 5G","SM-A256B":"Samsung Galaxy A25 5G","SM-F956B":"Samsung Galaxy Z Fold6","SM-F741B":"Samsung Galaxy Z Flip6"};
+ if(samsung[key])return samsung[key];
+ // Browser model codes are not universally reliable. Only map exact, known identifiers.
+ if(/^SM-[A-Z0-9]+$/.test(key))return 'Samsung ('+raw+')';
+ if(/^IPHONE/i.test(raw)||/iPhone/i.test(os||''))return 'Apple iPhone';
+ if(/^(REDMI|POCO|XIAOMI|HUAWEI|HONOR|OPPO|REALME)\b/i.test(raw))return raw;
+ if(raw&& !/^(غير متاح|unknown|undefined|null|غير محدد)$/i.test(raw))return raw;
+ if(/android/i.test(os||''))return 'هاتف Android';
+ return deviceType==='phone'||deviceType==='mobile'?'هاتف غير محدد':'غير متاح';
+}
+function renderDashboard(){var d=monitor.data||{},counts=d.counts||{};document.querySelectorAll('[data-monitor-count]').forEach(function(e){e.textContent=Number(counts[e.dataset.monitorCount]||0).toLocaleString('ar-SY')});var rows=d.rows||[];document.getElementById('monitorRows').innerHTML=rows.length?rows.map(function(r){return '<article class="monitor-row"><div><strong>'+h(r.user_id==null?(r.numeric_id==null?'—':r.numeric_id):r.display_name)+'</strong>'+(r.user_id==null?'':'<small>ID: '+h(r.numeric_id==null?'—':r.numeric_id)+'</small><small>'+h(labels[r.role]||r.role)+(r.suspended?' · الحساب معلّق':'')+'</small>')+'<span class="monitor-badge '+h(r.status)+'">'+h(labels[r.status]||r.status)+'</span></div><div><strong>'+h(phoneDisplayName(r.model,r.os_name,r.device_type))+' · '+h(r.os_name)+'</strong><small>'+h(r.browser_name)+'</small><small>الموديل: '+h(r.model)+'</small></div><div><strong>'+h(labels[r.current_section]||r.current_section)+'</strong><small>نشاط فعلي تقديري: '+h(duration(r.active_seconds))+'</small></div><div><small>آخر تواصل</small>'+h(time(r.last_seen))+'<small>بدأت: '+h(time(r.started_at))+'</small></div><button type="button" data-monitor-card="'+h(r.id)+'">بطاقة المستخدم</button></article>';}).join(''):'<div class="monitor-empty">لا توجد جلسات تطابق الفلاتر الحالية.</div>';document.getElementById('monitorPage').textContent='صفحة '+(monitor.page+1)+' · '+Number(d.total||0).toLocaleString('ar-SY')+' جلسة';document.getElementById('monitorPrev').disabled=monitor.page===0;document.getElementById('monitorNext').disabled=(monitor.page+1)*50>=Number(d.total||0);}
 async function openCard(id){if(!admin())return;var epoch=monitor.epoch,request=++monitor.cardRequest;monitor.selected=id;var d=document.getElementById('monitorUserCard');document.getElementById('monitorCardContent').textContent='جارٍ تحميل البطاقة…';if(!d.open)d.showModal();try{var card=await monitor.transport.userCard({p_session:id});if(!admin()||epoch!==monitor.epoch||request!==monitor.cardRequest)return;monitor.card=card;renderCard();}catch(e){if(admin()&&epoch===monitor.epoch&&request===monitor.cardRequest)document.getElementById('monitorCardContent').textContent=errorText(e);}}
-function renderCard(){var c=monitor.card,p=c.profile||{},s=c.stats||{},sessions=c.sessions||[];var html='<div class="monitor-card-grid"><div class="monitor-card-info"><small>المستخدم والصلاحية</small><strong>'+h(p.name)+'</strong><br>'+h(labels[p.role]||p.role)+(p.suspended?' · معلّق':'')+'</div><div class="monitor-card-info"><small>زيارات مسجّلة خلال آخر 30 يوماً</small>'+h(s.visits||0)+'<br><small>وقت النشاط الفعلي التقديري</small>'+h(duration(s.active_seconds))+'</div><div class="monitor-card-info"><small>أول زيارة ضمن السجل المحتفَظ به</small>'+h(time(s.first_seen))+'</div><div class="monitor-card-info"><small>آخر ظهور</small>'+h(time(s.last_seen))+'</div></div>';
+function renderCard(){var c=monitor.card,p=c.profile||{},s=c.stats||{},sessions=c.sessions||[];var html='<div class="monitor-card-grid"><div class="monitor-card-info"><small>المستخدم والصلاحية</small><strong>'+h(p.role==='visitor'?(p.numeric_id==null?'—':p.numeric_id):p.name)+'</strong>'+(p.role==='visitor'?'':'<br><small>ID: '+h(p.numeric_id==null?'—':p.numeric_id)+'</small><br>'+h(labels[p.role]||p.role)+(p.suspended?' · معلّق':''))+'</div><div class="monitor-card-info"><small>زيارات مسجّلة خلال آخر 30 يوماً</small>'+h(s.visits||0)+'<br><small>وقت النشاط الفعلي التقديري</small>'+h(duration(s.active_seconds))+'</div><div class="monitor-card-info"><small>أول زيارة ضمن السجل المحتفَظ به</small>'+h(time(s.first_seen))+'</div><div class="monitor-card-info"><small>آخر ظهور</small>'+h(time(s.last_seen))+'</div></div>';
 if(p.id)html+='<div class="monitor-controls"><button type="button" class="monitor-danger" data-monitor-action="'+(p.suspended?'resume':'suspend')+'" data-session="'+h(monitor.selected)+'">'+(p.suspended?'إعادة تفعيل الحساب':'تعليق وصول الحساب للموقع')+'</button></div>';
-html+='<h3>الجلسات والأجهزة (آخر 50 جلسة)</h3>'+sessions.map(function(x){return '<div class="monitor-session"><strong>'+h(labels[x.device_type]||'غير متاح')+' · '+h(x.os_name)+' · '+h(x.browser_name)+'</strong><br>الموديل: '+h(x.model)+'<br>آخر تواصل: '+h(time(x.last_seen))+' · '+h(labels[x.current_section]||'التعرفة')+'<br>النشاط الفعلي: '+h(duration(x.active_seconds))+(x.revoked_at?'<br><span class="monitor-badge ended">أُنهيت إداريًا</span>':'<br><button type="button" class="monitor-danger" data-monitor-action="end" data-session="'+h(x.id)+'">إنهاء جلسة الموقع</button>')+'</div>';}).join('');
+var deviceNames=Array.from(new Set(sessions.map(function(x){return phoneDisplayName(x.model,x.os_name,x.device_type);}).filter(function(n){return n&&n!=='غير متاح'&&n!=='هاتف غير محدد';}))).slice(0,8);
+html+='<div class="monitor-card-info"><small>الأجهزة المعروفة في الجلسات المعروضة</small>'+(deviceNames.length?deviceNames.map(h).join('، '):'لا توجد أسماء أجهزة متاحة')+'</div>';
+html+='<h3>الجلسات والأجهزة (آخر 50 جلسة)</h3>'+sessions.map(function(x){return '<div class="monitor-session"><strong>'+h(phoneDisplayName(x.model,x.os_name,x.device_type))+' · '+h(x.os_name)+' · '+h(x.browser_name)+'</strong><br>الموديل: '+h(x.model)+'<br>آخر تواصل: '+h(time(x.last_seen))+' · '+h(labels[x.current_section]||'التعرفة')+'<br>النشاط الفعلي: '+h(duration(x.active_seconds))+(x.revoked_at?'<br><span class="monitor-badge ended">أُنهيت إداريًا</span>':'<br><button type="button" class="monitor-danger" data-monitor-action="end" data-session="'+h(x.id)+'">إنهاء جلسة الموقع</button>')+'</div>';}).join('');
 html+='<h3>المشكلات التقنية (آخر 30 حدثًا)</h3>'+(c.errors&&c.errors.length?c.errors.map(function(e){return '<div class="monitor-session">'+h(labels[e.kind]||e.kind)+' · '+h(labels[e.component]||e.component)+(e.http_status?' · HTTP '+h(e.http_status):'')+'<br>'+h(time(e.created_at))+'</div>';}).join(''):'<p class="monitor-note">لم تُسجّل مشكلات تقنية لهذا المستخدم في البيانات المتاحة.</p>');
 html+='<h3>سجل إجراءات الإدارة</h3>'+(c.audit&&c.audit.length?c.audit.map(function(a){return '<div class="monitor-session"><strong>'+h(labels[a.action]||a.action)+'</strong> · '+h(a.actor)+'<br>'+h(a.reason)+'<br>'+h(time(a.created_at))+'</div>';}).join(''):'<p class="monitor-note">لا توجد إجراءات مسجلة.</p>');document.getElementById('monitorCardContent').innerHTML=html;}
 function confirmAction(id,action){if(!admin()||!['end','suspend','resume'].includes(action))return;var d=document.getElementById('monitorConfirm');d.dataset.session=id;d.dataset.action=action;document.getElementById('monitorConfirmTitle').textContent=labels[action];document.getElementById('monitorConfirmText').textContent=action==='end'?'سيُنهى وصول هذه الجلسة للموقع. علامات التبويب التي تشترك في تسجيل الدخول نفسه تتأثر أيضاً. الزائر غير المسجّل يستطيع بدء زيارة جديدة.':action==='suspend'?'سيُعلّق وصول الحساب إلى خدمات الموقع إلى أن يعيد الأدمن تفعيله. لا يُحذف الحساب.':'سيُسمح للحساب بالوصول إلى خدمات الموقع مجدداً.';document.getElementById('monitorReason').value='';document.getElementById('monitorConfirmError').textContent='';d.showModal();document.getElementById('monitorReason').focus();}
 async function performAction(){if(!admin())return;var d=document.getElementById('monitorConfirm'),reason=document.getElementById('monitorReason').value.trim(),btn=document.getElementById('monitorConfirmYes'),epoch=monitor.epoch;if(reason.length<5){document.getElementById('monitorConfirmError').textContent='اكتب سببًا واضحًا من خمسة أحرف على الأقل.';return;}btn.disabled=true;try{await monitor.transport.action({p_session:d.dataset.session,p_action:d.dataset.action,p_reason:reason.slice(0,240)});if(!admin()||epoch!==monitor.epoch)return;d.close();await openCard(monitor.selected);refresh();}catch(e){if(admin()&&epoch===monitor.epoch)document.getElementById('monitorConfirmError').textContent=e.code==='42501'?errorText(e):String(e.message||'تعذّر تنفيذ الإجراء').slice(0,240);}finally{btn.disabled=false;}}
 function build(){var section=document.createElement('div');section.id='monitorAdminSection';section.className='sidebar-section';section.hidden=true;section.style.display='none';section.innerHTML='<button type="button" class="tool-btn" id="monitorOpen">👥 المستخدمون والأجهزة</button>';document.getElementById('adminMenuOptions').appendChild(section);
-var d=document.createElement('dialog');d.id='monitorDashboard';d.className='monitor-dialog';d.setAttribute('aria-labelledby','monitorTitle');d.innerHTML='<div class="monitor-head"><h2 id="monitorTitle">المستخدمون والأجهزة — للأدمن</h2><button type="button" data-monitor-close aria-label="إغلاق">×</button></div><div class="monitor-scroll"><p class="monitor-note">متصل: تواصل خلال دقيقتين. نشط: الصفحة ظاهرة مع تفاعل خلال دقيقة. الإغلاق المفاجئ قد يتأخر ظهوره حتى دقيقتين. معلومات الأجهزة تقديرية والموديل قد لا يتوفر. البيانات تبدأ بعد التفعيل وتُحفظ 30 يوماً؛ لا يُجمع الموقع أو IP.</p><div id="monitorStatus" class="monitor-status" role="status" aria-live="polite">افتح اللوحة لتحميل البيانات.</div><div class="monitor-counts">'+[['connected','جلسات متصلة','قد يفتح الشخص أكثر من جلسة'],['active','جلسات نشطة','تفاعل حديث والصفحة ظاهرة'],['accounts','حسابات متصلة','حسابات مسجّلة دون تكرار'],['guests','زوار متصلون','معرّفات متصفح دون تكرار']].map(function(c){return '<div class="monitor-count"><b data-monitor-count="'+c[0]+'">—</b><span>'+c[1]+'</span><small>'+c[2]+'</small></div>';}).join('')+'</div><div class="monitor-filters"><label>بحث باسم المستخدم أو موديل الجهاز<input id="monitorSearch" type="search" placeholder="اسم المستخدم أو الموديل" maxlength="100"></label><label>الحالة<select id="monitorState"><option value="all">كل الحالات</option><option value="connected">المتصلون فقط</option><option value="active">نشط</option><option value="idle">خامل</option><option value="offline">غير متصل</option><option value="ended">أُنهيت الجلسة</option></select></label><label>نوع الجهاز<select id="monitorDevice"><option value="all">كل الأجهزة</option><option value="phone">هاتف</option><option value="tablet">تابلت</option><option value="desktop">كمبيوتر</option><option value="unknown">غير متاح</option></select></label><label>نوع المستخدم<select id="monitorKind"><option value="all">الجميع</option><option value="accounts">الحسابات</option><option value="guests">الزوار</option></select></label><label>آخر ظهور<select id="monitorDays"><option value="1">آخر 24 ساعة</option><option value="7">آخر 7 أيام</option><option value="30">آخر 30 يوماً</option></select></label></div><div class="monitor-controls"><button type="button" id="monitorRefresh">تحديث الآن</button><button type="button" id="monitorDownloadSql">تنزيل SQL التفعيل</button></div><div class="monitor-list" id="monitorRows"></div><div class="monitor-controls"><button type="button" id="monitorPrev">السابق</button><span id="monitorPage"></span><button type="button" id="monitorNext">التالي</button></div></div>';document.body.appendChild(d);
+var d=document.createElement('dialog');d.id='monitorDashboard';d.className='monitor-dialog';d.setAttribute('aria-labelledby','monitorTitle');d.innerHTML='<div class="monitor-head"><h2 id="monitorTitle">المستخدمون والأجهزة — للأدمن</h2><button type="button" data-monitor-close aria-label="إغلاق">×</button></div><div class="monitor-scroll"><p class="monitor-note">كل حساب يظهر مرة واحدة في القائمة، حتى لو فتح عدة تبويبات أو جلسات. متصل: تواصل خلال دقيقتين. نشط: الصفحة ظاهرة مع تفاعل خلال دقيقة. الإغلاق المفاجئ قد يتأخر ظهوره حتى دقيقتين. معلومات الأجهزة تقديرية والموديل قد لا يتوفر. البيانات تبدأ بعد التفعيل وتُحفظ 30 يوماً؛ لا يُجمع الموقع أو IP.</p><div id="monitorStatus" class="monitor-status" role="status" aria-live="polite">افتح اللوحة لتحميل البيانات.</div><div class="monitor-counts">'+[['connected','مستخدمون وزوار متصلون','كل حساب أو زائر يظهر مرة واحدة'],['active','مستخدمون وزوار نشطون','تفاعل حديث والصفحة ظاهرة'],['accounts','حسابات متصلة','حسابات مسجّلة دون تكرار'],['guests','زوار متصلون','معرّفات متصفح دون تكرار']].map(function(c){return '<div class="monitor-count"><b data-monitor-count="'+c[0]+'">—</b><span>'+c[1]+'</span><small>'+c[2]+'</small></div>';}).join('')+'</div><div class="monitor-filters"><label>بحث باسم المستخدم أو موديل الجهاز<input id="monitorSearch" type="search" placeholder="اسم المستخدم أو الموديل" maxlength="100"></label><label>الحالة<select id="monitorState"><option value="all">كل الحالات</option><option value="connected">المتصلون فقط</option><option value="active">نشط</option><option value="idle">خامل</option><option value="offline">غير متصل</option><option value="ended">أُنهيت الجلسة</option></select></label><label>نوع الجهاز<select id="monitorDevice"><option value="all">كل الأجهزة</option><option value="phone">هاتف</option><option value="tablet">تابلت</option><option value="desktop">كمبيوتر</option><option value="unknown">غير متاح</option></select></label><label>نوع المستخدم<select id="monitorKind"><option value="all">الجميع</option><option value="accounts">الحسابات</option><option value="guests">الزوار</option></select></label><label>آخر ظهور<select id="monitorDays"><option value="1">آخر 24 ساعة</option><option value="7">آخر 7 أيام</option><option value="30">آخر 30 يوماً</option></select></label></div><div class="monitor-controls"><button type="button" id="monitorRefresh">تحديث الآن</button><button type="button" id="monitorDownloadSql">تنزيل SQL التفعيل</button></div><div class="monitor-list" id="monitorRows"></div><div class="monitor-controls"><button type="button" id="monitorPrev">السابق</button><span id="monitorPage"></span><button type="button" id="monitorNext">التالي</button></div></div>';document.body.appendChild(d);
 var c=document.createElement('dialog');c.id='monitorUserCard';c.className='monitor-dialog monitor-card';c.setAttribute('aria-labelledby','monitorCardTitle');c.innerHTML='<div class="monitor-head"><h2 id="monitorCardTitle">بطاقة المستخدم</h2><button type="button" data-monitor-close aria-label="إغلاق">×</button></div><div class="monitor-scroll" id="monitorCardContent"></div>';document.body.appendChild(c);
 var confirm=document.createElement('dialog');confirm.id='monitorConfirm';confirm.className='monitor-dialog monitor-confirm';confirm.setAttribute('aria-labelledby','monitorConfirmTitle');confirm.innerHTML='<div class="monitor-head"><h2 id="monitorConfirmTitle">تأكيد الإجراء</h2><button type="button" data-monitor-close aria-label="إلغاء">×</button></div><div class="monitor-scroll"><p class="monitor-note" id="monitorConfirmText"></p><label for="monitorReason">سبب الإجراء (يُحفظ في سجل الإدارة)</label><textarea id="monitorReason" maxlength="240"></textarea><div class="monitor-confirm-error" id="monitorConfirmError" role="alert"></div><div class="monitor-controls"><button type="button" class="mini-btn" data-monitor-close>إلغاء</button><button type="button" class="btn-primary" id="monitorConfirmYes">تأكيد التنفيذ</button></div></div>';document.body.appendChild(confirm);
 [d,c,confirm].forEach(function(dialog){dialog.querySelectorAll('[data-monitor-close]').forEach(function(b){b.addEventListener('click',function(){dialog.close()})});});c.addEventListener('close',function(){monitor.cardRequest++});
-document.getElementById('monitorOpen').addEventListener('click',function(){if(!admin())return;window.__closeSidebar();d.showModal();refresh();});document.getElementById('monitorRefresh').addEventListener('click',refresh);var debounce;document.getElementById('monitorSearch').addEventListener('input',function(){clearTimeout(debounce);debounce=setTimeout(function(){monitor.page=0;refresh()},300)});['monitorState','monitorDevice','monitorKind','monitorDays'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){monitor.page=0;refresh()})});document.getElementById('monitorPrev').addEventListener('click',function(){monitor.page=Math.max(0,monitor.page-1);refresh()});document.getElementById('monitorNext').addEventListener('click',function(){monitor.page++;refresh()});document.getElementById('monitorRows').addEventListener('click',function(e){var b=e.target.closest('[data-monitor-card]');if(b&&admin())openCard(b.dataset.monitorCard)});document.getElementById('monitorCardContent').addEventListener('click',function(e){var b=e.target.closest('[data-monitor-action]');if(b&&admin())confirmAction(b.dataset.session,b.dataset.monitorAction)});document.getElementById('monitorConfirmYes').addEventListener('click',performAction);
+document.getElementById('monitorOpen').addEventListener('click',function(){if(!admin())return;window.__closeSidebar();d.showModal();refresh();});document.getElementById('monitorRefresh').addEventListener('click',refresh);var debounce;document.getElementById('monitorSearch').addEventListener('input',function(){clearTimeout(debounce);debounce=setTimeout(function(){monitor.page=0;refresh()},450)});['monitorState','monitorDevice','monitorKind','monitorDays'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){monitor.page=0;refresh()})});document.getElementById('monitorPrev').addEventListener('click',function(){monitor.page=Math.max(0,monitor.page-1);refresh()});document.getElementById('monitorNext').addEventListener('click',function(){monitor.page++;refresh()});document.getElementById('monitorRows').addEventListener('click',function(e){var b=e.target.closest('[data-monitor-card]');if(b&&admin())openCard(b.dataset.monitorCard)});document.getElementById('monitorCardContent').addEventListener('click',function(e){var b=e.target.closest('[data-monitor-action]');if(b&&admin())confirmAction(b.dataset.session,b.dataset.monitorAction)});document.getElementById('monitorConfirmYes').addEventListener('click',performAction);
 document.getElementById('monitorDownloadSql').addEventListener('click',function(){if(!admin())return;var sql=document.getElementById('monitorSetupSql').textContent,url=URL.createObjectURL(new Blob([sql],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='admin-users-devices.sql';a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);});
 }
-function init(){build();detectDevice();resetSession();syncRole();new MutationObserver(syncRole).observe(document.getElementById('adminAuthSection'),{attributes:true,attributeFilter:['style'],subtree:true,childList:true});var input=function(){monitor.lastInput=Date.now()};['pointerdown','keydown','touchstart','scroll'].forEach(function(name){document.addEventListener(name,input,{passive:true,capture:name==='scroll'})});setInterval(function(){var now=Date.now(),elapsed=Math.min(8,(now-monitor.lastTick)/1000);monitor.lastTick=now;if(document.visibilityState==='visible'&&now-monitor.lastInput<60000&&!monitor.stopped)monitor.activeSeconds=Math.min(60,monitor.activeSeconds+elapsed);},5000);setInterval(function(){heartbeat(false);if(admin()&&document.getElementById('monitorDashboard').open&&document.visibilityState==='visible')refresh();},30000);document.addEventListener('visibilitychange',function(){heartbeat(false)});window.addEventListener('online',function(){monitor.retryAt=0;heartbeat(false)});window.addEventListener('pagehide',function(e){if(!e.persisted)heartbeat(true)});window.addEventListener('tariff-monitor-cloud-ready',startTransport);startTransport();}
+function init(){build();detectDevice();resetSession();syncRole();new MutationObserver(syncRole).observe(document.getElementById('adminAuthSection'),{attributes:true,attributeFilter:['style'],subtree:true,childList:true});var input=function(){monitor.lastInput=Date.now()};['pointerdown','keydown','touchstart','scroll'].forEach(function(name){document.addEventListener(name,input,{passive:true,capture:name==='scroll'})});setInterval(function(){var now=Date.now(),elapsed=Math.min(8,(now-monitor.lastTick)/1000);monitor.lastTick=now;if(document.visibilityState==='visible'&&now-monitor.lastInput<60000&&!monitor.stopped)monitor.activeSeconds=Math.min(60,monitor.activeSeconds+elapsed);},5000);setInterval(function(){heartbeat(false);if(admin()&&document.getElementById('monitorDashboard').open&&document.visibilityState==='visible')refresh();},30000);document.addEventListener('visibilitychange',function(){heartbeat(false);if(document.visibilityState==='visible'&&admin()&&document.getElementById('monitorDashboard').open)refresh();});window.addEventListener('online',function(){monitor.retryAt=0;heartbeat(false)});window.addEventListener('pagehide',function(e){if(!e.persisted)heartbeat(true)});window.addEventListener('tariff-monitor-cloud-ready',startTransport);startTransport();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
@@ -8284,9 +8688,11 @@ if(window.__tariffCloudReady)window.__tariffCloudReady.then(setupCloud).catch(fu
 (function(){
   var pristine='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
   window.TariffOffline.start(pristine);
-  var names=['__toggleBan','__toggleLab','__clearAllBans','__clearAllLabRequired','__openUploadExcel','__handleExcelUpload','__openUploadExplanations','__handleExplanationsUpload','__openUploadSettlements','__handleSettlementsUpload','__submitLogin','__createAccount','__setAdminAccountRole','__clearAnalyticsSearchTerms'];
+  var names=['__toggleBan','__toggleLab','__clearAllBans','__clearAllLabRequired','__openUploadExcel','__handleExcelUpload','__openUploadExplanations','__handleExplanationsUpload','__openUploadSettlements','__handleSettlementsUpload','__submitLogin','__createAccount','__setAdminAccountRole','__clearAnalyticsSearchTerms','__clearAllActivityAnalytics'];
   names.forEach(function(name){var fn=window[name];if(typeof fn!=='function')return;window[name]=function(){if(window.TariffOffline.readOnly()){alert('القراءة والبحث متاحان. هذا الإجراء يحتاج اتصالاً بالإنترنت والموقع الأصلي.');return;}return fn.apply(this,arguments);};});
 })();
 </script>
+
+
 </body>
 </html>
