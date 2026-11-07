@@ -1460,7 +1460,385 @@ html[data-theme] #resultsTable td.total-cell,
   #resultsTable td[data-label="إجراءات"] .action-btn{min-width:38px;min-height:38px}
 }
 </style>
-</head>
+<style>#tariffV5Overlay[hidden]{display:none!important}</style><style id="tariff-v5-bottom-nav-polish">
+/* Five balanced, single-row mobile navigation items. */
+@media (max-width:720px){
+ .ux-mobile-nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:2px!important;padding:6px 5px calc(6px + env(safe-area-inset-bottom))!important;box-sizing:border-box;width:100%;}
+ .ux-mobile-nav button{min-width:0!important;width:100%;max-width:100%;padding:5px 1px!important;min-height:54px;gap:3px;white-space:nowrap;overflow:hidden;box-sizing:border-box;}
+ .ux-mobile-nav button span{display:block;max-width:100%;font-size:clamp(9px,2.6vw,11px)!important;line-height:1.25;overflow:hidden;text-overflow:ellipsis;}
+ .ux-mobile-nav button svg{width:21px;height:21px;flex-shrink:0;}
+ .ux-mobile-nav button[data-mobile-view="quiz"]{background:var(--accent-soft,rgba(20,92,119,.09));color:var(--accent-deep,#145c77);}
+}
+</style>
+
+<style id="v5-complete-detail-design-20261104">
+/* A theme-aware presentation layer: no changes to tariff calculation or Supabase. */
+#detailPopup{border-radius:20px!important;overflow:hidden}
+#detailPopupBody{padding:14px!important}
+#detailPopupBody .detail-popup-item{border-radius:12px;overflow-wrap:anywhere}
+#detailPopupBody .detail-popup-item.code{background:var(--accent-soft);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
+#detailPopupBody .detail-popup-item.code .dv{font-size:clamp(21px,5vw,29px);font-weight:850;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+#detailPopupBody .v5-fee-hero{background:var(--accent-soft);border:1px solid var(--accent);color:var(--ink);border-radius:16px;padding:18px 14px;text-align:center;margin:12px 0 15px;box-shadow:0 4px 18px rgba(0,0,0,.045)}
+#detailPopupBody .v5-fee-hero-label{font-size:13px;font-weight:800;color:var(--accent-deep);margin-bottom:6px}
+#detailPopupBody .v5-fee-hero-value{font-size:clamp(28px,7vw,39px);line-height:1.3;font-weight:900;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+#detailPopupBody .v5-fee-unit{font-size:17px;font-weight:700}
+#detailPopupBody .v5-fee-hero-sub{font-size:12px;line-height:1.7;color:var(--ink-soft);margin-top:5px}
+#detailPopupBody .ux-detail-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;top:0;border-radius:12px;padding:7px;background:var(--surface)}
+#detailPopupBody .ux-detail-tabs button{min-height:46px;border-radius:10px;font-size:12px}
+#detailPopupBody .ux-detail-pane{padding-top:4px}
+#detailPopupBody .ux-detail-actions .mini-btn{min-height:42px;border-radius:10px}
+@media(max-width:600px){#detailPopupBody{padding:11px!important}#detailPopupBody .v5-fee-hero{padding:15px 10px}#detailPopupBody .ux-detail-tabs button{font-size:11px}}
+</style>
+<style>
+/* V5 complete-fee layout: full amounts, readable on small screens, independently scrollable dialog */
+#detailPopup{box-sizing:border-box;width:min(96vw,560px);max-width:560px;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 24px;scrollbar-gutter:stable}
+#detailPopupBody{min-width:0;padding:8px!important}
+#detailPopupBody .v5-fee-full{padding:14px!important;margin:10px 0!important;overflow:visible;min-width:0}
+#detailPopupBody .v5-fee-full-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+#detailPopupBody .v5-fee-full-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 5px}
+#detailPopupBody .v5-fee-full-item span{font-size:12px;font-weight:700;color:var(--ink-soft)}
+#detailPopupBody .v5-fee-full-item strong{font-size:clamp(20px,5.8vw,29px);line-height:1.3;white-space:nowrap;max-width:100%;font-variant-numeric:tabular-nums;color:var(--ink)}
+#detailPopupBody .v5-fee-full-total{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent);padding:12px}
+#detailPopupBody .v5-fee-full-total span{font-size:13px;font-weight:800}
+#detailPopupBody .v5-fee-full-total strong{font-size:clamp(22px,6vw,32px);white-space:nowrap;font-variant-numeric:tabular-nums}
+#detailPopupBody .v5-fee-hero-sub{font-size:11px}
+@media(max-width:380px){#detailPopup{width:98vw;padding:10px}#detailPopupBody .v5-fee-full-item strong{font-size:19px}#detailPopupBody .v5-fee-full-total strong{font-size:22px}}
+</style>
+<style>
+/* Fee summary immediately below code, before potentially lengthy description. */
+#detailPopupBody .v5-fee-full{margin:8px 0 12px!important}
+#detailPopupBody .v5-fee-full-grid{margin:8px 0!important}
+#detailPopupBody .v5-fee-full-item{padding:9px 5px!important}
+#detailPopupBody .v5-fee-full-total{padding:10px!important}
+</style>
+<style id="v5-fee-red-single-display">
+/* The upper complete tariff amount is the only fee display. */
+#detailPopupBody .v5-fee-hero.v5-fee-full .v5-fee-full-total strong { color:#C62828 !important; }
+#detailPopupBody .v5-fee-hero.v5-fee-full .v5-fee-full-total { border-color:#C62828; }
+</style>
+
+<style id="v5-navigation-refinement-20261105">
+/* UI-only refinement; existing handlers, fee calculations, storage and Supabase untouched. */
+@media (max-width:720px){
+ .ux-mobile-nav{direction:rtl!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;box-shadow:0 -5px 22px rgba(0,0,0,.10);border-top:1px solid var(--line)!important;z-index:999!important}
+ .ux-mobile-nav button{min-height:58px!important;border-radius:11px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px!important;touch-action:manipulation}
+ .ux-mobile-nav button span{font-size:clamp(10px,2.5vw,12px)!important;font-weight:750!important}
+ .ux-mobile-nav button[aria-current="page"]{background:var(--accent-soft)!important;color:var(--accent-deep)!important;box-shadow:inset 0 -3px 0 var(--accent)}
+ #itemsSearchHero{position:relative;z-index:2}
+ #quickSearch{min-height:45px;font-size:16px}
+ #detailPopupBody .detail-popup-item{margin-bottom:10px}
+ #detailPopupBody .v5-fee-hero{padding:13px 12px!important;margin:9px 0 12px!important}
+ #detailPopupBody .v5-fee-hero-value{color:#c62828!important;font-weight:900!important}
+ #detailPopupBody .ux-detail-actions button{min-height:44px}
+}
+#v22PrimaryNav .v22-nav-btn{min-height:44px}
+#v22PrimaryNav .v22-nav-btn:focus-visible,.ux-mobile-nav button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+<style id="v5-nav-20261105">
+@media(max-width:720px){
+ .ux-mobile-nav{direction:rtl!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:3px!important}
+ .ux-mobile-nav button{min-height:58px!important;min-width:0!important;touch-action:manipulation}
+ .ux-mobile-nav button[aria-current="page"]{background:var(--accent-soft)!important;color:var(--accent-deep)!important;box-shadow:inset 0 -3px 0 var(--accent)!important}
+ .ux-mobile-nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+}
+#v22PrimaryNav .v22-nav-btn{min-height:44px}
+</style>
+
+<style id="tariff-v5-quiz-one-screen">
+/* Mobile quiz: keep the next-question action visible without page scrolling. */
+@media (max-width: 700px) {
+  #tariffV5Overlay {
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    scrollbar-gutter: auto !important;
+  }
+  #tariffV5Overlay .v5-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+  #tariffV5Overlay .v5-header { flex: none; padding: 0 0 3px !important; gap: 6px !important; }
+  #tariffV5Overlay .v5-heading { font-size: 16px !important; }
+  #tariffV5Overlay .v5-back { min-height: 32px !important; padding: 4px 9px !important; font-size: 12px !important; }
+  #tariffV5Overlay .v5-desc, #tariffV5Overlay .v5-hero { display: none !important; }
+  #tariffV5Overlay .v5-score-grid { flex: none; gap: 6px !important; margin: 5px 0 7px !important; }
+  #tariffV5Overlay .v5-score-card { padding: 5px 3px !important; border-radius: 10px !important; gap: 1px !important; }
+  #tariffV5Overlay .v5-score-card span { font-size: 10px !important; }
+  #tariffV5Overlay .v5-score-card strong { font-size: 15px !important; }
+  #tariffV5Overlay .v5-progress-head { flex: none; margin: 0 0 3px !important; font-size: 11px !important; }
+  #tariffV5Overlay #tariffV5Progress { flex: none; height: 5px !important; margin-bottom: 4px !important; }
+  #tariffV5Overlay #tariffV5Question {
+    flex: none; font-size: clamp(15px, 4vw, 19px) !important;
+    line-height: 1.45 !important; margin: 5px 0 9px !important;
+    max-height: 18dvh; overflow-y: auto;
+  }
+  #tariffV5Overlay #tariffV5Options { flex: none; gap: 7px !important; }
+  #tariffV5Overlay #tariffV5Options button {
+    min-height: clamp(46px, 8dvh, 64px) !important;
+    padding: 7px 12px !important; border-radius: 12px !important;
+    font-size: 15px !important;
+  }
+  #tariffV5Overlay #tariffV5Feedback {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    margin-top: 7px !important; padding: 8px 10px !important;
+    font-size: 12px !important; line-height: 1.45 !important;
+  }
+  #tariffV5Overlay #tariffV5Feedback:empty { padding: 0 !important; margin-top: 0 !important; }
+  #tariffV5Overlay #tariffV5Next {
+    flex: none; width: 100%; min-height: 44px !important;
+    margin-top: 6px !important; padding: 7px 12px !important;
+    border-radius: 12px !important; font-size: 16px !important;
+  }
+  #tariffV5Overlay #tariffV5Status {
+    flex: none; margin-top: 2px !important;
+    font-size: 10px !important; line-height: 1.2 !important;
+    max-height: 2.4em; overflow: hidden;
+  }
+}
+@media (max-width: 700px) and (max-height: 650px) {
+  #tariffV5Overlay .v5-score-grid { margin: 2px 0 4px !important; }
+  #tariffV5Overlay .v5-score-card { padding: 3px !important; }
+  #tariffV5Overlay #tariffV5Options button { min-height: 40px !important; }
+  #tariffV5Overlay #tariffV5Question { margin: 3px 0 5px !important; }
+}
+</style>
+
+<style id="v5-fifty-levels-style">
+#tariffV5Overlay .v5-level-strip{padding:9px 12px;border:1px solid var(--border-color,#d6d0be);border-radius:14px;background:rgba(100,135,75,.07);margin:5px 0 7px}
+#tariffV5Overlay .v5-level-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}
+#tariffV5Overlay .v5-level-track{height:7px;border-radius:50px;background:rgba(120,120,120,.2);overflow:hidden;margin:6px 0 3px}
+#tariffV5Overlay #v5LevelBar{height:100%;width:0%;background:linear-gradient(90deg,#3a9b65,#5b80f7);transition:width .35s ease}
+#tariffV5Overlay #v5LevelRemaining{display:block;font-size:10px;opacity:.8}
+@media(max-width:700px){#tariffV5Overlay .v5-level-strip{flex:none;padding:5px 9px;margin:2px 0 4px}#tariffV5Overlay .v5-level-track{height:4px;margin:3px 0 2px}}
+</style><style id="monitor-admin-easy-v5">
+/* Compact mobile-first admin monitor without changing RPCs or data. */
+#monitorDialog .monitor-counts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin:10px 0!important}
+#monitorDialog .monitor-count{min-width:0!important;padding:10px 8px!important;border-radius:12px!important}
+#monitorDialog .monitor-count b{font-size:clamp(19px,5vw,27px)!important;line-height:1.2!important}
+#monitorDialog .monitor-count span{font-size:12px!important;font-weight:700!important}
+#monitorDialog .monitor-count small{display:none!important}
+#monitorDialog .monitor-filters{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#monitorDialog .monitor-filters label:first-child{grid-column:1/-1!important}
+#monitorDialog .monitor-filters label{min-width:0!important;font-size:12px!important}
+#monitorDialog .monitor-filters select,#monitorDialog .monitor-filters input{width:100%!important;max-width:100%!important;box-sizing:border-box!important;min-height:40px!important;border-radius:10px!important}
+#monitorDialog .monitor-controls{display:flex!important;gap:8px!important;align-items:center!important;justify-content:space-between!important}
+#monitorDialog #monitorRefresh{min-height:42px!important;flex:1!important;font-weight:700!important}
+#monitorDialog #monitorDownloadSql{font-size:11px!important;opacity:.75!important;max-width:42%!important}
+#monitorDialog .monitor-list{display:grid!important;gap:9px!important;margin-top:12px!important}
+#monitorDialog .monitor-list article{border-radius:13px!important;padding:12px!important;gap:8px!important}
+#monitorDialog .monitor-list article>div{min-width:0!important}
+#monitorDialog .monitor-list article small{font-size:11px!important;line-height:1.45!important}
+#monitorDialog .monitor-list article button[data-monitor-card]{min-height:39px!important;border-radius:9px!important;font-weight:700!important}
+#monitorDialog .monitor-status{font-size:12px!important;line-height:1.5!important}
+@media(max-width:600px){#monitorDialog{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;max-height:92dvh!important;box-sizing:border-box!important;padding:12px!important}#monitorDialog .monitor-head{position:sticky!important;top:0!important;z-index:2!important;padding:10px 0!important}#monitorDialog .monitor-head h2{font-size:18px!important}}
+</style><style id="v5-admin-simple-2026">
+/* Compact mobile-first administration */
+.v5-side-welcome{min-width:0;display:flex;flex-direction:column;gap:5px}
+.v5-side-identity{font-size:12px;font-weight:600;line-height:1.5;opacity:.9}
+.v5-side-identity strong{font-size:13px;direction:ltr;unicode-bidi:isolate}
+#monitorDashboard .monitor-note{display:none!important}
+#monitorDashboard .monitor-count small{display:none!important}
+#monitorDashboard .monitor-filters label:nth-child(n+3){display:none!important}
+#monitorDashboard .monitor-admin-advanced{display:none!important}
+#monitorDashboard .monitor-filters{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(115px,.45fr)!important;gap:8px!important}
+#monitorDashboard .monitor-filters label{font-size:12px!important}
+#monitorDashboard .monitor-controls{margin:8px 0!important;gap:8px!important}
+#monitorDashboard .monitor-counts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+#monitorDashboard .monitor-count{padding:9px!important}
+#monitorDashboard .monitor-count b{font-size:21px!important}
+#monitorDashboard .monitor-list{gap:8px!important}
+@media(max-width:520px){#monitorDashboard .monitor-scroll{padding:10px!important}#monitorDashboard .monitor-filters{grid-template-columns:1fr!important}#monitorDashboard .monitor-counts{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+</style>
+<style id="v5-admin-and-profile-polish">
+#tariffV5Overlay .v5-profile-open{border:1px solid rgba(130,145,170,.25);border-radius:10px;padding:6px 9px;background:rgba(120,145,175,.12);color:inherit;font-size:12px;white-space:nowrap}
+#monitorDashboard.monitor-dialog{width:min(96vw,680px)!important;max-width:96vw!important}
+#monitorDashboard .tool-btn,#monitorDashboard button{min-height:38px}
+@media(max-width:700px){#monitorDashboard.monitor-dialog{padding:10px!important}#monitorDashboard .monitor-card{padding:10px!important}#tariffV5Overlay .v5-profile-open{font-size:11px;padding:5px 7px}}
+</style>
+<style id="v5-profile-visual-refresh">
+.v5-profile-dialog{border:0;padding:0;width:min(94vw,430px);max-height:min(90dvh,760px);border-radius:24px;background:var(--card-bg,#fff);color:var(--text,#222);box-shadow:0 24px 80px #0008;overflow:auto;overscroll-behavior:contain}
+.v5-profile-dialog::backdrop{background:rgba(7,15,31,.74);backdrop-filter:blur(5px)}
+.v5-profile-shell{overflow:hidden;border-radius:24px}
+.v5-profile-hero{position:relative;text-align:center;padding:24px 20px 26px;color:#fff;background:linear-gradient(125deg,#102c4e 0%,#2257a4 48%,#168eaa 100%);isolation:isolate}
+.v5-profile-hero:before,.v5-profile-hero:after{content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:-1}.v5-profile-hero:before{width:200px;height:200px;top:-125px;right:-45px;background:#ffffff16}.v5-profile-hero:after{width:150px;height:150px;bottom:-100px;left:-45px;background:#ffffff20}
+.v5-profile-stars{position:absolute;top:16px;left:22px;color:#ffe69b;letter-spacing:8px;font-size:15px;opacity:.9}
+.v5-profile-close{position:absolute;top:14px;right:14px;border:1px solid #ffffff50;background:#ffffff25;color:#fff;border-radius:11px;width:38px;height:38px;font-size:19px;cursor:pointer}
+.v5-profile-avatar{width:70px;height:70px;display:grid;place-items:center;margin:5px auto 10px;border-radius:22px;background:linear-gradient(145deg,#ffffff44,#ffffff12);border:1px solid #ffffff70;box-shadow:0 8px 25px #001a3855;font-size:33px}
+.v5-profile-kicker{font-size:12px;letter-spacing:.3px;opacity:.87}.v5-profile-hero h2{margin:4px 0 12px;font-size:25px;font-weight:850;color:white}.v5-profile-id{display:inline-block;padding:7px 17px;border-radius:999px;background:#ffffff28;border:1px solid #ffffff55;direction:ltr;font-weight:800;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.v5-profile-content{padding:16px;background:var(--card-bg,#fff)}.v5-profile-level{padding:15px;border-radius:17px;background:linear-gradient(115deg,rgba(37,99,235,.12),rgba(20,184,166,.08));border:1px solid rgba(77,135,185,.22)}.v5-profile-level-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:15px}.v5-profile-level-head span{font-weight:800;color:#168baf}.v5-profile-track{height:10px;border-radius:99px;background:#8595a33b;overflow:hidden;margin:12px 0 6px}.v5-profile-track>div{height:100%;width:0;background:linear-gradient(90deg,#20c997,#3b82f6);border-radius:99px;transition:width .45s ease}.v5-profile-level small{opacity:.76}
+.v5-profile-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 18px}.v5-profile-stats>div{display:flex;flex-direction:column;gap:7px;padding:14px 10px;border-radius:15px;background:var(--card-bg,#fff);border:1px solid rgba(120,140,165,.25);box-shadow:0 3px 10px #0000000b;text-align:center}.v5-profile-stats span{font-size:12px;opacity:.76}.v5-profile-stats strong{font-size:24px;font-weight:850;font-variant-numeric:tabular-nums}
+.v5-profile-badges-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px}.v5-profile-badges-head span{font-size:12px;opacity:.65}.v5-profile-badges{display:flex;flex-wrap:wrap;gap:8px}.v5-profile-badge{border:1px solid rgba(220,163,55,.38);background:linear-gradient(115deg,rgba(245,185,66,.18),rgba(245,185,66,.06));border-radius:12px;padding:9px 11px;font-size:13px;font-weight:700}.v5-profile-empty{width:100%;text-align:center;padding:17px 9px;border:1px dashed #9ba9b6;border-radius:12px;font-size:13px;opacity:.8}.v5-profile-note{font-size:11px;opacity:.65;line-height:1.7;margin:16px 0 0}
+@media(max-width:390px){.v5-profile-content{padding:12px}.v5-profile-stats{gap:7px}.v5-profile-stats>div{padding:11px 6px}.v5-profile-hero{padding-top:18px}}
+@media(prefers-reduced-motion:reduce){.v5-profile-track>div{transition:none}}
+</style>
+<style>.v5-profile-extras,.v5-rank-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.v5-profile-extras button,.v5-rank-controls button{flex:1;min-width:70px;background:#225d9a;color:white;border:0;border-radius:12px;padding:10px 5px;font-weight:700}.v5-profile-title{text-align:center;color:#d9a92d;font-size:18px;font-weight:900}.v5-extra-dialog{width:min(94vw,520px);max-height:80dvh;overflow:auto;border-radius:18px;padding:18px;background:var(--card-bg,#fff);color:var(--text-color,#17283b)}.v5-extra-dialog::backdrop{background:#07162bc9}.v5-extra-head{display:flex;justify-content:space-between;align-items:center}.v5-extra-head button{padding:8px;border:0;border-radius:9px}.v5-extra-line{white-space:pre-wrap;padding:11px 2px;border-bottom:1px solid #9aa9b955;line-height:1.6}.v5-celebrate{position:fixed;z-index:2147483646;top:12%;left:50%;transform:translateX(-50%);background:linear-gradient(110deg,#164a86,#8847a5);color:white;border-radius:18px;padding:14px 24px;font-weight:900;box-shadow:0 12px 30px #0007;animation:v5pop .3s ease-out;pointer-events:none}@keyframes v5pop{from{opacity:0;transform:translate(-50%,-10px) scale(.85)}to{opacity:1;transform:translate(-50%,0) scale(1)}}@media(prefers-reduced-motion:reduce){.v5-celebrate{animation:none}}</style><style id="v5-polished-buttons">
+.v5-profile-dialog button,.v5-profile-dialog [role="button"]{transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;touch-action:manipulation}
+.v5-profile-dialog button:not(:disabled):active{transform:scale(.94)}
+.v5-profile-close{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);box-shadow:0 5px 16px rgba(0,0,0,.13);font-size:20px;backdrop-filter:blur(6px)}
+.v5-profile-close:hover{background:rgba(255,255,255,.35);box-shadow:0 7px 20px rgba(0,0,0,.22)}
+.v5-profile-badges-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0 9px}
+.v5-profile-badges-head>span{border-radius:100px;background:rgba(225,168,42,.13);color:#b47c08;padding:7px 12px;font-weight:800}
+.v5-profile-title{display:table;margin:14px auto 8px;padding:9px 19px;border:1px solid rgba(224,174,70,.45);border-radius:999px;background:linear-gradient(120deg,rgba(250,209,109,.18),rgba(255,236,176,.07));color:#d49a22;box-shadow:0 4px 20px rgba(218,164,58,.13);letter-spacing:.2px}
+#tariffV5Options button{transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;box-shadow:0 3px 10px rgba(18,56,99,.07)}
+#tariffV5Options button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(18,56,99,.15)}
+#tariffV5Options button:not(:disabled):active{transform:scale(.985)}
+#tariffV5Next{border-radius:14px!important;box-shadow:0 5px 18px rgba(22,94,180,.2);transition:transform .18s ease,filter .18s ease}
+#tariffV5Next:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.v5-profile-dialog button,#tariffV5Options button,#tariffV5Next{transition:none!important}}
+</style><style id="v5-challenge-game-redesign">
+/* A separate visual identity for the challenge; no changes to its quiz logic. */
+#tariffV5Overlay{--game-purple:#7c3aed;--game-cyan:#06b6d4;--game-gold:#fbbf24;position:fixed!important;inset:0!important;z-index:99990!important;background:radial-gradient(ellipse at 20% 0%,#33215d 0%,transparent 48%),radial-gradient(ellipse at 90% 80%,#10475d 0%,transparent 48%),#0b1025!important;color:#f8fafc!important;overflow-y:auto!important;overscroll-behavior:contain;padding:0 10px 26px!important}
+#tariffV5Overlay[hidden]{display:none!important}
+#tariffV5Overlay .v5-panel{background:transparent!important;color:#f8fafc!important;box-shadow:none!important;border:0!important;max-width:650px!important;padding:16px 3px 34px!important;margin:0 auto!important;min-height:100dvh!important}
+#tariffV5Overlay .v5-header{display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;gap:8px!important;margin:0 0 12px!important}
+#tariffV5Overlay .v5-heading{font-size:clamp(17px,4.5vw,24px)!important;white-space:nowrap!important;text-align:center!important;color:#fff!important;margin:0!important;text-shadow:0 2px 18px #9f7aea99}
+#tariffV5Overlay .v5-header button{border:1px solid #ffffff35!important;background:#ffffff16!important;color:#fff!important;border-radius:14px!important;padding:10px 9px!important;font-size:12px!important;min-height:44px!important;box-shadow:0 4px 14px #0003!important;transition:transform .18s,background .18s!important}
+#tariffV5Overlay .v5-header .v5-back{justify-self:end!important}
+#tariffV5Overlay .v5-header .v5-profile-open{justify-self:start!important;background:linear-gradient(135deg,#7c3aed,#a855f7)!important}
+#tariffV5Overlay .v5-desc{color:#d1d5f0!important;text-align:center!important;font-size:12px!important;margin:0 0 13px!important;line-height:1.6!important}
+#tariffV5Overlay .v5-hero{background:linear-gradient(115deg,#6d28d9,#4338ca 52%,#0891b2)!important;border:1px solid #ffffff40!important;border-radius:23px!important;box-shadow:0 16px 32px #03031870,inset 0 1px #ffffff30!important;padding:17px!important;position:relative;overflow:hidden}
+#tariffV5Overlay .v5-hero:after{content:'✦';position:absolute;left:17px;top:-25px;color:#ffffff25;font-size:115px;pointer-events:none}
+#tariffV5Overlay .v5-hero-symbol{background:#ffffff25!important;border-radius:18px!important;box-shadow:0 5px 18px #0003!important;animation:v5GameFloat 3s ease-in-out infinite}
+#tariffV5Overlay .v5-eyebrow{color:#d6f7ff!important;font-weight:800!important}
+#tariffV5Overlay .v5-hero-title{color:#fff!important;font-size:clamp(19px,5vw,26px)!important;font-weight:900!important}
+#tariffV5Overlay .v5-hero-sub{color:#e6ddff!important}
+#tariffV5Overlay .v5-level-strip{background:#161d3a!important;border:1px solid #a78bfa45!important;border-radius:18px!important;padding:13px!important;margin-top:12px!important;box-shadow:0 9px 20px #0003!important}
+#tariffV5Overlay .v5-level-strip *{color:#f2eeff}
+#tariffV5Overlay .v5-level-strip [id$="Fill"],#tariffV5Overlay #tariffV5ProgressBar{background:linear-gradient(90deg,#22d3ee,#a78bfa,#fbbf24)!important;box-shadow:0 0 13px #22d3ee55!important;transition:width .45s ease!important}
+#tariffV5Overlay .v5-score-card{background:#1b2446!important;border:1px solid #ffffff24!important;border-radius:17px!important;box-shadow:0 7px 18px #0003!important;min-width:0!important}
+#tariffV5Overlay .v5-score-card span{color:#c6d5f6!important}
+#tariffV5Overlay .v5-score-card strong{color:#fff!important;font-size:22px!important}
+#tariffV5Overlay .v5-progress-head{color:#e2e8ff!important;font-weight:800!important;margin-top:13px!important}
+#tariffV5Overlay #tariffV5Progress{background:#252d50!important;border-radius:999px!important;overflow:hidden!important;height:9px!important}
+#tariffV5Overlay #tariffV5Question{background:linear-gradient(145deg,#1e2548,#151c36)!important;color:#fff!important;border:1px solid #6d71af60!important;border-radius:22px!important;padding:20px 17px!important;font-size:clamp(17px,4.4vw,21px)!important;font-weight:850!important;line-height:1.75!important;margin:16px 0 12px!important;box-shadow:0 10px 25px #0004!important}
+#tariffV5Overlay #tariffV5Options{gap:10px!important}
+#tariffV5Overlay #tariffV5Options button{background:#1b2545!important;color:#f8fafc!important;border:1.5px solid #6476a955!important;border-radius:16px!important;padding:15px 14px!important;min-height:56px!important;text-align:right!important;font-weight:750!important;font-size:15px!important;box-shadow:0 5px 12px #0002!important;transition:transform .15s,box-shadow .15s,border-color .15s!important}
+#tariffV5Overlay #tariffV5Options button:not(:disabled):active,#tariffV5Overlay .v5-header button:active{transform:scale(.975)!important}
+#tariffV5Overlay #tariffV5Options button:not(:disabled):hover{border-color:#22d3ee!important;box-shadow:0 0 0 2px #22d3ee20!important}
+#tariffV5Overlay #tariffV5Options button:disabled{opacity:1!important}
+#tariffV5Overlay #tariffV5Feedback{background:#18213d!important;color:#f2f5ff!important;border-radius:14px!important;padding:12px!important;line-height:1.7!important}
+#tariffV5Overlay #tariffV5Feedback:empty{display:none!important}
+#tariffV5Overlay #tariffV5Next{width:100%!important;background:linear-gradient(110deg,#8b5cf6,#06b6d4)!important;border:0!important;border-radius:16px!important;color:#fff!important;font-size:17px!important;font-weight:900!important;padding:15px!important;box-shadow:0 9px 25px #6d28d955!important;animation:v5GamePulse 2.2s ease-in-out infinite}
+#tariffV5Overlay #tariffV5Status{color:#cbd5f0!important;text-align:center!important}
+@keyframes v5GameFloat{50%{transform:translateY(-5px)}}
+@keyframes v5GamePulse{50%{box-shadow:0 9px 30px #06b6d477}}
+@media(max-width:420px){#tariffV5Overlay .v5-header button{font-size:11px!important;padding:9px 6px!important}#tariffV5Overlay .v5-hero{padding:13px!important}#tariffV5Overlay .v5-panel{padding-top:12px!important}}
+@media(prefers-reduced-motion:reduce){#tariffV5Overlay .v5-hero-symbol,#tariffV5Overlay #tariffV5Next{animation:none!important}}
+</style><style id="v5-quiz-compact-mobile-fix">
+/* Compact game screen: keep the next-question action visible without scrolling. */
+@media(max-width:900px){
+#tariffV5Overlay{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+#tariffV5Overlay .v5-panel{height:100dvh!important;min-height:0!important;max-height:100dvh!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important;padding:8px 12px calc(10px + env(safe-area-inset-bottom))!important;margin:0!important}
+#tariffV5Overlay .v5-header{flex-shrink:0!important;margin-bottom:4px!important;padding:0!important;min-height:36px!important}
+#tariffV5Overlay .v5-hero{display:none!important}
+#tariffV5Overlay .v5-level-card{flex-shrink:0!important;padding:10px 12px!important;margin:4px 0 7px!important;min-height:0!important}
+#tariffV5Overlay .v5-score-grid{flex-shrink:0!important;gap:7px!important;margin:3px 0 8px!important}
+#tariffV5Overlay .v5-score-card{padding:7px 5px!important;min-height:0!important;box-shadow:none!important}
+#tariffV5Overlay .v5-score-card strong{font-size:18px!important}
+#tariffV5Overlay .v5-progress-head{margin:3px 0!important}
+#tariffV5Overlay #tariffV5Progress{margin:3px 0 8px!important}
+#tariffV5Overlay #tariffV5Question{font-size:clamp(15px,4vw,19px)!important;line-height:1.4!important;padding:12px 10px!important;margin:5px 0 9px!important;max-height:16dvh!important;overflow-y:auto!important;flex-shrink:0!important}
+#tariffV5Overlay #tariffV5Options{gap:7px!important;flex-shrink:0!important}
+#tariffV5Overlay #tariffV5Options button{min-height:clamp(44px,7.5dvh,58px)!important;padding:8px 12px!important;margin:0!important;border-radius:13px!important;font-size:15px!important;box-shadow:none!important}
+#tariffV5Overlay #tariffV5Feedback{flex:1 1 auto!important;min-height:0!important;max-height:18dvh!important;overflow-y:auto!important;margin:7px 0 0!important;padding:8px 10px!important;font-size:12px!important;line-height:1.45!important}
+#tariffV5Overlay #tariffV5Feedback:empty{display:none!important}
+#tariffV5Overlay #tariffV5Next{position:relative!important;flex-shrink:0!important;min-height:46px!important;padding:9px!important;margin:7px 0 0!important;font-size:16px!important;z-index:3!important;animation:none!important}
+#tariffV5Overlay #tariffV5Status{flex-shrink:0!important;max-height:20px!important;overflow:hidden!important;margin:2px 0!important}
+}
+@media(max-width:900px) and (max-height:740px){
+#tariffV5Overlay .v5-score-card{padding:4px!important}
+#tariffV5Overlay .v5-level-card{padding:7px 10px!important}
+#tariffV5Overlay #tariffV5Question{padding:9px!important;margin:3px 0 6px!important}
+#tariffV5Overlay #tariffV5Options button{min-height:43px!important}
+}
+</style><style id="v5-emerald-white-theme">
+/* Emerald / white visual skin, scoped strictly to the challenge. */
+#tariffV5Overlay{background:radial-gradient(circle at 85% 0%,#c5f4e2 0%,transparent 38%),linear-gradient(160deg,#f7fffb,#eaf7f1)!important;color:#123b31!important;--game-purple:#08785f;--game-cyan:#2ac5a0;--game-gold:#e4b955}
+#tariffV5Overlay .v5-panel{color:#123b31!important}
+#tariffV5Overlay .v5-heading{color:#086b56!important;text-shadow:none!important}
+#tariffV5Overlay .v5-header button{background:#fff!important;color:#08745d!important;border:1px solid #b7e2d2!important;box-shadow:0 3px 10px #176b4d14!important}
+#tariffV5Overlay .v5-header .v5-profile-open{background:linear-gradient(135deg,#0d876a,#12ae87)!important;color:white!important;border-color:#0d876a!important}
+#tariffV5Overlay .v5-desc{color:#52786c!important}
+#tariffV5Overlay .v5-hero{background:linear-gradient(125deg,#08765d,#0ba77e)!important;border-color:#6ce1bb!important;box-shadow:0 12px 25px #0d70502b!important}
+#tariffV5Overlay .v5-level-strip,#tariffV5Overlay .v5-level-card{background:#fff!important;color:#153d33!important;border:1px solid #bfe5d5!important;box-shadow:0 4px 15px #0d705012!important}
+#tariffV5Overlay .v5-level-strip *,#tariffV5Overlay .v5-level-card *{color:#153d33}
+#tariffV5Overlay .v5-level-strip [id$="Fill"],#tariffV5Overlay #tariffV5ProgressBar{background:linear-gradient(90deg,#0b886b,#2dd4a1)!important;box-shadow:none!important}
+#tariffV5Overlay .v5-score-card{background:#fff!important;color:#123b31!important;border:1px solid #c9e7dc!important;box-shadow:0 3px 10px #0c755015!important}
+#tariffV5Overlay .v5-score-card span{color:#527a6d!important}
+#tariffV5Overlay .v5-score-card strong{color:#076b55!important}
+#tariffV5Overlay .v5-progress-head{color:#225f4e!important}
+#tariffV5Overlay #tariffV5Progress{background:#d3e9dd!important}
+#tariffV5Overlay #tariffV5Question{background:#fff!important;color:#103d32!important;border:1.5px solid #a9dcca!important;box-shadow:0 5px 16px #0d70501c!important}
+#tariffV5Overlay #tariffV5Options button{background:#fff!important;color:#153f34!important;border:1.5px solid #bddfd2!important;box-shadow:0 3px 8px #0d705010!important}
+#tariffV5Overlay #tariffV5Options button:not(:disabled):hover{border-color:#099a75!important;box-shadow:0 0 0 2px #0aa77b18!important}
+#tariffV5Overlay #tariffV5Options button.v5-right{background:#e2f8ed!important;border-color:#0d9d65!important;color:#075f3d!important}
+#tariffV5Overlay #tariffV5Options button.v5-wrong{background:#fff0ef!important;border-color:#d85b5b!important;color:#a32d36!important}
+#tariffV5Overlay #tariffV5Feedback{background:#fff!important;color:#1a5142!important;border:1px solid #c7e7da!important}
+#tariffV5Overlay #tariffV5Feedback.v5-good{background:#e4f9ee!important;color:#07613d!important}
+#tariffV5Overlay #tariffV5Feedback.v5-bad{background:#fff0ee!important;color:#9b3037!important}
+#tariffV5Overlay #tariffV5Next{background:linear-gradient(110deg,#08765c,#12ac83)!important;color:#fff!important;box-shadow:0 7px 19px #0b8b6733!important}
+#tariffV5Overlay #tariffV5Status{color:#517c6e!important}
+</style>
+<style id="v5-general-enhancements-20261107">
+/* Unified, touch-friendly design without adding navigation buttons */
+:root{--v5-accent:#087c69;--v5-accent-light:#e7f7f2}
+button,.tool-btn,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:not(:disabled),.tool-btn:not(:disabled){transition:transform .16s ease,box-shadow .2s ease,filter .2s ease}
+button:not(:disabled):active,.tool-btn:not(:disabled):active{transform:scale(.975)}
+button:focus-visible,[role="button"]:focus-visible,input:focus-visible{outline:3px solid #1aaf92!important;outline-offset:2px}
+#tariffV5Overlay{--v5-accent:#087c69}
+#tariffV5Overlay .v5-panel{margin:8px auto!important}
+#tariffV5Overlay #tariffV5Question{line-height:1.48!important;font-size:clamp(15px,3.8vw,19px)!important;margin:9px 0!important}
+#tariffV5Overlay #tariffV5Options{gap:6px!important}
+#tariffV5Overlay #tariffV5Options button{min-height:43px!important;padding:9px 12px!important}
+#tariffV5Overlay #tariffV5Feedback{margin-top:6px!important;line-height:1.45!important}
+#tariffV5Overlay #tariffV5Next{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:8;width:100%;margin-top:7px!important;min-height:45px;border-radius:13px!important;background:#087c69!important;color:#fff!important;box-shadow:0 6px 18px #087c6940}
+#tariffV5Overlay #tariffV5Next:disabled{opacity:.65}
+#tariffV5Overlay #tariffV5ProgressBar{transition:width .35s ease!important}
+#tariffV5Admin{border-radius:17px!important}
+#tariffV5Admin input,#tariffV5Admin button{max-width:100%}
+@media(max-width:420px){#tariffV5Overlay .v5-panel{padding:10px!important}#tariffV5Overlay .v5-header{gap:6px!important}#tariffV5Overlay #tariffV5Question{font-size:15px!important}}
+@media(prefers-reduced-motion:reduce){button,.tool-btn,#tariffV5Overlay #tariffV5ProgressBar{transition:none!important}}
+</style>
+
+<style id="v5-complete-polish-20261107">
+/* 3: unified touch interactions; 4: tariff readability; 6/10: compact responsive challenge */
+:root{--v5-clean-green:#087f6d;--v5-clean-green-soft:#e7f6f0}
+#resultsTable tbody tr{transition:background-color .16s ease,box-shadow .16s ease}
+#resultsTable tbody tr:hover{background-color:rgba(8,127,109,.055)}
+#resultsTable td{line-height:1.55;overflow-wrap:anywhere}
+#resultCount{line-height:1.55}
+#tariffV5Overlay #tariffV5Next{position:sticky!important;bottom:0!important;z-index:20!important;min-height:46px!important;box-shadow:0 5px 18px #087f6d35!important}
+#tariffV5Overlay #tariffV5Options button{min-height:44px!important;line-height:1.4!important}
+#tariffV5Overlay #tariffV5Feedback{max-height:19dvh;overflow:auto;overscroll-behavior:contain}
+#tariffV5Overlay :is(button,input):focus-visible{outline:3px solid #087f6d!important;outline-offset:2px}
+@media(max-width:420px){
+ #tariffV5Overlay #tariffV5Options{gap:5px!important}
+ #tariffV5Overlay #tariffV5Options button{padding:8px 11px!important}
+ #tariffV5Overlay #tariffV5Next{margin-top:5px!important}
+}
+@media(prefers-reduced-motion:reduce){#resultsTable tbody tr{transition:none!important}}
+</style><style id="v5-phase-ten-mobile">
+#tariffV5Overlay #tariffV5Next{position:sticky!important;bottom:0!important;z-index:20!important;min-height:46px!important}
+#tariffV5Overlay #tariffV5Feedback{max-height:18dvh;overflow:auto;overscroll-behavior:contain}
+#tariffV5Overlay #tariffV5Options button{min-height:44px!important;line-height:1.42!important}
+#resultsTable td{overflow-wrap:anywhere;line-height:1.6}
+#resultsTable tbody tr{transition:background-color .16s ease}
+#resultsTable tbody tr:hover{background-color:rgba(8,127,109,.055)}
+#tariffV5Overlay :is(button,input):focus-visible{outline:3px solid #087f6d!important;outline-offset:2px}
+@media(max-width:420px){#tariffV5Overlay #tariffV5Options{gap:5px!important}#tariffV5Overlay #tariffV5Options button{padding:8px 11px!important}}
+@media(prefers-reduced-motion:reduce){#resultsTable tbody tr{transition:none!important}}
+</style><style id="v5-single-tour-polish">#tourBox .v5-tour-task{background:#e7f7f0;border:1px solid #8bd8bd;border-radius:10px;padding:9px;margin:8px 0;color:#075c4d;font-size:13px;font-weight:700}#tourBox{max-width:min(95vw,450px)}#tourBox .tour-btns button{min-height:40px;touch-action:manipulation}@media(max-width:420px){#tourBox{font-size:13px}#tourBox p{line-height:1.5}}</style></head>
 <body>
 
 <div class="topbar">
@@ -1492,7 +1870,7 @@ html[data-theme] #resultsTable td.total-cell,
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="window.__closeSidebar()"></div>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>القائمة الرئيسية</h2>
+    <div class="v5-side-welcome"><h2>القائمة الرئيسية</h2><div class="v5-side-identity" aria-live="polite">مرحبًا، <strong id="v5SidebarGuestId">جارٍ تحميل رقمك…</strong></div></div>
     <button class="modal-close" onclick="window.__closeSidebar()" aria-label="إغلاق القائمة">&times;</button>
   </div>
 
@@ -1601,6 +1979,16 @@ html[data-theme] #resultsTable td.total-cell,
 <button type="button" class="tool-btn" onclick="window.__closeSidebar();window.__openClassificationReview()">✅ مراجعة التصنيفات</button>
 </div>
 
+<input type="checkbox" id="aiLearningConsent" hidden aria-hidden="true" disabled><div class="sidebar-section" id="adminAITrainingSection" style="display:none"><section id="tariffV5Admin" style="border:1px solid var(--line,#aaa5);padding:12px;border-radius:12px;margin:14px 0" dir="rtl"><h3>📝 استيراد أسئلة التحدي V5</h3><p style="font-size:12px">اختر ملف الأسئلة بصيغة JSON من جهازك، ثم اضغط رفع ملف الأسئلة. الاستيراد متاح للمدير فقط، ولا يغير بيانات التعرفة.</p><div style="padding:12px;border:1px dashed var(--border-color,#9ca3af);border-radius:12px;margin-top:8px">
+<label for="tariffV5JsonFile" style="display:block;font-weight:700;margin-bottom:8px">📁 اختر ملف الأسئلة (JSON)</label>
+<input id="tariffV5JsonFile" type="file" accept=".json,application/json" style="width:100%;max-width:100%;box-sizing:border-box">
+<div style="font-size:12px;opacity:.8;margin-top:7px">يمكن رفع ملف 500 أو 1000 سؤال؛ سيتم استيراده تلقائيًا على دفعات من 100 سؤال.</div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+<button type="button" class="tool-btn" onclick="tariffV5Import()">📤 رفع ملف الأسئلة</button>
+<button type="button" class="tool-btn" onclick="tariffV5Stats()">إحصاءات التحدي</button>
+</div><div id="tariffV5AdminStatus" style="white-space:pre-wrap;margin-top:8px;font-size:12px" aria-live="polite"></div></section><div style="display:none!important" aria-hidden="true"><div class="sidebar-section-body"><p class="admin-analytics-privacy">🔒 التدريب والاختبارات للمدير فقط. الذكاء الاصطناعي غير مفعل للمستخدمين. لا تُعتبر اختيارات المستخدمين تصنيفات مؤكدة.</p><div class="admin-usage-grid"><div class="admin-usage-card"><span>المعرفة المعتمدة</span><strong id="aiKnowledgeCount">—</strong></div><div class="admin-usage-card"><span>أمثلة بانتظار المراجعة</span><strong id="aiPendingCount">—</strong></div><div class="admin-usage-card"><span>أمثلة معتمدة</span><strong id="aiApprovedCount">—</strong></div><div class="admin-usage-card"><span>دقة الاختبار</span><strong id="aiAccuracy">—</strong><div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px"><h4>📈 التعلم من المستخدمين — مراجعة وتدريب</h4><div class="admin-usage-grid"><div class="admin-usage-card"><span>الأحداث المستلمة</span><strong id="aiUserTotal">—</strong></div><div class="admin-usage-card"><span>بانتظار المراجعة</span><strong id="aiUserPending">—</strong></div></div><div class="tools-bar"><button class="tool-btn" onclick="tariffAIUserRefresh()">تحديث بيانات التعلم</button><button class="tool-btn" onclick="tariffAIUserQueue()">مراجعة مشاركات المستخدمين</button><button class="tool-btn" onclick="tariffAITrain()">تدريب وتقييم الأمثلة المعتمدة</button><button class="tool-btn" onclick="tariffAIShadow()">اختبار النموذج صامتًا</button></div><div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px"><h4>📊 تحليلات التعلم الذكي V.29.3</h4><div class="tools-bar"><button class="tool-btn" onclick="tariffAIProcessBatch()">⚙️ معالجة دفعة</button><button class="tool-btn" onclick="tariffAIInsights()">📊 تقرير التعلم</button><button class="tool-btn" onclick="tariffAICandidates()">🔎 اقتراحات موثقة</button></div><pre id="aiAdvancedInsights" class="admin-analytics-status" style="white-space:pre-wrap;overflow:auto;max-height:300px">لا توجد نتائج بعد</pre><div style="display:flex;gap:6px;flex-wrap:wrap"><input class="modal-input" id="aiSynonymTerm" placeholder="المصطلح" style="flex:1;min-width:110px"><input class="modal-input" id="aiSynonymAlt" placeholder="المرادف" style="flex:1;min-width:110px"><button class="tool-btn" onclick="tariffAIApproveSynonym()">اعتماد مرادف</button></div></div><div id="aiUserQueue" class="admin-analytics-status" style="white-space:pre-wrap"></div><p id="aiUserStatus" class="admin-analytics-status">جمع مصطلحات البضائع غير الشخصية يعمل في الخلفية بعد الإفصاح عنه في سياسة الخصوصية. الاختيارات لا تُعد تصنيفات مؤكدة.</p></div></div></div><div id="aiSourceTrainingPanel" style="margin:12px 0;padding:14px;border:1px solid var(--line);border-radius:12px"><strong>📚 أمثلة التدريب المستخرجة من بيانات التعرفة</strong><div id="aiSourceTrainingStats" class="auth-hint" style="margin:10px 0">لم يتم تحميل العدد بعد</div><div class="tools-bar"><button class="tool-btn" onclick="window.tariffAISourceStats()">تحديث عدد الأمثلة</button><button class="tool-btn" onclick="window.tariffAISourceImport()">استيراد دفعة من المصادر</button></div><small>الهدف الاستيعابي مليون مثال. الأمثلة المستخرجة مرشحة للمراجعة وليست تصنيفات معتمدة، ولا ترفع نسبة دقة النموذج تلقائيًا.</small></div><div id="aiModelTrainingReadiness" style="margin:12px 0;padding:14px;border:1px solid var(--line);border-radius:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><strong>🧠 نسبة جاهزية التدريب</strong><strong id="aiModelTrainingPct" style="font-size:25px;color:#22c55e">—</strong></div><div style="height:13px;background:var(--line);border-radius:12px;overflow:hidden;margin:10px 0"><div id="aiModelTrainingBar" style="width:0%;height:100%;background:#16a34a;transition:width .3s"></div></div><div id="aiModelTrainingNote" class="auth-hint">جارٍ تحميل الأمثلة المعتمدة…</div><small>المؤشر يقيس الوصول إلى الحد الأدنى من الأمثلة المعتمدة لبدء التقييم (10 أمثلة)، ولا يقيس مقدار تعلم النموذج أو دقته. دقة النموذج تظهر بعد اختبار مستقل.</small></div><div id="aiTrainingProgressPanel" style="margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:12px"><strong>📈 تقدم التعلم من المستخدمين</strong><div id="aiTrainingProgressDetails" style="margin-top:8px">لم يتم تحميل النسب بعد</div><div style="height:12px;background:var(--line);border-radius:10px;overflow:hidden;margin:8px 0"><div id="aiTrainingProgressBar" style="height:100%;width:0%;background:#16a34a;transition:width .3s"></div></div><small>النسبة تعني معالجة أمثلة الاستخدام، ولا تعني دقة الذكاء الاصطناعي.</small><div style="margin-top:8px"><button class="tool-btn" onclick="window.tariffAIProgressRefresh()">تحديث نسب التدريب</button></div></div><div style="margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:12px"><strong>🧠 تعلم السلوك وجودة البيانات</strong><p class="auth-hint">التصحيحات والاختيارات إشارات غير معتمدة؛ تظهر نسب النجاح فقط عند توفر اختبارات موثقة.</p><div class="tools-bar"><button class="tool-btn" onclick="tariffAIBehaviorReport()">تقرير السلوك</button><button class="tool-btn" onclick="tariffAIQualityReview()">مراجعة المرشحين</button></div><pre id="aiBehaviorReport" style="white-space:pre-wrap;max-height:280px;overflow:auto">لم تُحمّل البيانات بعد.</pre></div><p id="aiTrainingStatus" class="admin-analytics-status">لم تُحمّل بيانات التدريب بعد.</p><div class="tools-bar"><button class="tool-btn" onclick="window.tariffAIRefresh()">🔄 تحديث الإحصاءات</button><button class="tool-btn" onclick="window.tariffAIImport()">📚 استيراد المعرفة من التطبيق</button><button class="tool-btn" onclick="window.tariffAIReview()">📋 مراجعة أمثلة التدريب</button></div><div style="margin-top:12px"><label for="aiTestPrompt">اختبار بحث معرفي صامت (للمدير فقط)</label><textarea id="aiTestPrompt" class="modal-input" rows="2" placeholder="وصف سلعة لاختبار الاسترجاع من قاعدة المعرفة"></textarea><button class="tool-btn" onclick="window.tariffAITest()">🧪 اختبار الاسترجاع</button><div id="aiTestResults" class="admin-analytics-status"></div></div><p class="auth-hint">هذه المرحلة تنشئ قاعدة المعرفة وبيانات المراجعة والاختبار. تدريب نموذج تعلم آلي فعلي يحتاج عامل تدريب منفصل ومجموعة بيانات معتمدة؛ لا يوجد نموذج مدرب أو نسبة جاهزية مصطنعة.</p></div></div>
+</div>
 <div class="sidebar-section" id="adminAnalyticsSection" style="display:none;">
     <button type="button" class="sidebar-section-toggle" onclick="window.__toggleSidebarSection(this)"><h3>📊 لوحة استخدام الموقع (أدمن)</h3><span class="sidebar-caret">›</span></button>
     <div class="sidebar-section-body">
@@ -1731,10 +2119,11 @@ html[data-theme] #resultsTable td.total-cell,
   </div>
   <details><summary>تفاصيل النسخة المحفوظة</summary><p id="offlineNote"></p><ul id="offlineCoverage"></ul><p id="offlineReopen"></p><p>دون اتصال: البحث والقراءة والحاسبات المحلية متاحة. تسجيل الدخول والتعديلات الإدارية والملفات الخارجية تحتاج اتصالاً. لا تُحفظ بيانات الحسابات أو لوحة الأدمن ضمن هذه النسخة.</p></details>
 </section>
-  <nav class="v22-primary-nav" id="v22PrimaryNav" aria-label="الوصول السريع">
+  <nav id="v22PrimaryNav" aria-label="الوصول السريع">
     <button type="button" class="v22-nav-btn active" data-v22-view="items" onclick="window.V22UI.openItems()"><span>📦</span><b>التعرفة</b></button>
-    <button type="button" class="v22-nav-btn" data-v22-view="explanations" onclick="window.V22UI.openExplanations()"><span>📖</span><b>الشروحات</b></button>
     <button type="button" class="v22-nav-btn" data-v22-view="settlements" onclick="window.V22UI.openSettlements()"><span>⚖️</span><b>التسويات</b></button>
+    <button type="button" class="v22-nav-btn" data-v22-view="explanations" onclick="window.V22UI.openExplanations()"><span>📖</span><b>الشروحات</b></button>
+    <button type="button" class="v22-nav-btn" data-v22-view="quiz" onclick="window.tariffV5Open()"><span>🧠</span><b>التحدّي</b></button>
     <button type="button" class="v22-nav-btn" data-v22-view="tools" onclick="window.V22UI.openTools()"><span>🧰</span><b>الأدوات</b></button>
   </nav>
 <div class="search-hero v22-search-hero-fixed" id="itemsSearchHero">
@@ -2471,6 +2860,14 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       hist = hist.slice(0, 8);
       try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(hist)); } catch(e){}
   }
+  var v5SuggestionNormCache = new WeakMap();
+  function v5CachedDescription(record){
+      var old=v5SuggestionNormCache.get(record);
+      if(old && old.raw===record.desc)return old.value;
+      var value=normalizeAr(record.desc);
+      v5SuggestionNormCache.set(record,{raw:record.desc,value:value});
+      return value;
+  }
   function renderSuggestions(query){
       var box = document.getElementById('searchSuggest');
       if (!box) return;
@@ -2492,7 +2889,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           if (items.length < 7) {
               state.records.forEach(function(r){
                   if (items.length >= 7) return;
-                  if (normalizeAr(r.desc).indexOf(nq) !== -1 && !seen[r.code]) { items.push({ label: r.code + ' — ' + r.desc, tag: 'بيان', value: r.code }); seen[r.code] = 1; }
+                  if (v5CachedDescription(r).indexOf(nq) !== -1 && !seen[r.code]) { items.push({ label: r.code + ' — ' + r.desc, tag: 'بيان', value: r.code }); seen[r.code] = 1; }
               });
           }
       }
@@ -2605,18 +3002,20 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
   // تعتمد فقط على تظليل العنصر المستهدف (توهّج أخضر) + صندوق تعليمات ثابت بالأسفل،
   // بدون تعتيم كامل للشاشة، حتى تبقى الواجهة قابلة للتصفح بحرية أثناء الجولة.
   var TOUR_STEPS = [
-      { title: "👋 أهلاً بك في التعرفة الجمركية السورية", text: "هذا الدليل التعليمي يظهر تلقائياً مرة واحدة فقط. خلال خطوات قصيرة ستتعرف على التعرفة، الشروحات، التسويات، الأدوات والبحث." },
-      { selector: "#v22PrimaryNav", title: "🧭 الأقسام الرئيسية", text: "من هذه الأزرار تنتقل بين أربعة أقسام واضحة: التعرفة، الشروحات، التسويات، والأدوات. يمكنك العودة لأي قسم بضغطة واحدة." },
-      { selector: "[data-v22-view='items']", title: "📦 التعرفة", text: "هنا تبحث عن الرمز الجمركي أو اسم المادة، وتشاهد الرسوم والوحدة والحالة، ثم تفتح تفاصيل البند بالضغط على النتيجة." },
-      { selector: "[data-v22-view='explanations']", title: "📖 الشروحات", text: "قسم شروحات التعرفة يعرض الشرح التفصيلي المرتبط بالبند، مع بحث مستقل بالكود أو بكلمة من الشرح." },
-      { selector: "[data-v22-view='settlements']", title: "⚖️ التسويات", text: "هنا تجد دليل التسويات والمخالفات كنص قابل للبحث والنسخ، ويمكن الوصول إلى المخالفة المطلوبة بالكلمة أو رقم البند." },
-      { selector: "[data-v22-view='tools']", title: "🧰 الأدوات", text: "مركز الأدوات يضم حاسبة التسويات، حاسبة المركبات، الحاسبة اليدوية، الإحصائيات، السجل والمفضلة." },
-      { selector: "#quickSearch", title: "🔎 البحث في التعرفة", text: "اكتب رمزاً جمركياً أو اسم مادة. تظهر النتائج أثناء الكتابة، ولا تفتح قائمة سجل البحث تلقائياً لتبقى الشاشة واضحة على الهاتف." },
-      { selector: "#v18GlobalSearchBtn", title: "🔍 البحث الشامل", text: "استخدم البحث الشامل عندما تريد البحث في التعرفة والشروحات ودليل التسويات معاً من مكان واحد." },
-      { selector: ".menu-toggle", title: "☰ القائمة", text: "القائمة الجانبية تجمع الميزات الأقل استخداماً مثل المفضلة، دليل الاستخدام، اقتراح التصنيف، والحساب الإداري دون ازدحام الصفحة الرئيسية.", closeSidebar: true },
-      { selector: "#tourHelpSection .sidebar-section-toggle", title: "🎓 دليل الاستخدام", text: "لن يظهر هذا الشرح تلقائياً بعد إنهائه، لكن يمكنك تشغيله يدوياً في أي وقت من قسم دليل الاستخدام داخل القائمة.", openSidebar: true },
-      { title: "✅ أصبحت جاهزاً للاستخدام", text: "ابدأ من البحث أو اختر أحد الأقسام الأربعة. يمكنك إنهاء الجولة الآن والبدء باستخدام الموقع." }
-  ];
+ {title:"👋 أهلاً بك في الكشاف الجمركي",text:"سنستخدم واجهة التطبيق الحقيقية معًا. في كل خطوة انظر إلى العنصر المضيء وجرّبه بنفسك. لن نغيّر أي بيانات أثناء التدريب."},
+ {selector:"#v22PrimaryNav",title:"🧭 تعرّف على أقسام التطبيق",text:"هذه أزرار التنقل. اضغط على التعرفة للعودة إلى البنود، أو انتقل إلى التسويات والشروحات والتحدّي. جرّب الانتقال ثم اضغط التالي."},
+ {selector:"#quickSearch",title:"🔎 جرّب البحث بنفسك",text:"اضغط على مربع البحث المضيء واكتب مثلاً: إبريق شاي. انتظر ظهور النتائج. يمكنك أيضًا البحث برقم بند دون فواصل بين الأرقام.",task:"جرّب الآن: اضغط مربع البحث واكتب اسم مادة.",tryFocus:true},
+ {selector:"[data-v22-view='items']",title:"📦 افهم نتيجة التعرفة",text:"بعد البحث، اضغط على نتيجة مناسبة لفتح تفاصيلها. اقرأ رقم البند والبيان والرسم الجمركي، وتحقق من وصف المادة قبل الاعتماد على أي بند."},
+ {selector:"[data-v22-view='explanations']",title:"📖 جرّب الشروحات",text:"افتح قسم الشروحات من التنقل. ابحث باسم مادة أو رقم بند، ثم افتح الشرح المرتبط بها لتفهم نطاق البند وملاحظاته."},
+ {selector:"[data-v22-view='settlements']",title:"⚖️ تعرّف على التسويات",text:"اضغط قسم التسويات وابحث عن الموضوع المطلوب. اقرأ النص كاملًا قبل استخدامه؛ لا تعتمد على نتيجة مقتطعة وحدها."},
+ {selector:"[data-v22-view='tools']",title:"🧰 الأدوات المساعدة",text:"من مركز الأدوات يمكنك استخدام الحاسبات والوظائف المتاحة. افتح الأداة التي تحتاجها وراجع المدخلات والنتيجة."},
+ {selector:"#v18GlobalSearchBtn",title:"🔍 البحث الشامل",text:"اضغط زر البحث الشامل للبحث في عدة أقسام من مكان واحد. اختر النتيجة التي تناسب نوع المعلومة المطلوبة."},
+ {title:"🎮 تعلّم التحدّي",text:"افتح زر «التحدّي» من الشريط السفلي. اختر إحدى الإجابات الثلاث، راجع الشرح، ثم اضغط «السؤال التالي». الإجابات الصحيحة تمنحك نقاط XP وتزيد مستواك."},
+ {title:"🏅 بطاقة المستخدم",text:"داخل التحدّي افتح «ملفي» لتشاهد رقم المستخدم والمستوى والخبرة والشارات. يظهر تقدّمك نحو المستوى التالي في البطاقة."},
+ {selector:".menu-toggle",title:"☰ القائمة والذكاء الجمركي",text:"افتح القائمة للوصول إلى المفضلة وأدوات الحساب ومساعد الكشاف. المساعد يقترح بنودًا محتملة؛ القرار النهائي يعتمد على مواصفات البضاعة والتعرفة المعتمدة.",closeSidebar:true},
+ {selector:"#tourHelpSection .sidebar-section-toggle",title:"🎓 إعادة التدريب عند الحاجة",text:"يمكنك إعادة تشغيل هذا التدريب لاحقًا من «شرح استخدام الموقع» داخل القائمة. عند إنهائه لن يظهر تلقائيًا مرة أخرى.",openSidebar:true},
+ {title:"✅ انتهى التدريب",text:"أصبحت تعرف كيف تبحث وتفتح بندًا وتقرأ الرسم وتستخدم الشروحات والتسويات والتحدّي وبطاقة المستخدم. ابدأ الآن بتجربة بحث حقيقي."}
+];
   var tourState = { step: 0, active: false };
 
   function tourClearHighlight(){
@@ -2653,6 +3052,8 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           if (brandImgEl) logoHtml = '<div class="tour-logo"><img src="' + brandImgEl.getAttribute('src') + '" alt="شعار التطبيق"></div>';
       }
       var html = logoHtml + '<h4>' + step.title + '</h4><p>' + step.text + '</p>' +
+          (step.task ? '<div class="v5-tour-task">' + step.task + '</div>' : '') +
+          (step.tryFocus ? '<button class="mini-btn" onclick="document.getElementById(\'quickSearch\')?.focus()">جرّب البحث الآن</button>' : '') +
           '<div class="tour-actions">' +
           '<div class="tour-dots">' + dots + '</div>' +
           '<div class="tour-btns">' +
@@ -2737,24 +3138,50 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
           else if(a.length && !e.shiftKey && document.activeElement===a[a.length-1]){e.preventDefault();a[0].focus();}
       }
   });
-  function rvScope(){return '<p class="review-note">الحفظ والمراجعة في هذا المتصفح فقط. لا تُرسل هذه القرارات إلى الفريق؛ المزامنة المشتركة تتطلب دعم اعتماد محمي في قاعدة البيانات.</p>';}
+  function rvScope(){return '<p class="review-note">روابط الشروحات المعتمدة تُحفظ لجميع المستخدمين بعد إعداد قاعدة البيانات؛ وتتوفر النسخة المحفوظة دون إنترنت.</p>';}
   function rvExplainLabel(result){return result.matchType==='exact'?'شرح مطابق لرمز البند':result.matchType==='heading'?'شرح للبند الرئيسي — عام وغير مخصص للفرع':result.matchType==='manual'?'ربط يدوي راجعه الأدمن — ليس تطابق رمز':'يحتاج مراجعة';}
+  // V5: build an indexed lookup once per explanation array revision, including offline cache.
+  var rvExplanationIndexSource=null, rvExplanationIndexLength=-1, rvExplanationIndex=null;
+  function rvIndexedExplanations(){
+      var all=state.explanations||[];
+      if(rvExplanationIndex && rvExplanationIndexSource===all && rvExplanationIndexLength===all.length)return rvExplanationIndex;
+      var map=new Map();
+      all.forEach(function(e){var code=rvCode(e.code);if(!code)return;var group=map.get(code);if(!group){group=[];map.set(code,group);}group.push(e);});
+      rvExplanationIndexSource=all;rvExplanationIndexLength=all.length;rvExplanationIndex=map;
+      return map;
+  }
+  var rvCloudLinks={}, rvCloudReady=false;
+  function rvCloudCacheRead(){try{var x=JSON.parse(localStorage.getItem('tariff_v5_cloud_explanation_links')||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{};}catch(e){return {};}}
+  rvCloudLinks=rvCloudCacheRead();
+  function rvCloudRefresh(){
+      if(!window.TariffCloud || typeof window.TariffCloud.getReviewedExplanationLinks!=='function' || !navigator.onLine)return;
+      window.TariffCloud.getReviewedExplanationLinks().then(function(rows){
+          var next={};(rows||[]).forEach(function(x){if(x.record_ref)next[x.record_ref]={exCode:rvCode(x.ex_code),text:x.ex_text,desc:x.record_desc,reason:x.reason,reviewedBy:x.reviewed_by,reviewedAt:x.reviewed_at,source:'cloud'};});
+          rvCloudLinks=next;rvCloudReady=true;
+          try{localStorage.setItem('tariff_v5_cloud_explanation_links',JSON.stringify(next));}catch(e){}
+          if(typeof renderDetailPopup==='function')try{renderDetailPopup();}catch(e){}
+      }).catch(function(e){console.warn('تعذرت مزامنة روابط الشروح المعتمدة:',e.message||e);});
+  }
+  window.__refreshReviewedExplanationLinks=rvCloudRefresh;
+  window.addEventListener('online',rvCloudRefresh);
+  if(window.__tariffCloudReady && typeof window.__tariffCloudReady.then==='function')window.__tariffCloudReady.then(rvCloudRefresh).catch(function(){});
+  setTimeout(rvCloudRefresh,1500);
   function findExplanationForCode(record){
       var r=typeof record==='object'?record:rvRecord(record), code=rvCode(r?r.code:record);
       if(!code)return {ex:null,matchType:'review',reason:'رمز البند غير صالح للمطابقة.'};
-      var pinned=r?rvRead().links[rvRef(r)]:null, all=state.explanations||[];
+      var pinned=r?(rvCloudLinks[rvRef(r)]||rvRead().links[rvRef(r)]):null, all=state.explanations||[], exIndex=rvIndexedExplanations();
       if(pinned){
-          var selected=all.find(function(e){return rvCode(e.code)===pinned.exCode && String(e.text||'').trim()===pinned.text;});
+          var selected=(exIndex.get(pinned.exCode)||[]).find(function(e){return String(e.text||'').trim()===pinned.text;});
           if(!selected || !pinned.reviewedBy || !pinned.reviewedAt || !r || String(r.desc||'')!==pinned.desc)
               return {ex:null,matchType:'review',reason:'تغيّر أو اختفى نص البند أو الشرح المثبّت. يلزم إعادة مراجعة الربط.'};
           return {ex:selected,matchType:code===pinned.exCode?'exact':pinned.exCode===code.slice(0,4)?'heading':'manual',pinned:pinned};
       }
       function unique(list){var seen=new Set();return list.filter(function(e){var text=String(e.text||'').trim();if(!text || seen.has(text))return false;seen.add(text);return true;});}
-      var exact=unique(all.filter(function(e){return rvCode(e.code)===code;}));
+      var exact=unique(exIndex.get(code)||[]);
       if(exact.length===1)return {ex:exact[0],matchType:'exact'};
       if(exact.length>1)return {ex:null,matchType:'review',reason:'توجد نصوص مختلفة للرمز نفسه. يجب اختيار النص الصحيح بعد مراجعته.'};
       // Only a real four-digit heading qualifies; never choose a sibling by text similarity.
-      var heading=code.length>4?unique(all.filter(function(e){return rvCode(e.code)===code.slice(0,4);})):[];
+      var heading=code.length>4?unique(exIndex.get(code.slice(0,4))||[]):[];
       if(heading.length===1)return {ex:heading[0],matchType:'heading'};
       return {ex:null,matchType:'review',reason:heading.length>1?'توجد شروحات متعارضة للبند الرئيسي. يلزم مراجعتها.':'لا يوجد شرح مطابق أو شرح مسجّل للبند الرئيسي. لم يُربط أي بند فرعي آخر تلقائياً.'};
   }
@@ -2803,12 +3230,20 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       if(!r || String(r.desc||'')!==rvContext.desc || !e || !(state.explanations||[]).some(function(x){return rvCode(x.code)===rvCode(e.code) && String(x.text||'').trim()===e.text;})){showToast('تغيّرت البيانات أثناء المراجعة. أعد فتحها.','err');return;}
       if(!confirm('تثبيت الشرح '+e.code+' للبند '+r.code+' في هذا المتصفح؟'+(rvCode(e.code)!==rvCode(r.code) && rvCode(e.code)!==rvCode(r.code).slice(0,4)?'\nالرمزان مختلفان؛ سيظهر الربط كربط يدوي وليس شرحاً مطابقاً.':'')))return;
       var data=rvRead();data.links[rvContext.ref]={exCode:rvCode(e.code),text:e.text,desc:String(r.desc||''),reason:reason,reviewedBy:rvActor(),reviewedAt:rvStamp()};
-      if(rvWrite(data)){window.__closeReview();renderDetailPopup();showToast('تم تثبيت الربط محلياً بعد المراجعة.','ok');}
+      if(window.TariffCloud && typeof window.TariffCloud.saveReviewedExplanationLink==='function' && navigator.onLine){
+          window.TariffCloud.saveReviewedExplanationLink({record_ref:rvContext.ref,record_code:rvCode(r.code),record_desc:String(r.desc||''),ex_code:rvCode(e.code),ex_text:e.text,reason:reason}).then(function(){
+              delete data.links[rvContext.ref];rvWrite(data);window.__closeReview();rvCloudRefresh();showToast('تم حفظ الربط المعتمد لجميع المستخدمين.','ok');
+          }).catch(function(err){showToast('لم يُحفظ الربط سحابياً: '+(err.message||err),'err');});
+      }else{showToast('يلزم الاتصال بقاعدة البيانات لحفظ ربط مشترك.','err');}
   };
   window.__clearExplanationPin=function(){
       if(!rvAdmin() || !rvContext || rvContext.mode!=='link')return;
       if(!confirm('إلغاء التثبيت المحلي والعودة إلى المطابقة الآلية بالرمز؟'))return;
-      var data=rvRead();delete data.links[rvContext.ref];if(rvWrite(data)){window.__closeReview();renderDetailPopup();showToast('أُلغي التثبيت المحلي.','ok');}
+      var data=rvRead();delete data.links[rvContext.ref];if(window.TariffCloud && typeof window.TariffCloud.deleteReviewedExplanationLink==='function' && navigator.onLine){
+          window.TariffCloud.deleteReviewedExplanationLink(rvContext.ref).then(function(){
+              delete rvCloudLinks[rvContext.ref];rvWrite(data);window.__closeReview();rvCloudRefresh();renderDetailPopup();showToast('أُلغي الربط المشترك.','ok');
+          }).catch(function(err){showToast('تعذّر إلغاء الربط: '+(err.message||err),'err');});
+      }else{showToast('يلزم الاتصال بقاعدة البيانات لإلغاء الربط المشترك.','err');}
   };
 
   function getClassifyCorrections(){return rvRead().corrections.filter(rvCurrentChoice);}
@@ -3192,8 +3627,8 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       }
       if (intents.lab) {
           answerParts.push(r.labRequired
-              ? ('🧪 نعم، يتطلب فحصاً مخبرياً / رقابة جودة' + (r.labAuto ? (' (تصنيف تلقائي تقريبي - ثقة ' + (r.labConfidence || 0) + '%، يُنصح بالمراجعة)') : ''))
-              : '✅ لا يظهر أنه يتطلب فحصاً مخبرياً حالياً.');
+              ? '🧪 يحتاج مخابر وجودة'
+              : '');
           shownKinds.push('lab');
       }
       if (r.banned) {
@@ -3601,6 +4036,7 @@ window.__STATIC_TARIFF_DATA__ = [{"id":"item_18505","code":"85366100","desc":"ا
       document.getElementById('adminExplanationsBox').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('adminSettlementsBox').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('adminAnalyticsSection').style.display = state.isAdmin ? 'block' : 'none';
+      document.getElementById('adminAITrainingSection').style.display = rvAdmin() ? 'block' : 'none';
       document.getElementById('dataQualitySection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('filtersSection').style.display = state.isAdmin ? 'block' : 'none';
       document.getElementById('quickStatsSection').style.display = state.isAdmin ? 'block' : 'none';
@@ -5183,17 +5619,17 @@ function refreshSettlementChapterFilter(){
           }catch(e){storageFailed[k]=true;}
         }));
       }
-      if(boxes.items){
+      if(boxes.items && !observed.items){
         try{state.records=boxes.items.value.map(function(r){return normalizeRecord(Object.assign({},r));});}
         catch(e){delete boxes.items;storageFailed.items=true;}
       }
-      if(boxes.explanations)state.explanations=boxes.explanations.value;
-      if(boxes.settlements)state.settlements=mergeSettlementIndex(boxes.settlements.value);
-      state.lastBannedMap=boxes.banned?boxes.banned.value:{};
-      state.lastLabMap=boxes.lab?boxes.lab.value:{};
+      if(boxes.explanations && !observed.explanations)state.explanations=boxes.explanations.value;
+      if(boxes.settlements && !observed.settlements)state.settlements=mergeSettlementIndex(boxes.settlements.value);
+      if(!observed.banned)state.lastBannedMap=boxes.banned?boxes.banned.value:{};
+      if(!observed.lab)state.lastLabMap=boxes.lab?boxes.lab.value:{};
       // Unknown ban data must not erase flags retained in an older item cache.
-      if(boxes.banned)applyBannedMap(state.lastBannedMap);
-      if(boxes.lab)applyLabMap(state.lastLabMap);
+      if(boxes.banned && !observed.banned)applyBannedMap(state.lastBannedMap);
+      if(boxes.lab && !observed.lab)applyLabMap(state.lastLabMap);
       state.vocabWords=null;refreshUnitFilterOptions();refreshSettlementChapterFilter();render();
       window.__searchExplanations('');window.__searchSettlements('');paint();
       if(!portable){
@@ -5282,7 +5718,7 @@ function refreshSettlementChapterFilter(){
       if(!str) return "";
       return String(str).normalize('NFKC').replace(/[٠-٩]/g,function(c){return String(c.charCodeAt(0)-1632);}).replace(/[۰-۹]/g,function(c){return String(c.charCodeAt(0)-1776);})
         .replace(/[\u064B-\u065F\u0640]/g, "") // إزالة التشكيل
-        .replace(/[أإآ]/g, "ا")
+        .replace(/[أإآٱ]/g, "ا")
         .replace(/ة/g, "ه")
         .replace(/[يى]/g, "ي")
         .toLowerCase()
@@ -5293,6 +5729,20 @@ function refreshSettlementChapterFilter(){
   // كل مجموعة تعتبر كلماتها مترادفة مع بعضها (بحث عن أي كلمة بالمجموعة يطابق باقي كلماتها).
   // القاموس مكتوب بالشكل المُطبَّع (بعد normalizeAr): بدون تشكيل، ة→ه، أ/إ/آ→ا، ي/ى→ي.
   var SYNONYM_GROUPS = [
+    ["ابريق شاي","ابريق","بريق شاي"],
+    ["شاشه كمبيوتر","مونيتور","شاشه حاسوب"],
+    ["طابعه","طابعات","برنتر"],
+    ["فلاش ميموري","ذاكره فلاش","يو اس بي"],
+    ["سماعه راس","هيدفون","سماعات راس"],
+    ["هاتف ذكي","سمارت فون","موبايل ذكي"],
+    ["مكيف سبليت","سبليت","مكيف جداري"],
+    ["لوح شمسي","الواح شمسيه","بانل شمسي"],
+    ["انفرتر","عاكس كهربائي","انفيرتر"],
+    ["حنفيه","صنبور","خلاط مياه"],
+    ["مصباح ليد","لمبه ليد","اضاءه ليد"],
+    ["غلايه كهربائيه","كاتل","غلايه ماء"],
+    ["مايكرويف","فرن ميكروويف","ميكروويف"],
+
     ["ثلاجه","ثلاجات","فريزر","تبريد","مبرد","براد"],
     ["مكيف","مكيفات","تكييف","تبريد هواء","اير كنديشن"],
     ["غساله","غسالات","غسيل ملابس"],
@@ -5387,7 +5837,21 @@ function refreshSettlementChapterFilter(){
     ["مبرد","مبرده","مبردات صناعيه"],
     ["مضخم صوت","سماعات","سبيكرز"],
     ["شاحن","شواحن","محول شحن"],
-    ["ادوات صحيه","خلاطات مياه","مغاسل"]
+    ["ادوات صحيه","خلاطات مياه","مغاسل"],
+    ["ابريق شاي","ابريق","بريق شاي"],
+    ["شاشه كمبيوتر","مونيتور","شاشه حاسوب"],
+    ["طابعه","طابعات","برنتر"],
+    ["فلاش ميموري","ذاكره فلاش","يو اس بي"],
+    ["سماعه راس","هيدفون","سماعات راس"],
+    ["هاتف ذكي","سمارت فون","موبايل ذكي"],
+    ["مكيف سبليت","سبليت","مكيف جداري"],
+    ["لوح شمسي","الواح شمسيه","بانل شمسي"],
+    ["انفرتر","عاكس كهربائي","انفيرتر"],
+    ["سخان مياه","سخان ماء","بويلر"],
+    ["حنفيه","صنبور","خلاط مياه"],
+    ["مصباح ليد","لمبه ليد","اضاءه ليد"],
+    ["غلايه كهربائيه","كاتل","غلايه ماء"],
+    ["مايكرويف","فرن ميكروويف","ميكروويف"]
   ];
 
   var SYNONYM_MAP = (function(){
@@ -5857,10 +6321,8 @@ function refreshSettlementChapterFilter(){
             ? ' <span class="badge badge-ai-match" style="background:var(--accent-soft);color:var(--accent-deep);" title="لم يطابق كلمات بحثك مباشرة، ظهر عبر توسيع دلالي بالذكاء الاصطناعي لوصفك">🤖 اقتراح ذكاء اصطناعي</span>'
             : '';
 
-        var labTitle = (r.labAuto ? '⚠️ تصنيف تلقائي تقريبي - يرجى مراجعة الموظف المختص والتأكد. ' : '') + (r.labNote ? ('ملاحظة: ' + r.labNote) : 'يتطلب فحص مخبري / رقابة جودة قبل التخليص الجمركي.');
-        var labConfSuffix = (r.labAuto && r.labConfidence) ? (' — ثقة ' + r.labConfidence + '%') : '';
         var labBadge = r.labRequired
-            ? ' <span class="badge badge-lab" title="' + escapeHtml(labTitle) + '">🧪 يتطلب فحص مخبر' + (r.labAuto ? (' (تلقائي' + labConfSuffix + ' - راجع)') : '') + '</span>'
+            ? ' <span class="badge badge-lab">🧪 يحتاج مخابر وجودة</span>'
             : '';
 
         var isInCompare = state.compareList.indexOf(r.code) !== -1;
@@ -5999,27 +6461,21 @@ function refreshSettlementChapterFilter(){
           '<span>' + escapeHtml(r.desc) + '</span>' +
           '<button class="action-btn" style="flex-shrink:0;" title="🔊 استماع لتفاصيل البند" onclick="window.__speakStored(' + ttsIdx + ')">🔊</button>' +
           '</div></div>';
+      // Show only the complete tariff amount, without a fee breakdown.
+      html += '<div class="v5-fee-hero v5-fee-full" aria-label="الرسم الجمركي الكامل">' +
+          '<div class="v5-fee-hero-label">الرسم الجمركي الكامل</div>' +
+          '<div class="v5-fee-full-total" style="justify-content:center;gap:12px;"><strong dir="ltr">' + fmtMoney(grandTotal) + '</strong></div>' +
+          '</div>';
       var uxExplanation = '<div class="detail-popup-item"><div class="dk">📖 شرح البند ومصدر الربط</div><div class="dv">'+rvExplanationBlock(r)+'</div></div>';
       if (r.labRequired) {
-          html += '<div class="detail-popup-item lab-alert-box"><div class="dk" style="color:var(--warn);">🧪 تنبيه: يتطلب فحص مخبري / رقابة جودة' + (r.labAuto && r.labConfidence ? (' (نسبة ثقة تلقائية: ' + r.labConfidence + '%)') : '') + '</div><div class="dv" style="font-size:13px;font-weight:600;color:var(--ink);">' +
-              (r.labAuto ? '⚠️ تصنيف تلقائي تقريبي بناءً على نوع المادة، وليس قراراً رسمياً — يجب على الموظف المختص التحقق والتأكد قبل اتخاذ أي إجراء. ' : '') +
-              escapeHtml(r.labNote || 'يرجى مراجعة الجهة المختصة (مخبر / رقابة جودة) قبل استكمال التخليص الجمركي.') +
-              '</div></div>';
+          html += '<div class="detail-popup-item lab-alert-box"><div class="dk">🧪 يحتاج مخابر وجودة</div></div>';
       }
       html += window.TariffUX ? window.TariffUX.detailTabs(r.id) : '';
       html += '<section class="ux-detail-pane" id="uxPane-fees" role="tabpanel" aria-labelledby="uxTab-fees" data-detail-pane="fees">';
-      html += '<div class="detail-popup-item"><div class="dk">' + (mode === 'export' ? 'رسم التصدير' : 'رسم الاستيراد') + '</div><div class="dv">' + fee.toLocaleString() + '</div></div>';
-      html += '<div class="detail-popup-item"><div class="dk">بدل الخدمة</div><div class="dv">' + svc.toLocaleString() + '</div></div>';
+      // The complete tariff amount is displayed once in the prominent upper card.
       if (perPiece) {
-          html += '<div class="detail-popup-item"><div class="dk">🧠 ملاحظة ذكية</div><div class="dv" style="font-size:13.5px;color:var(--accent-deep);">هذا البند يُحسب بالقطعة (الوحدة: ' + escapeHtml(r.imp_unit) + '). أدخل عدد القطع أدناه لحساب الإجمالي الفعلي.</div></div>';
           html += '<div class="detail-popup-item"><div class="dk">عدد القطع</div><input type="number" min="0" class="modal-input" style="margin-bottom:0" value="' + calcState.qty + '" oninput="window.__updateCalcQty(this.value)"></div>';
       }
-      if (perPiece && qty !== 1) {
-          html += '<div class="detail-popup-item"><div class="dk">تفصيل الحساب</div><div class="dv" style="font-size:12.5px;line-height:1.9;font-weight:600;">' +
-              'الرسم الأساسي: ' + fmtMoney(perUnitTotal) + ' × ' + qty + ' = ' + fmtMoney(grandTotal) +
-              '</div></div>';
-      }
-      html += '<div class="detail-popup-item total"><div class="dk">إجمالي الرسوم (' + (mode === "export" ? "تصدير" : "استيراد") + ')</div><div class="dv">' + fmtMoney(grandTotal) + '</div></div>';
       html += '</section>';
       var uxNotes = '<div class="detail-popup-item"><div class="dk">وحدة البند</div><div class="dv">'+escapeHtml(r.imp_unit||'غير محددة')+'</div></div>';
       var similarItems = findSimilarItems(r, 4);
@@ -6036,18 +6492,10 @@ function refreshSettlementChapterFilter(){
       html += '<section class="ux-detail-pane" id="uxPane-explanation" role="tabpanel" aria-labelledby="uxTab-explanation" data-detail-pane="explanation">'+uxExplanation+'</section>';
       html += '<section class="ux-detail-pane" id="uxPane-notes" role="tabpanel" aria-labelledby="uxTab-notes" data-detail-pane="notes">'+uxNotes+'</section>';
       html += '<div class="ux-detail-actions">';
-      html += '<div class="detail-popup-item" style="display:flex;gap:8px;">' +
-          '<button class="mini-btn" style="flex:1;justify-content:center;" onclick="window.__copyShareLink(\'' + shareUrl + '\')">🔗 نسخ رابط مباشر</button>' +
-          '<button class="mini-btn" style="flex:1;justify-content:center;" onclick="window.__printReceipt()">🖨️ طباعة إيصال</button>' +
+      html += '<div class="detail-popup-item" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<button class="mini-btn" style="flex:1;justify-content:center;min-width:125px;" onclick="window.__copyShareLink(\'' + shareUrl + '\')">🔗 نسخ رابط مباشر</button>' +
+          '<button class="mini-btn" style="flex:1;justify-content:center;min-width:125px;" onclick="window.V20Tools.openItemImages(\'' + String(r.code).replace(/'/g, '') + '\')">🖼️ صور المادة</button>' +
           '</div>';
-      html += '<div class="detail-popup-item" style="display:flex;gap:7px;flex-wrap:wrap;">' +
-          '<button class="mini-btn" style="flex:1;justify-content:center;min-width:120px;" onclick="window.V20Tools.shareItemWhatsApp(\'' + String(r.code).replace(/'/g, '') + '\')">💬 واتساب</button>' +
-          '<button class="mini-btn" style="flex:1;justify-content:center;min-width:120px;" onclick="window.V20Tools.openItemImages(\'' + String(r.code).replace(/'/g, '') + '\')">🖼️ صور المادة</button>' +
-          '</div>';
-      html += '<div class="detail-popup-item">' +
-          '<button class="mini-btn" style="width:100%;justify-content:center;" onclick="window.__searchWeb(\'' + escapeHtml(r.code) + '\', \'' + escapeHtml(r.desc) + '\')">🔍 البحث عن هذا البند بالإنترنت</button>' +
-          '</div>';
-
       html += '</div>';
       document.getElementById('detailPopupBody').innerHTML = html;
       if(window.TariffUX) window.TariffUX.enhanceDetail();
@@ -6080,7 +6528,7 @@ function refreshSettlementChapterFilter(){
           html += '<div class="r-note" style="background:#fbeaea;color:#b23434;">🚫 تنبيه: هذا البند ممنوع الاستيراد حالياً' + (r.banReason ? (' — ' + escapeHtml(r.banReason)) : '') + '.</div>';
       }
       if (r.labRequired) {
-          html += '<div class="r-note" style="background:#fcf0de;color:#b3650f;">🧪 يتطلب فحص مخبري / رقابة جودة قبل التخليص الجمركي' + (r.labNote ? (' — ' + escapeHtml(r.labNote)) : '') + '.</div>';
+          html += '<div class="r-note" style="background:#fcf0de;color:#b3650f;">🧪 يحتاج مخابر وجودة</div>';
       }
 
       document.getElementById('receiptPrintArea').innerHTML = html;
@@ -6402,7 +6850,12 @@ function refreshSettlementChapterFilter(){
     window.__searchSettlements('');
 
     // استعادة أحدث نسخة محفوظة من IndexedDB بالخلفية؛ لا تمنع ظهور الصفحة أبداً.
-    offlineHydration = hydrateFromIndexedDB();
+    offlineHydration = hydrateFromIndexedDB().catch(function(err){
+        console.warn('تعذر استرجاع بيانات IndexedDB، ستبقى التعرفة المدمجة متاحة:',err);
+        return null;
+    });
+    // Ready means local tariff is already visible; no Supabase network dependency.
+    window.__tariffLocalReady = true;
 
     // عدادات البحث السحابية لا تُحمّل عند البداية للزائر لتسريع الفتح. لوحة الأدمن تحملها عند الحاجة.
 
@@ -6434,7 +6887,7 @@ function refreshSettlementChapterFilter(){
     });
 
     // 2) بالخلفية: نتصل بالسحابة فقط من أجل حالة تسجيل دخول الأدمن + قائمة الممنوعات الحية (صغيرة وسريعة)
-    window.__tariffCloudReady.then(function(){return offlineHydration;}).then(function(){
+    window.__tariffCloudReady.then(function(){
         state.cloudConnected = true;
 
         window.TariffCloud.onAuthChange(function(profile){
@@ -7071,10 +7524,13 @@ function refreshSettlementChapterFilter(){
             }
             var running=null, lastFetched=0, pendingRefresh=false, CACHE_TTL=60*60*1000;
             function fetchAll(force){
-                if(running)return running;
+                if(running){if(force)pendingRefresh=true;return running;}
                 if(!force && lastFetched && Date.now()-lastFetched<CACHE_TTL)return Promise.resolve();
                 if(!navigator.onLine)return Promise.resolve();
-                running=readAll().then(function(ok){if(ok)lastFetched=Date.now();}).finally(function(){running=null;if(pendingRefresh){pendingRefresh=false;fetchAll(true);}});
+                running=readAll().then(function(ok){if(ok)lastFetched=Date.now();}).finally(function(){
+                    running=null;
+                    if(pendingRefresh){pendingRefresh=false;fetchAll(true);}
+                });
                 return running;
             }
             function forceRefresh(){return fetchAll(true);}
@@ -7082,6 +7538,10 @@ function refreshSettlementChapterFilter(){
             var hourlyTimer=setInterval(function(){
                 if(document.visibilityState==='visible')fetchAll(false);
             },60*60*1000);
+            // On mobile, an hour can pass while the app is suspended.
+            function onResume(){if(document.visibilityState==='visible')fetchAll(false);}
+            document.addEventListener('visibilitychange',onResume);
+            window.addEventListener('online',onResume);
             TariffIDB.get('items').then(function(box){
                 if(box && box.source==='cloud' && Number.isFinite(box.savedAt)) lastFetched=box.savedAt;
             }).catch(function(){}).then(function(){
@@ -7095,7 +7555,7 @@ function refreshSettlementChapterFilter(){
             var channel = supabase.channel("tariff_items_changes")
                 .on("postgres_changes", { event: "*", schema: "public", table: ITEMS_TABLE }, queueRealtimeRefresh)
                 .subscribe();
-            return function unsubscribe(){clearInterval(hourlyTimer);clearTimeout(realtimeTimer); offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==forceRefresh;});supabase.removeChannel(channel); };
+            return function unsubscribe(){clearInterval(hourlyTimer);clearTimeout(realtimeTimer);document.removeEventListener('visibilitychange',onResume);window.removeEventListener('online',onResume); offlineRefreshers=offlineRefreshers.filter(function(fn){return fn!==forceRefresh;});supabase.removeChannel(channel); };
         }
 
         // ينظّف قيمة حقل قبل إرسالها لقاعدة البيانات (يرفض undefined/NaN/Infinity ويسبب فشل الدفعة كاملة)
@@ -7654,7 +8114,30 @@ function refreshSettlementChapterFilter(){
         };
         window.dispatchEvent(new Event('tariff-monitor-cloud-ready'));
 
+        window.TariffAICloud = { rpc: async function(name, params){
+            if(!['tariff_ai_dashboard','tariff_ai_import_knowledge','tariff_ai_review_queue','tariff_ai_test_retrieval','tariff_ai_submit_event','tariff_ai_learning_dashboard','tariff_ai_user_queue','tariff_ai_review_user_event','tariff_ai_train_evaluate','tariff_ai_shadow_predict','tariff_ai_process_batch','tariff_ai_insights','tariff_ai_set_synonym','tariff_ai_candidates','tariff_ai_behavior_report','tariff_ai_quality_candidates','tariff_ai_progress','tariff_ai_import_source_candidates','tariff_ai_source_candidate_stats','tariff_ai_auto_dashboard','tariff_ai_daily_quiz_dashboard','tariff_ai_v5_questions','tariff_ai_v5_daily_questions','tariff_ai_v5_daily_answer','tariff_v5_register_guest','tariff_ai_v5_answer','tariff_ai_v5_import','tariff_ai_v5_stats','tariff_ai_v5_knowledge','tariff_ai_v5_learning_level'].includes(name))throw new Error('عملية غير مسموحة');
+            const result=await supabase.rpc(name,params||{});
+            if(result.error)throw result.error;
+            return result.data;
+        }};
+        async function getReviewedExplanationLinks(){
+            var res=await supabase.from('tariff_reviewed_explanation_links').select('record_ref,record_code,record_desc,ex_code,ex_text,reason,reviewed_by,reviewed_at').limit(10000);
+            if(res.error)throw res.error;return res.data||[];
+        }
+        async function saveReviewedExplanationLink(entry){
+            var user=await supabase.auth.getUser();if(user.error||!user.data.user)throw new Error('يجب تسجيل الدخول كمسؤول');
+            var row=Object.assign({},entry,{reviewed_by:user.data.user.email||user.data.user.id,reviewed_at:new Date().toISOString()});
+            var res=await supabase.from('tariff_reviewed_explanation_links').upsert(row,{onConflict:'record_ref'});
+            if(res.error)throw res.error;
+        }
+        async function deleteReviewedExplanationLink(ref){
+            var res=await supabase.from('tariff_reviewed_explanation_links').delete().eq('record_ref',ref);
+            if(res.error)throw res.error;
+        }
         window.TariffCloud = {
+            getReviewedExplanationLinks:getReviewedExplanationLinks,
+            saveReviewedExplanationLink:saveReviewedExplanationLink,
+            deleteReviewedExplanationLink:deleteReviewedExplanationLink,
             onBannedChange: onBannedChange,
             setBan: setBan,
             clearAllBans: clearAllBans,
@@ -8271,8 +8754,8 @@ function sidebarSettings(){var sidebar=document.getElementById('sidebar');var he
 var d=document.createElement('dialog');d.id='uxShortcutDialog';d.className='ux-custom-dialog';d.setAttribute('aria-labelledby','uxShortcutTitle');d.innerHTML='<div class="appearance-head"><h2 id="uxShortcutTitle">تخصيص اختصاراتي</h2><button type="button" aria-label="إغلاق">×</button></div><div class="ux-custom-body"><p>حدّد الأدوات التي تريد تثبيتها أعلى القائمة، ثم رتّب المثبّتة بالسهمين.</p><div id="uxShortcutRows"></div><p id="uxShortcutStatus" class="ux-pref-hint" role="status" aria-live="polite"></p><div class="ux-shortcut-footer"><button type="button" class="mini-btn" id="uxResetPins">الترتيب الافتراضي</button><button type="button" class="btn-primary" id="uxDonePins">تم</button></div></div>';document.body.appendChild(d);
 function rows(focusId,action){var list=d.querySelector('#uxShortcutRows');list.replaceChildren();var order=prefs.pins.concat(shortcuts.map(function(s){return s.id;}).filter(function(id){return !prefs.pins.includes(id);}));order.forEach(function(id){var s=shortcuts.find(function(x){return x.id===id;});var index=prefs.pins.indexOf(id);var row=document.createElement('div');row.className='ux-shortcut-row';row.dataset.id=id;var label=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=index>=0;check.dataset.action='check';label.appendChild(check);label.appendChild(document.createTextNode(s.label));row.appendChild(label);check.addEventListener('change',function(){if(check.checked)prefs.pins.push(id);else prefs.pins=prefs.pins.filter(function(x){return x!==id;});apply();save();rows(id,'check');d.querySelector('#uxShortcutStatus').textContent=check.checked?'أُضيف الاختصار إلى أعلى القائمة.':'أُزيل الاختصار من المثبّتة.';});[-1,1].forEach(function(delta){var b=document.createElement('button');b.type='button';b.textContent=delta<0?'↑':'↓';b.dataset.action=delta<0?'up':'down';b.setAttribute('aria-label',(delta<0?'تقديم ':'تأخير ')+s.label);b.disabled=index<0||index+delta<0||index+delta>=prefs.pins.length;b.addEventListener('click',function(){var other=prefs.pins[index+delta];prefs.pins[index+delta]=id;prefs.pins[index]=other;apply();save();rows(id,b.dataset.action);d.querySelector('#uxShortcutStatus').textContent='تم تعديل ترتيب '+s.label;});row.appendChild(b);});list.appendChild(row);});if(focusId){var r=list.querySelector('[data-id="'+focusId+'"]'),target=r&&r.querySelector('[data-action="'+action+'"]');if(target&&target.disabled)target=r.querySelector('input');if(target)target.focus();}}
 var launch=document.getElementById('uxCustomizePins');launch.addEventListener('click',function(){rows();d.showModal()});d.querySelector('.appearance-head button').addEventListener('click',function(){d.close()});d.querySelector('#uxDonePins').addEventListener('click',function(){d.close()});d.addEventListener('close',function(){launch.focus()});d.querySelector('#uxResetPins').addEventListener('click',function(){prefs.pins=defaultPrefs.pins.slice();apply();save();rows();d.querySelector('#uxShortcutStatus').textContent='تمت استعادة الاختصارات الافتراضية.';});}
-function mobileNav(){var nav=document.createElement('nav');nav.className='ux-mobile-nav';nav.id='uxMobileNav';nav.setAttribute('aria-label','التنقل السريع على الهاتف');[['items','التعرفة'],['explanations','الشروحات'],['settlements','التسويات'],['menu','القائمة']].forEach(function(x){var b=document.createElement('button');b.type='button';b.dataset.mobileView=x[0];b.innerHTML=svg(x[0])+'<span>'+x[1]+'</span>';if(x[0]==='menu'){b.setAttribute('aria-controls','sidebar');b.setAttribute('aria-expanded','false');}b.addEventListener('click',function(){if(x[0]==='menu')window.__toggleSidebar();else window.V22UI[{items:'openItems',explanations:'openExplanations',settlements:'openSettlements'}[x[0]]]();b.focus({preventScroll:true});sync();});nav.appendChild(b);});document.body.appendChild(nav);
-function sync(){var current=document.querySelector('#v22PrimaryNav .active');var name=current&&current.dataset.v22View;nav.querySelectorAll('button').forEach(function(b){if(b.dataset.mobileView===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});nav.querySelector('[data-mobile-view="menu"]').setAttribute('aria-expanded',String(document.getElementById('sidebar').classList.contains('active')));}
+function mobileNav(){var nav=document.createElement('nav');nav.className='ux-mobile-nav';nav.id='uxMobileNav';nav.setAttribute('aria-label','التنقل السريع على الهاتف');[['items','التعرفة'],['settlements','التسويات'],['explanations','الشروحات'],['quiz','التحدّي'],['menu','القائمة']].forEach(function(x){var b=document.createElement('button');b.type='button';b.dataset.mobileView=x[0];b.innerHTML=svg(x[0])+'<span>'+x[1]+'</span>';if(x[0]==='menu'){b.setAttribute('aria-controls','sidebar');b.setAttribute('aria-expanded','false');}b.addEventListener('click',function(){if(x[0]==='menu')window.__toggleSidebar();else if(x[0]==='quiz')window.tariffV5Open();else window.V22UI[{items:'openItems',explanations:'openExplanations',settlements:'openSettlements'}[x[0]]]();b.focus({preventScroll:true});sync();});nav.appendChild(b);});document.body.appendChild(nav);
+function sync(){var current=document.querySelector('#v22PrimaryNav .active');var name=current&&current.dataset.v22View;nav.querySelectorAll('button').forEach(function(b){if(b.dataset.mobileView===name || (b.dataset.mobileView==='menu' && document.getElementById('sidebar').classList.contains('active')) || (b.dataset.mobileView==='quiz' && document.getElementById('tariffV5Overlay') && !document.getElementById('tariffV5Overlay').hidden))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});nav.querySelector('[data-mobile-view="menu"]').setAttribute('aria-expanded',String(document.getElementById('sidebar').classList.contains('active')));}
 new MutationObserver(sync).observe(document.getElementById('v22PrimaryNav'),{attributes:true,subtree:true,attributeFilter:['class']});new MutationObserver(sync).observe(document.getElementById('sidebar'),{attributes:true,attributeFilter:['class']});sync();}
 async function copyCode(code){var success=false;if(navigator.clipboard&&navigator.clipboard.writeText)try{await navigator.clipboard.writeText(code);success=true;}catch(e){}if(!success){var previous=document.activeElement,box=document.createElement('textarea');box.value=code;box.readOnly=true;box.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(box);box.select();try{success=document.execCommand('copy')}catch(e){}box.remove();if(previous&&previous.isConnected)previous.focus({preventScroll:true});}notify(success?'تم نسخ الرمز '+code:'تعذّر النسخ التلقائي؛ يمكنك تحديد الرمز ونسخه يدوياً.');}
 function addCopyButtons(){document.querySelectorAll('#tbody td.code,#detailPopupBody .detail-popup-item.code .dv').forEach(function(cell){if(cell.querySelector('.ux-copy-code'))return;var first=cell.firstChild;if(!first||first.nodeType!==3)return;var code=first.nodeValue.trim();if(!code)return;var value=document.createElement('bdi');value.className='ux-code-value';value.textContent=code;first.replaceWith(value);var b=document.createElement('button');b.type='button';b.className='ux-copy-code';b.setAttribute('aria-label','نسخ الرمز الجمركي '+code);b.title='نسخ الرمز الجمركي';b.innerHTML=svg('copy');b.addEventListener('click',function(event){event.stopPropagation();copyCode(code);});cell.appendChild(b);});}
@@ -8507,7 +8990,7 @@ function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return 
 function admin(){return !!(window.state&&window.state.isAdmin&&window.state.currentUser&&window.state.currentUser.role==='admin');}
 function uid(){var u=window.state&&window.state.currentUser;return u?String(u.id||u.email||u.username):'guest';}
 function uuid(){if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();if(!window.crypto||!crypto.getRandomValues)return null;var a=new Uint8Array(16);crypto.getRandomValues(a);a[6]=(a[6]&15)|64;a[8]=(a[8]&63)|128;var t=Array.from(a,function(x){return x.toString(16).padStart(2,'0')}).join('');return t.slice(0,8)+'-'+t.slice(8,12)+'-'+t.slice(12,16)+'-'+t.slice(16,20)+'-'+t.slice(20);}
-function storedVisitor(){var v;try{v=localStorage.getItem('tariff_monitor_visitor_v1');}catch(e){}if(!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v||'')){v=uuid();try{if(v)localStorage.setItem('tariff_monitor_visitor_v1',v);}catch(e){}}return v;}
+function storedVisitor(){var v;try{v=localStorage.getItem('tariff_monitor_visitor_v2');}catch(e){}if(!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v||'')){v=uuid();try{if(v)localStorage.setItem('tariff_monitor_visitor_v2',v);}catch(e){}}return v;}
 function resetSession(){monitor.owner=uid();monitor.session=uuid();monitor.secret=uuid();monitor.visitor=monitor.visitor||storedVisitor();monitor.stopped=false;monitor.retryAt=0;monitor.activeSeconds=0;monitor.errors=[];monitor.lastTick=Date.now();monitor.lastInput=Date.now();}
 var device={device:'unknown',os:'غير متاح',browser:'غير متاح',model:'غير متاح'};
 function detectDevice(){var ua=navigator.userAgent||'';device.os=/Android/i.test(ua)?'Android':/iPhone|iPad|iPod/i.test(ua)||(/Mac/i.test(ua)&&navigator.maxTouchPoints>1)?'iOS / iPadOS':/Windows/i.test(ua)?'Windows':/CrOS/i.test(ua)?'ChromeOS':/Mac/i.test(ua)?'macOS':/Linux/i.test(ua)?'Linux':'غير متاح';device.device=/iPad|Tablet/i.test(ua)||(device.os==='iOS / iPadOS'&&!/iPhone|iPod/i.test(ua))?'tablet':/Mobi|iPhone|iPod/i.test(ua)?'phone':/Android/i.test(ua)?'tablet':device.os==='غير متاح'?'unknown':'desktop';var b=ua.match(/(Edg|OPR|SamsungBrowser|Firefox|CriOS|Chrome)\/([\d.]+)/);device.browser=b?({Edg:'Edge',OPR:'Opera',SamsungBrowser:'Samsung Internet',CriOS:'Chrome'}[b[1]]||b[1])+' '+b[2].split('.')[0]:/Safari/i.test(ua)?'Safari':'غير متاح';if(navigator.userAgentData){if(navigator.userAgentData.mobile)device.device='phone';if(navigator.userAgentData.getHighEntropyValues)navigator.userAgentData.getHighEntropyValues(['model']).then(function(x){if(x.model)device.model=String(x.model).slice(0,80);}).catch(function(){});}}
@@ -8569,7 +9052,7 @@ html+='<h3>سجل إجراءات الإدارة</h3>'+(c.audit&&c.audit.length?c
 function confirmAction(id,action){if(!admin()||!['end','suspend','resume'].includes(action))return;var d=document.getElementById('monitorConfirm');d.dataset.session=id;d.dataset.action=action;document.getElementById('monitorConfirmTitle').textContent=labels[action];document.getElementById('monitorConfirmText').textContent=action==='end'?'سيُنهى وصول هذه الجلسة للموقع. علامات التبويب التي تشترك في تسجيل الدخول نفسه تتأثر أيضاً. الزائر غير المسجّل يستطيع بدء زيارة جديدة.':action==='suspend'?'سيُعلّق وصول الحساب إلى خدمات الموقع إلى أن يعيد الأدمن تفعيله. لا يُحذف الحساب.':'سيُسمح للحساب بالوصول إلى خدمات الموقع مجدداً.';document.getElementById('monitorReason').value='';document.getElementById('monitorConfirmError').textContent='';d.showModal();document.getElementById('monitorReason').focus();}
 async function performAction(){if(!admin())return;var d=document.getElementById('monitorConfirm'),reason=document.getElementById('monitorReason').value.trim(),btn=document.getElementById('monitorConfirmYes'),epoch=monitor.epoch;if(reason.length<5){document.getElementById('monitorConfirmError').textContent='اكتب سببًا واضحًا من خمسة أحرف على الأقل.';return;}btn.disabled=true;try{await monitor.transport.action({p_session:d.dataset.session,p_action:d.dataset.action,p_reason:reason.slice(0,240)});if(!admin()||epoch!==monitor.epoch)return;d.close();await openCard(monitor.selected);refresh();}catch(e){if(admin()&&epoch===monitor.epoch)document.getElementById('monitorConfirmError').textContent=e.code==='42501'?errorText(e):String(e.message||'تعذّر تنفيذ الإجراء').slice(0,240);}finally{btn.disabled=false;}}
 function build(){var section=document.createElement('div');section.id='monitorAdminSection';section.className='sidebar-section';section.hidden=true;section.style.display='none';section.innerHTML='<button type="button" class="tool-btn" id="monitorOpen">👥 المستخدمون والأجهزة</button>';document.getElementById('adminMenuOptions').appendChild(section);
-var d=document.createElement('dialog');d.id='monitorDashboard';d.className='monitor-dialog';d.setAttribute('aria-labelledby','monitorTitle');d.innerHTML='<div class="monitor-head"><h2 id="monitorTitle">المستخدمون والأجهزة — للأدمن</h2><button type="button" data-monitor-close aria-label="إغلاق">×</button></div><div class="monitor-scroll"><p class="monitor-note">كل حساب يظهر مرة واحدة في القائمة، حتى لو فتح عدة تبويبات أو جلسات. متصل: تواصل خلال دقيقتين. نشط: الصفحة ظاهرة مع تفاعل خلال دقيقة. الإغلاق المفاجئ قد يتأخر ظهوره حتى دقيقتين. معلومات الأجهزة تقديرية والموديل قد لا يتوفر. البيانات تبدأ بعد التفعيل وتُحفظ 30 يوماً؛ لا يُجمع الموقع أو IP.</p><div id="monitorStatus" class="monitor-status" role="status" aria-live="polite">افتح اللوحة لتحميل البيانات.</div><div class="monitor-counts">'+[['connected','مستخدمون وزوار متصلون','كل حساب أو زائر يظهر مرة واحدة'],['active','مستخدمون وزوار نشطون','تفاعل حديث والصفحة ظاهرة'],['accounts','حسابات متصلة','حسابات مسجّلة دون تكرار'],['guests','زوار متصلون','معرّفات متصفح دون تكرار']].map(function(c){return '<div class="monitor-count"><b data-monitor-count="'+c[0]+'">—</b><span>'+c[1]+'</span><small>'+c[2]+'</small></div>';}).join('')+'</div><div class="monitor-filters"><label>بحث باسم المستخدم أو موديل الجهاز<input id="monitorSearch" type="search" placeholder="اسم المستخدم أو الموديل" maxlength="100"></label><label>الحالة<select id="monitorState"><option value="all">كل الحالات</option><option value="connected">المتصلون فقط</option><option value="active">نشط</option><option value="idle">خامل</option><option value="offline">غير متصل</option><option value="ended">أُنهيت الجلسة</option></select></label><label>نوع الجهاز<select id="monitorDevice"><option value="all">كل الأجهزة</option><option value="phone">هاتف</option><option value="tablet">تابلت</option><option value="desktop">كمبيوتر</option><option value="unknown">غير متاح</option></select></label><label>نوع المستخدم<select id="monitorKind"><option value="all">الجميع</option><option value="accounts">الحسابات</option><option value="guests">الزوار</option></select></label><label>آخر ظهور<select id="monitorDays"><option value="1">آخر 24 ساعة</option><option value="7">آخر 7 أيام</option><option value="30">آخر 30 يوماً</option></select></label></div><div class="monitor-controls"><button type="button" id="monitorRefresh">تحديث الآن</button><button type="button" id="monitorDownloadSql">تنزيل SQL التفعيل</button></div><div class="monitor-list" id="monitorRows"></div><div class="monitor-controls"><button type="button" id="monitorPrev">السابق</button><span id="monitorPage"></span><button type="button" id="monitorNext">التالي</button></div></div>';document.body.appendChild(d);
+var d=document.createElement('dialog');d.id='monitorDashboard';d.className='monitor-dialog';d.setAttribute('aria-labelledby','monitorTitle');d.innerHTML='<div class="monitor-head"><h2 id="monitorTitle">المستخدمون والأجهزة — للأدمن</h2><button type="button" data-monitor-close aria-label="إغلاق">×</button></div><div class="monitor-scroll"><p class="monitor-note">كل حساب يظهر مرة واحدة في القائمة، حتى لو فتح عدة تبويبات أو جلسات. متصل: تواصل خلال دقيقتين. نشط: الصفحة ظاهرة مع تفاعل خلال دقيقة. الإغلاق المفاجئ قد يتأخر ظهوره حتى دقيقتين. معلومات الأجهزة تقديرية والموديل قد لا يتوفر. البيانات تبدأ بعد التفعيل وتُحفظ 30 يوماً؛ لا يُجمع الموقع أو IP.</p><div id="monitorStatus" class="monitor-status" role="status" aria-live="polite">افتح اللوحة لتحميل البيانات.</div><div class="monitor-counts">'+[['connected','المتصلون الآن','كل حساب أو زائر يظهر مرة واحدة'],['active','نشطون الآن','تفاعل حديث والصفحة ظاهرة'],['accounts','الحسابات','حسابات مسجّلة دون تكرار'],['guests','الزوار','معرّفات متصفح دون تكرار']].map(function(c){return '<div class="monitor-count"><b data-monitor-count="'+c[0]+'">—</b><span>'+c[1]+'</span><small>'+c[2]+'</small></div>';}).join('')+'</div><div class="monitor-filters"><label>بحث باسم المستخدم أو موديل الجهاز<input id="monitorSearch" type="search" placeholder="ابحث برقم ID أو اسم الجهاز" maxlength="100"></label><label>الحالة<select id="monitorState"><option value="all">كل الحالات</option><option value="connected">المتصلون فقط</option><option value="active">نشط</option><option value="idle">خامل</option><option value="offline">غير متصل</option><option value="ended">أُنهيت الجلسة</option></select></label><label>نوع الجهاز<select id="monitorDevice"><option value="all">كل الأجهزة</option><option value="phone">هاتف</option><option value="tablet">تابلت</option><option value="desktop">كمبيوتر</option><option value="unknown">غير متاح</option></select></label><label>نوع المستخدم<select id="monitorKind"><option value="all">الجميع</option><option value="accounts">الحسابات</option><option value="guests">الزوار</option></select></label><label>آخر ظهور<select id="monitorDays"><option value="1">آخر 24 ساعة</option><option value="7">آخر 7 أيام</option><option value="30">آخر 30 يوماً</option></select></label></div><div class="monitor-controls"><button type="button" id="monitorRefresh">تحديث الآن</button><button type="button" id="monitorDownloadSql" class="monitor-admin-advanced">تنزيل SQL التفعيل</button></div><div class="monitor-list" id="monitorRows"></div><div class="monitor-controls"><button type="button" id="monitorPrev">السابق</button><span id="monitorPage"></span><button type="button" id="monitorNext">التالي</button></div></div>';document.body.appendChild(d);
 var c=document.createElement('dialog');c.id='monitorUserCard';c.className='monitor-dialog monitor-card';c.setAttribute('aria-labelledby','monitorCardTitle');c.innerHTML='<div class="monitor-head"><h2 id="monitorCardTitle">بطاقة المستخدم</h2><button type="button" data-monitor-close aria-label="إغلاق">×</button></div><div class="monitor-scroll" id="monitorCardContent"></div>';document.body.appendChild(c);
 var confirm=document.createElement('dialog');confirm.id='monitorConfirm';confirm.className='monitor-dialog monitor-confirm';confirm.setAttribute('aria-labelledby','monitorConfirmTitle');confirm.innerHTML='<div class="monitor-head"><h2 id="monitorConfirmTitle">تأكيد الإجراء</h2><button type="button" data-monitor-close aria-label="إلغاء">×</button></div><div class="monitor-scroll"><p class="monitor-note" id="monitorConfirmText"></p><label for="monitorReason">سبب الإجراء (يُحفظ في سجل الإدارة)</label><textarea id="monitorReason" maxlength="240"></textarea><div class="monitor-confirm-error" id="monitorConfirmError" role="alert"></div><div class="monitor-controls"><button type="button" class="mini-btn" data-monitor-close>إلغاء</button><button type="button" class="btn-primary" id="monitorConfirmYes">تأكيد التنفيذ</button></div></div>';document.body.appendChild(confirm);
 [d,c,confirm].forEach(function(dialog){dialog.querySelectorAll('[data-monitor-close]').forEach(function(b){b.addEventListener('click',function(){dialog.close()})});});c.addEventListener('close',function(){monitor.cardRequest++});
@@ -8653,13 +9136,30 @@ SELECT 'تم تفعيل مركز الإشعارات.' AS result;
 <script id="notification-center-behavior">
 (function(){'use strict';
 var rows=[],read={},ready=false,cloudReady=false,unsub=null,authUnsub=null,identity='guest',LOCAL_KEY='tariff_notification_reads_v1';
+// Timestamp of first use, saved before the initial notification fetch.
+// Older broadcasts are not new notifications for a newly arrived browser.
+var FIRST_SEEN_KEY='tariff_notifications_first_seen_v1';
+function firstSeen(){
+  var value=null;
+  try{value=localStorage.getItem(FIRST_SEEN_KEY)}catch(e){}
+  var stamp=value?Date.parse(value):NaN;
+  if(Number.isFinite(stamp))return stamp;
+  var now=Date.now();
+  try{localStorage.setItem(FIRST_SEEN_KEY,new Date(now).toISOString())}catch(e){}
+  return now;
+}
+var notificationStart=firstSeen();
+
 var icons={manual:'📣',important:'⚠️',update:'🔄',tariff_update:'📊',ban:'🚫',unban:'✅'};
 function h(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function localKey(){return LOCAL_KEY+':'+identity;}
 function localRead(){try{var x=JSON.parse(localStorage.getItem(localKey())||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}catch(e){return {}}}
 function saveLocal(ids){var x=localRead(),now=Date.now();ids.forEach(function(id){x[String(id)]=now;read[String(id)]=true;});var entries=Object.entries(x).sort(function(a,b){return b[1]-a[1]}).slice(0,1000);try{localStorage.setItem(localKey(),JSON.stringify(Object.fromEntries(entries)))}catch(e){}}
 function fmtTime(v){if(!v)return '';var d=new Date(v);if(Number.isNaN(d.getTime()))return '';return d.toLocaleString('ar-SY',{dateStyle:'medium',timeStyle:'short'});}
-function visibleRows(){return rows.filter(function(r){return !read[String(r.id)]});}
+function visibleRows(){return rows.filter(function(r){
+  var timestamp=Date.parse(r.created_at||'');
+  return Number.isFinite(timestamp)&&timestamp>=notificationStart&&!read[String(r.id)];
+});}
 function unreadIds(){return visibleRows().map(function(r){return String(r.id)});}
 function paintBell(){var ids=unreadIds(),dot=document.getElementById('notificationDot'),count=document.getElementById('notificationCount'),bell=document.getElementById('notificationBell');if(!dot||!count||!bell)return;dot.classList.toggle('show',ids.length>0);count.classList.toggle('show',ids.length>0);count.textContent=ids.length>99?'99+':String(ids.length);bell.setAttribute('aria-label',ids.length?'الإشعارات — '+ids.length+' جديد':'الإشعارات');}
 function paintList(){var box=document.getElementById('notificationList');if(!box)return;if(!ready){box.innerHTML='<div class="notification-empty">جارٍ تحميل الإشعارات…</div>';return}var list=visibleRows();if(!list.length){box.innerHTML='<div class="notification-empty">لا توجد إشعارات جديدة.</div>';return}box.innerHTML=list.map(function(r){var kind=String(r.kind||'manual'),id=String(r.id);return '<article class="notification-item unread" role="button" tabindex="0" data-notification-id="'+h(id)+'" aria-label="قراءة الإشعار وإخفاؤه"><div class="notification-icon">'+(icons[kind]||'🔔')+'</div><div><span class="notification-unread-pin" aria-hidden="true"></span><div class="notification-item-title">'+h(r.title||'إشعار')+'</div><div class="notification-item-body">'+h(r.message||'')+'</div><div class="notification-item-meta"><span>'+h(fmtTime(r.created_at))+'</span><span>· اضغط بعد القراءة للإخفاء</span></div></div></article>';}).join('');}
@@ -8694,5 +9194,488 @@ if(window.__tariffCloudReady)window.__tariffCloudReady.then(setupCloud).catch(fu
 </script>
 
 
-</body>
+<script id="tariff-ai-training-admin-script">
+(function(){
+function admin(){return !!(window.state&&state.isAdmin&&state.currentUser&&state.currentUser.role==='admin');}
+function status(t){var e=document.getElementById('aiTrainingStatus');if(e)e.textContent=t;}
+async function call(name,params){if(!admin())throw Error('هذه العملية للمدير فقط');if(!window.TariffAICloud)throw Error('الاتصال السحابي غير جاهز');return window.TariffAICloud.rpc(name,params);}
+window.tariffAIRefresh=async function(){if(!admin())return;try{var d=await call('tariff_ai_dashboard');['aiKnowledgeCount','aiPendingCount','aiApprovedCount'].forEach(function(id,i){document.getElementById(id).textContent=[d.knowledge,d.pending,d.approved][i]??0});document.getElementById('aiAccuracy').textContent=d.accuracy===null?'لم يُختبر':d.accuracy+'%';status('التفعيل للمستخدمين: مغلق · آخر تحديث: '+new Date().toLocaleString('ar'));}catch(e){status('تعذر تحميل لوحة التدريب: '+e.message+' — شغّل ملف SQL المرفق أولاً.');}};
+window.tariffAIImport=async function(){if(!admin())return;if(!confirm('استيراد البنود والشروحات المتاحة من قاعدة البيانات إلى مركز المعرفة؟'))return;status('جارٍ الاستيراد…');try{var d=await call('tariff_ai_import_knowledge');status('اكتمل الاستيراد: '+JSON.stringify(d));await window.tariffAIRefresh();}catch(e){status('تعذر الاستيراد: '+e.message);}};
+window.tariffAIReview=async function(){if(!admin())return;try{var d=await call('tariff_ai_review_queue');status('قائمة المراجعة: '+JSON.stringify(d).slice(0,1200));}catch(e){status('تعذر عرض المراجعة: '+e.message);}};
+window.tariffAITest=async function(){if(!admin())return;var q=document.getElementById('aiTestPrompt').value.trim();if(!q)return;var el=document.getElementById('aiTestResults');el.textContent='جارٍ الاختبار…';try{var d=await call('tariff_ai_test_retrieval',{p_query:q});el.textContent=JSON.stringify(d,null,2);}catch(e){el.textContent='تعذر الاختبار: '+e.message;}};
+})();
+</script>
+<script id="tariff-ai-user-learning">
+(function(){'use strict';
+// Limit collection to short commodity terms; privacy notice required before deployment.
+function cloud(){return window.TariffAICloud&&window.TariffAICloud.rpc;}
+function admin(){return !!(window.state&&window.state.isAdmin&&window.state.currentUser&&window.state.currentUser.role==='admin');}
+function msg(t){var e=document.getElementById('aiUserStatus');if(e)e.textContent=t;}
+async function rpc(n,p){if(!admin())throw Error('المدير فقط');if(!cloud())throw Error('اتصال قاعدة البيانات غير جاهز');return window.TariffAICloud.rpc(n,p||{});}
+var timer=0,last='';
+// Only intentional submitted searches, not every keystroke. Never blocks search rendering.
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!e.target||!e.target.matches('#quickSearch,#searchInput'))return;capture(e.target.value);});
+// Observe settled commodity searches in background; disclose processing in privacy policy.
+// No per-keystroke requests, no blocking of the existing search pipeline.
+var settledSearchTimer=0;
+document.addEventListener('input',function(e){
+ if(!e.target||!e.target.matches('#quickSearch'))return;
+ clearTimeout(settledSearchTimer);
+ var value=e.target.value;
+ settledSearchTimer=setTimeout(function(){
+  if(document.visibilityState==='visible')capture(value);
+ },1800);
+});
+
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-ai-learning-search]');if(b){var i=document.getElementById('quickSearch')||document.getElementById('searchInput');if(i)capture(i.value);}});
+function capture(v){if(!cloud()||!navigator.onLine)return;var q=String(v||'').trim();if(q.length<2||q.length>80||q===last||/@|https?:\/\/|\d{5,}|\+\d|(?:اسم|عنوان|هاتف|جوال|بريد|رقم الهوية)/i.test(q))return;last=q;clearTimeout(timer);timer=setTimeout(function(){window.TariffAICloud.rpc('tariff_ai_submit_event',{p_type:'search',p_query:q,p_code:null}).catch(function(){});},500);}
+window.tariffAIProgressRefresh=async function(){var el=document.getElementById('aiTrainingProgressDetails'),bar=document.getElementById('aiTrainingProgressBar');if(!el||!bar)return;try{var d=await rpc('tariff_ai_progress','tariff_ai_import_source_candidates','tariff_ai_source_candidate_stats');var approved=Number(d.examples_approved)||0, minimum=10, readiness=Math.max(0,Math.min(100,Math.round(approved/minimum*100)));var rPct=document.getElementById('aiModelTrainingPct'),rBar=document.getElementById('aiModelTrainingBar'),rNote=document.getElementById('aiModelTrainingNote');if(rPct)rPct.textContent=readiness+'%';if(rBar)rBar.style.width=readiness+'%';if(rNote)rNote.textContent='أمثلة معتمدة: '+approved+' من '+minimum+' كحد أدنى للتقييم'+(d.accuracy_pct==null?' | دقة النموذج: لم تُقَس':' | دقة الاختبار: '+d.accuracy_pct+'%');var p=Number(d.processing_pct)||0;bar.style.width=Math.max(0,Math.min(100,p))+'%';el.textContent='معالجة الأحداث: '+p+'% ('+d.events_processed+'/'+d.events_total+') | مراجعة الأحداث: '+d.review_pct+'% | اعتماد الأمثلة: '+d.examples_approved_pct+'% | دقة الاختبار: '+(d.accuracy_pct==null?'لم تُقَس':d.accuracy_pct+'%')+' ('+d.holdout_count+' اختبار)';}catch(e){el.textContent='تعذر تحميل نسب التدريب: '+e.message;var rNote=document.getElementById('aiModelTrainingNote');if(rNote)rNote.textContent='تعذر تحميل جاهزية التدريب: '+e.message;}};
+window.tariffAIUserRefresh=async function(){try{var d=await rpc('tariff_ai_learning_dashboard');document.getElementById('aiUserTotal').textContent=d.total_events;document.getElementById('aiUserPending').textContent=d.pending_events;msg('أمثلة معتمدة: '+d.approved_examples+' | أحدث تقييم: '+(d.latest_model?d.latest_model.accuracy+'% ('+d.latest_model.holdout_count+' اختبار)':'لا يوجد')+' | التفعيل العام: مغلق');}catch(e){msg(e.message);}};
+window.tariffAIUserQueue=async function(){try{var rows=await rpc('tariff_ai_user_queue',{p_limit:30});var el=document.getElementById('aiUserQueue');el.replaceChildren();if(!rows.length){el.textContent='لا توجد أمثلة للمراجعة';return;}rows.forEach(function(r){var line=document.createElement('div');line.style.cssText='padding:8px;border-bottom:1px solid var(--line);';var title=document.createElement('div');title.textContent='#'+r.id+' · '+r.event_type+' · '+r.query_text;var input=document.createElement('input');input.className='modal-input';input.placeholder='البند المعتمد (اتركه فارغًا لرفض المثال)';input.value=r.proposed_code||'';var b=document.createElement('button');b.className='tool-btn';b.textContent='حفظ المراجعة';b.onclick=async function(){try{await rpc('tariff_ai_review_user_event',{p_id:r.id,p_approved_code:input.value.trim()||null});line.remove();window.tariffAIUserRefresh();window.tariffAIProgressRefresh();}catch(e){msg(e.message);}};line.append(title,input,b);el.appendChild(line);});}catch(e){msg(e.message);}};
+window.tariffAITrain=async function(){try{msg('جارٍ تدريب نموذج الأمثلة المعتمدة وتقييمه…');var d=await rpc('tariff_ai_train_evaluate');msg(JSON.stringify(d));window.tariffAIUserRefresh();}catch(e){msg(e.message);}};
+window.tariffAIShadow=async function(){try{var q=(document.getElementById('aiTestPrompt').value||'').trim();if(!q){msg('اكتب وصف السلعة في خانة الاختبار أولًا');return;}var d=await rpc('tariff_ai_shadow_predict',{p_query:q});msg(JSON.stringify(d));}catch(e){msg(e.message);}};
+})();
+</script>
+
+<script id="tariff-ai-advanced-v293">
+(function(){'use strict';
+ function el(id){return document.getElementById(id)}
+ function allowed(){return !!(window.state&&window.state.isAdmin&&window.state.currentUser&&window.state.currentUser.role==='admin')}
+ async function rpc(name,args){if(!allowed())throw Error('للمدير فقط');if(!window.TariffAICloud)throw Error('اتصال قاعدة البيانات غير متاح');return window.TariffAICloud.rpc(name,args||{})}
+ function show(data){var node=el('aiAdvancedInsights');if(node)node.textContent=typeof data==='string'?data:JSON.stringify(data,null,2)}
+ window.tariffAIProcessBatch=async function(){try{show('جارٍ تحليل دفعة محدودة دون تعطيل البحث…');show(await rpc('tariff_ai_process_batch',{p_batch:500}));}catch(e){show(e.message)}};
+ window.tariffAIInsights=async function(){try{show(await rpc('tariff_ai_insights'))}catch(e){show(e.message)}};
+ window.tariffAICandidates=async function(){try{var q=(el('aiTestPrompt')?.value||'').trim();if(!q){show('اكتب وصف البضاعة في خانة الاختبار');return}show(await rpc('tariff_ai_candidates',{p_query:q}))}catch(e){show(e.message)}};
+ window.tariffAIApproveSynonym=async function(){try{var t=el('aiSynonymTerm').value.trim(),s=el('aiSynonymAlt').value.trim();if(!t||!s){show('أدخل المصطلح والمرادف');return}show(await rpc('tariff_ai_set_synonym',{p_term:t,p_synonym:s,p_status:'approved'}))}catch(e){show(e.message)}};
+ // Capture a user's explicit tariff selection without changing the existing click handler.
+ // Only capture links/buttons that expose a tariff code in their own data attributes.
+ document.addEventListener('click',function(e){
+  var node=e.target.closest&&e.target.closest('[data-tariff-code],[data-code]');
+  if(!node||node.closest('#adminAITrainingSection'))return;
+  var code=node.getAttribute('data-tariff-code')||node.getAttribute('data-code')||'';
+  var q=(el('quickSearch')?.value||'').trim();
+  if(!/^[0-9. -]{2,24}$/.test(code)||q.length<2||q.length>80||!window.TariffAICloud)return;
+  window.TariffAICloud.rpc('tariff_ai_submit_event',{p_type:'selection',p_query:q,p_code:code}).catch(function(){});
+ },{passive:true});
+})();
+</script>
+
+<script id="tariff-ai-behavior-v294">
+(function(){'use strict';
+var previousQuery='',lastSelection='',lastTime=0;
+function searchValue(){var el=document.getElementById('quickSearch')||document.getElementById('searchInput');return el?String(el.value||'').trim():'';}
+function eligible(q){return q.length>=2&&q.length<=80&&!/@|https?:\/\/|\d{5,}|\+\d|(?:اسم|عنوان|هاتف|جوال|بريد|رقم الهوية)/i.test(q);}
+function emit(type,q,code){if(!window.TariffAICloud||!navigator.onLine||!eligible(q))return;window.TariffAICloud.rpc('tariff_ai_submit_event',{p_type:type,p_query:q,p_code:code||null}).catch(function(){});}
+// Search revisions provide spelling-correction signals; no extra request per keystroke.
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.matches('#quickSearch,#searchInput')){var q=searchValue();if(eligible(previousQuery)&&eligible(q)&&previousQuery!==q&&Math.abs(previousQuery.length-q.length)<=3){emit('search_correction',previousQuery+' => '+q,null);}previousQuery=q;}},true);
+// The application's row actions are dynamically rendered, so listen to the actual row opener.
+// Extract code only from visible row data, never infer a code from the query.
+document.addEventListener('click',function(e){
+ var node=e.target.closest&&e.target.closest('[data-tariff-code],[data-code],[onclick*="__toggleRow"]');
+ if(!node||node.closest('#adminAITrainingSection'))return;
+ var q=searchValue();if(!eligible(q))return;
+ var code=node.getAttribute('data-tariff-code')||node.getAttribute('data-code')||'';
+ if(!code){var row=node.closest('tr,[data-row-id]');if(row){var c=row.querySelector('[data-tariff-code],[data-code]');if(c)code=c.getAttribute('data-tariff-code')||c.getAttribute('data-code')||'';}}
+ if(!/^[0-9. -]{2,24}$/.test(code))return;
+ var now=Date.now(),key=q+'|'+code;if(key===lastSelection&&now-lastTime<4000)return;lastSelection=key;lastTime=now;
+ emit('selection',q,code);
+},true);
+window.tariffAIBehaviorReport=async function(){var out=document.getElementById('aiBehaviorReport');if(!out)return;out.textContent='جارٍ تحميل مؤشرات التعلم…';try{var d=await window.TariffAICloud.rpc('tariff_ai_behavior_report',{});out.textContent=JSON.stringify(d,null,2);}catch(e){out.textContent='تعذر تحميل التقرير: '+e.message;}};
+window.tariffAIQualityReview=async function(){var out=document.getElementById('aiBehaviorReport');if(!out)return;try{var d=await window.TariffAICloud.rpc('tariff_ai_quality_candidates',{});out.textContent=JSON.stringify(d,null,2);}catch(e){out.textContent=e.message;}};
+})();
+</script>
+<script id="tariff-ai-source-training-ui">
+(function(){
+ const output=()=>document.getElementById('aiSourceTrainingStats');
+ const show=(message)=>{const el=output();if(el)el.textContent=message;};
+ async function call(name,args){
+   if(!(window.state&&window.state.isAdmin))throw new Error('المدير فقط');
+   if(!window.TariffAICloud||!window.TariffAICloud.rpc)throw new Error('اتصال قاعدة البيانات غير جاهز');
+   return window.TariffAICloud.rpc(name,args||{});
+ }
+ window.tariffAISourceStats=async function(){try{const d=await call('tariff_ai_source_candidate_stats');show('أمثلة مستخرجة: '+d.source_candidates+' | بانتظار المراجعة: '+d.pending_candidates+' | أمثلة معتمدة: '+d.verified_approved+' | السعة المستهدفة: '+d.target);}catch(e){show('تعذر تحميل العدد: '+e.message);}};
+ window.tariffAISourceImport=async function(){try{const d=await call('tariff_ai_import_source_candidates',{p_limit:5000});show('أُضيفت '+d.inserted+' أمثلة من مصادر التعرفة | الإجمالي: '+d.total+' | المعتمدة: '+d.verified_approved);}catch(e){show('تعذر الاستيراد: '+e.message);}};
+})();
+</script>
+<style id="tariff-v5-fullpage-theme">
+/* Independent in-app full-screen page; inherits the application's live theme tokens. */
+#tariffV5Overlay{position:fixed!important;inset:0!important;z-index:2147483600!important;display:block;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;padding:clamp(16px,4vw,40px) 14px calc(28px + env(safe-area-inset-bottom));background:var(--bg)!important;color:var(--ink)!important;scrollbar-gutter:stable}
+#tariffV5Overlay[hidden]{display:none!important}
+#tariffV5Overlay .v5-panel{width:min(100%,720px);max-width:720px!important;min-height:calc(100dvh - 90px);margin:0 auto!important;box-sizing:border-box;padding:clamp(18px,4vw,34px);border-radius:24px;background:var(--surface)!important;color:var(--ink)!important;border:1px solid var(--line);box-shadow:var(--shadow-sm,0 8px 30px rgba(0,0,0,.07))}
+#tariffV5Overlay .v5-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+#tariffV5Overlay .v5-heading{font-size:clamp(19px,3.8vw,26px);line-height:1.5;margin:0;font-weight:800;color:var(--ink)}
+#tariffV5Overlay .v5-desc{color:var(--ink-soft)!important;line-height:1.85}
+#tariffV5Overlay .v5-back{background:var(--accent-soft);color:var(--accent-deep);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;font:inherit;font-weight:750;white-space:nowrap}
+#tariffV5Overlay .v5-back:focus-visible,#tariffV5Overlay button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+#tariffV5Overlay #tariffV5Counter{color:var(--accent)!important}
+#tariffV5Overlay #tariffV5Progress{background:var(--line)!important}
+#tariffV5Overlay #tariffV5ProgressBar{background:linear-gradient(90deg,var(--accent),var(--accent2))!important}
+#tariffV5Overlay #tariffV5Question{color:var(--ink)}
+#tariffV5Overlay #tariffV5Options button{background:var(--bg)!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+#tariffV5Overlay #tariffV5Options button:not(:disabled):hover{border-color:var(--accent)!important;background:var(--accent-soft)!important}
+#tariffV5Overlay #tariffV5Options button.v5-right{border-color:#16a34a!important;background:rgba(22,163,74,.12)!important}
+#tariffV5Overlay #tariffV5Options button.v5-wrong{border-color:#dc2626!important;background:rgba(220,38,38,.12)!important}
+#tariffV5Overlay #tariffV5Options .v5-letter{background:var(--accent-soft);color:var(--accent-deep)}
+#tariffV5Overlay #tariffV5Next{background:linear-gradient(110deg,var(--accent),var(--accent2))!important;color:white!important;border:0!important}
+#tariffV5Overlay #tariffV5Status{color:var(--ink-soft)}
+@media(max-width:600px){#tariffV5Overlay{padding:0 0 env(safe-area-inset-bottom)}#tariffV5Overlay .v5-panel{border-radius:0!important;border:0!important;min-height:100dvh!important;box-shadow:none!important;padding:18px 16px 34px}}
+</style>
+<div id="tariffV5Overlay" hidden role="main" aria-label="صفحة تحدّي التعرفة" dir="rtl"><div class="v5-panel" style="max-width:580px;margin:20px auto"><div class="v5-header"><button type="button" class="v5-profile-open" onclick="tariffV5Profile()" aria-label="بطاقة المستخدم">👤 ملفي</button><h2 class="v5-heading">⚡ ساحة التحدّي</h2><button type="button" class="v5-back" onclick="tariffV5Close()" aria-label="العودة للتطبيق">↩ العودة</button></div><p class="v5-desc">رحلتك اليومية نحو الاحتراف! اختر الإجابة الصحيحة، اجمع الخبرة، وارتقِ بمستواك.</p><div class="v5-hero"><div class="v5-hero-symbol" aria-hidden="true">🏆</div><div><div class="v5-eyebrow">مغامرة المعرفة تبدأ الآن</div><div class="v5-hero-title">تحدَّ نفسك واكسب XP</div><div class="v5-hero-sub">100 سؤال يوميًا · 50 مستوى · إنجازات متجددة</div></div></div><div class="v5-level-strip" aria-label="مستوى الخبرة"><div class="v5-level-top"><strong id="v5LevelName">المستوى 1 / 50</strong><span id="v5TotalXP">0 XP إجمالي</span></div><div class="v5-level-track"><div id="v5LevelBar"></div></div><small id="v5LevelRemaining">100 XP للمستوى التالي</small></div><div class="v5-score-grid"><div class="v5-score-card"><span>⭐ نقاط الجولة</span><strong id="v5RoundXP">0 XP</strong></div><div class="v5-score-card"><span>🔥 إجابات متتالية</span><strong id="v5RoundStreak">0</strong></div><div class="v5-score-card"><span>🎯 الصحيحة</span><strong id="v5RoundCorrect">0</strong></div></div><div class="v5-progress-head"><span id="tariffV5Counter"></span><span id="v5ProgressPercent">0%</span></div><div id="tariffV5Progress"><div id="tariffV5ProgressBar"></div></div><h3 id="tariffV5Question" style="line-height:1.8"></h3><div id="tariffV5Options" style="display:grid;gap:9px"></div><div id="tariffV5Feedback" style="margin-top:12px;white-space:pre-wrap" aria-live="polite"></div><button type="button" class="tool-btn" id="tariffV5Next" onclick="tariffV5Next()" style="display:none;margin-top:12px">السؤال التالي ←</button><div id="tariffV5Status" style="margin-top:10px;font-size:12px" aria-live="polite"></div></div></div>
+<style>@media(max-width:900px){#tariffV5OpenButton{display:none!important}.ux-mobile-nav button[data-mobile-view="quiz"]{min-width:0;flex:1}.ux-mobile-nav button[data-mobile-view="quiz"] span{font-size:11px}}</style>
+
+<dialog id="v5ProfileDialog" class="v5-profile-dialog" dir="rtl" aria-label="بطاقة المستخدم">
+<div class="v5-profile-shell">
+  <div class="v5-profile-hero"><div class="v5-profile-stars" aria-hidden="true">✦ &nbsp; ✧ &nbsp; ✦</div><button type="button" class="v5-profile-close" onclick="document.getElementById('v5ProfileDialog').close()" aria-label="إغلاق بطاقة المستخدم">✕</button><div class="v5-profile-avatar" aria-hidden="true">👤</div><div class="v5-profile-kicker">بطاقتي الجمركية</div><h2>ملف الإنجازات</h2><div class="v5-profile-id" id="v5ProfileId">جارٍ تحميل الرقم</div></div>
+  <div class="v5-profile-content"><div class="v5-profile-level"><div class="v5-profile-level-head"><strong id="v5ProfileLevel">المستوى 1</strong><span id="v5ProfileXP">0 XP</span></div><div class="v5-profile-track"><div id="v5ProfileLevelFill"></div></div><small id="v5ProfileNext">المستوى التالي</small></div>
+  <div class="v5-profile-stats"><div><span>🎯 الإجابات الصحيحة</span><strong id="v5ProfileCorrect">0</strong></div><div><span>📊 دقة الإجابات</span><strong id="v5ProfileAccuracy">0%</strong></div><div><span>🔥 أفضل سلسلة</span><strong id="v5ProfileBest">0</strong></div><div><span>📚 الأسئلة المجابة</span><strong id="v5ProfileAttempts">0</strong></div></div>
+  <div id="v5ProfileTitle" class="v5-profile-title"></div><div class="v5-profile-badges-head"><strong>🏅 إنجازاتي</strong><span id="v5ProfileBadgeCount">0 شارات</span></div><div id="v5ProfileBadges" class="v5-profile-badges"></div></div>
+</div></dialog>
+<style id="tariff-v5-premium-ui">
+#tariffV5Overlay[hidden]{display:none!important}
+#tariffV5Overlay .v5-panel{background:var(--card-bg,#fff);color:var(--text,#202638);border-radius:24px;padding:22px;box-shadow:0 22px 70px #0006;border:1px solid rgba(130,145,170,.2)}
+#tariffV5Overlay .v5-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#tariffV5Overlay .v5-heading{font-size:21px;font-weight:800;margin:0}
+#tariffV5Overlay .v5-desc{font-size:13px;opacity:.7;line-height:1.8}
+#tariffV5Counter{font-size:13px!important;font-weight:700;opacity:1!important;margin:14px 0 8px;color:#2563eb}
+#tariffV5Progress{height:7px;border-radius:20px;background:rgba(110,125,150,.18);overflow:hidden}
+#tariffV5ProgressBar{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#06b6d4);transition:width .3s}
+#tariffV5Question{font-size:19px;line-height:1.85!important;margin:20px 0}
+#tariffV5Options{display:grid;gap:12px!important}
+#tariffV5Options button{width:100%;text-align:right!important;display:flex;align-items:center;gap:12px;padding:15px!important;line-height:1.7!important;border:1px solid rgba(130,145,170,.3)!important;border-radius:14px!important;background:rgba(128,140,160,.06)!important;color:inherit!important;font-size:15px;font-weight:600;white-space:normal;cursor:pointer;transition:background .15s,border-color .15s}
+#tariffV5Options button:not(:disabled):active{transform:scale(.99)}
+#tariffV5Options button.v5-right{background:rgba(22,163,74,.12)!important;border-color:#16a34a!important}
+#tariffV5Options button.v5-wrong{background:rgba(220,38,38,.11)!important;border-color:#dc2626!important}
+#tariffV5Options button:disabled{cursor:default;opacity:1}
+#tariffV5Options .v5-letter{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;min-width:34px;border-radius:10px;background:rgba(100,116,139,.13);font-weight:800}
+#tariffV5Feedback{border-radius:13px;padding:13px;line-height:1.9;font-size:14px}
+#tariffV5Feedback:empty{display:none}
+#tariffV5Feedback.v5-good{background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.3)}
+#tariffV5Feedback.v5-bad{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25)}
+#tariffV5Next{width:100%;border-radius:13px!important;padding:14px!important;font-weight:700;margin-top:15px!important}
+#tariffV5Status{line-height:1.8}
+
+/* V5 vibrant answer controls — visual only, quiz logic preserved */
+#tariffV5Options{gap:13px!important}
+#tariffV5Options button{position:relative;isolation:isolate;min-height:70px;padding:16px 17px!important;border:1.5px solid rgba(100,116,139,.22)!important;border-radius:18px!important;background:linear-gradient(120deg,rgba(59,130,246,.085),rgba(6,182,212,.025))!important;box-shadow:0 4px 12px rgba(15,23,42,.055),inset 0 1px rgba(255,255,255,.12);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease!important;overflow:hidden}
+#tariffV5Options button:before{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(#38bdf8,#6366f1);opacity:.75;transition:width .2s ease,opacity .2s ease}
+#tariffV5Options button:not(:disabled):hover{transform:translateY(-2px);border-color:#38bdf8!important;box-shadow:0 10px 25px rgba(37,99,235,.15)}
+#tariffV5Options button:not(:disabled):hover:before{width:6px;opacity:1}
+#tariffV5Options button:not(:disabled):active{transform:scale(.985)}
+#tariffV5Options button:focus-visible,#tariffV5Next:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}
+#tariffV5Options .v5-letter{height:42px;width:42px;min-width:42px;border-radius:13px;background:linear-gradient(145deg,#2563eb,#4f46e5);color:white;box-shadow:0 5px 12px rgba(37,99,235,.24);font-size:16px;transition:transform .2s ease}
+#tariffV5Options button:not(:disabled):hover .v5-letter{transform:rotate(-5deg) scale(1.07)}
+#tariffV5Options button.v5-right{background:linear-gradient(120deg,rgba(22,163,74,.18),rgba(74,222,128,.05))!important;border-color:#16a34a!important;box-shadow:0 5px 20px rgba(22,163,74,.12)}
+#tariffV5Options button.v5-right .v5-letter{background:linear-gradient(145deg,#16a34a,#059669)}
+#tariffV5Options button.v5-right:after{content:'✓';margin-inline-start:auto;color:#16a34a;font-weight:900;font-size:22px}
+#tariffV5Options button.v5-wrong{background:linear-gradient(120deg,rgba(220,38,38,.12),rgba(248,113,113,.025))!important;border-color:#dc2626!important}
+#tariffV5Options button.v5-wrong .v5-letter{background:linear-gradient(145deg,#dc2626,#e11d48)}
+#tariffV5Options button.v5-wrong:after{content:'✕';margin-inline-start:auto;color:#dc2626;font-weight:900;font-size:22px}
+#tariffV5Next{background:linear-gradient(105deg,#2563eb,#4f46e5,#0891b2)!important;color:#fff!important;border:0!important;border-radius:17px!important;min-height:54px;font-size:16px!important;box-shadow:0 9px 23px rgba(37,99,235,.25);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease!important}
+#tariffV5Next:hover{filter:brightness(1.09);transform:translateY(-2px);box-shadow:0 12px 27px rgba(37,99,235,.34)}
+#tariffV5Next:active{transform:scale(.985)}
+#tariffV5Overlay .v5-header>button{width:38px;height:38px;border-radius:12px!important;background:rgba(148,163,184,.14)!important;color:inherit!important;border:1px solid rgba(148,163,184,.2)!important;transition:background .2s ease,transform .2s ease}
+#tariffV5Overlay .v5-header>button:hover{background:rgba(239,68,68,.14)!important;transform:rotate(90deg)}
+#tariffV5Feedback.v5-good,#tariffV5Feedback.v5-bad{animation:v5FeedbackPop .28s ease-out}
+@keyframes v5FeedbackPop{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#tariffV5Options button,#tariffV5Options .v5-letter,#tariffV5Next,#tariffV5Overlay .v5-header>button{transition:none!important}#tariffV5Feedback.v5-good,#tariffV5Feedback.v5-bad{animation:none}}
+</style>
+<style id="tariff-v5-quiz-2026-refresh">
+/* Presentation-only redesign; server questions, answers and persistence unchanged */
+#tariffV5Overlay{background:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 48%),var(--bg)!important}
+#tariffV5Overlay .v5-panel{max-width:680px!important;border-radius:28px!important;padding:clamp(20px,4vw,32px)!important;box-shadow:0 16px 60px rgba(0,0,0,.10)!important}
+#tariffV5Overlay .v5-header{border-bottom:0!important;padding-bottom:8px!important}
+#tariffV5Overlay .v5-heading{font-size:clamp(20px,4vw,27px)!important;letter-spacing:-.4px}
+#tariffV5Overlay .v5-back{width:auto!important;height:auto!important;min-height:42px!important;padding:9px 14px!important;border-radius:14px!important;transform:none!important}
+#tariffV5Overlay .v5-desc{margin:5px 0 18px;font-size:12px!important}
+#tariffV5Overlay .v5-hero{display:flex;align-items:center;gap:16px;padding:20px;margin:12px 0 16px;border-radius:22px;background:linear-gradient(125deg,#153c87,#3259bd 62%,#188baf);color:#fff;box-shadow:0 12px 28px rgba(27,73,151,.2)}
+#tariffV5Overlay .v5-hero-symbol{width:65px;height:65px;flex:none;border-radius:20px;display:grid;place-items:center;font-size:34px;background:rgba(255,255,255,.16)}
+#tariffV5Overlay .v5-eyebrow{font-size:12px;opacity:.84}
+#tariffV5Overlay .v5-hero-title{font-size:clamp(16px,3.8vw,21px);font-weight:850;line-height:1.6}
+#tariffV5Overlay .v5-hero-sub{font-size:12px;opacity:.84}
+#tariffV5Overlay .v5-score-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 22px}
+#tariffV5Overlay .v5-score-card{padding:13px 9px;border:1px solid var(--line);border-radius:17px;background:var(--bg);display:flex;flex-direction:column;gap:6px;text-align:center}
+#tariffV5Overlay .v5-score-card span{font-size:11px;color:var(--ink-soft)}
+#tariffV5Overlay .v5-score-card strong{font-size:19px;color:var(--ink)}
+#tariffV5Overlay .v5-progress-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;font-size:13px;font-weight:750;color:var(--ink-soft)}
+#tariffV5Overlay #tariffV5Counter{margin:0!important;color:var(--ink-soft)!important;font-size:13px!important}
+#tariffV5Overlay #v5ProgressPercent{color:var(--accent);direction:ltr}
+#tariffV5Overlay #tariffV5Progress{height:10px!important;border-radius:99px!important}
+#tariffV5Overlay #tariffV5ProgressBar{border-radius:99px;background:linear-gradient(90deg,#06b6d4,#6366f1)!important;transition:width .4s ease!important}
+#tariffV5Overlay #tariffV5Question{font-size:clamp(19px,4vw,24px)!important;line-height:1.8!important;margin:24px 0!important}
+#tariffV5Overlay #tariffV5Options{gap:12px!important}
+#tariffV5Overlay #tariffV5Options button{min-height:76px!important;border-radius:18px!important;padding:16px!important;box-shadow:0 3px 12px rgba(0,0,0,.04)!important}
+#tariffV5Overlay #tariffV5Options button:not(:disabled):hover{box-shadow:0 8px 20px rgba(37,99,235,.12)!important}
+#tariffV5Overlay #tariffV5Feedback{margin-top:18px!important;border-radius:17px!important}
+#tariffV5Overlay #tariffV5Next{min-height:56px!important}
+@media(max-width:600px){#tariffV5Overlay .v5-panel{border-radius:0!important;padding:18px 16px 32px!important}#tariffV5Overlay .v5-hero{padding:16px;gap:12px}#tariffV5Overlay .v5-hero-symbol{width:52px;height:52px;font-size:27px}#tariffV5Overlay .v5-score-card{padding:12px 4px}#tariffV5Overlay .v5-score-card span{font-size:10px}}
+@media(prefers-reduced-motion:reduce){#tariffV5Overlay #tariffV5ProgressBar{transition:none!important}}
+</style>
+<script id="tariff-v5-quiz-script">
+(function(){'use strict';
+var questions=[],index=0,answered=false,busy=false,availableTotal=0,roundCorrect=0,roundStreak=0,roundXP=0;
+var KEY='tariff_v5_daily_local_v1';
+var USER_KEY='tariff_v5_guest_token_v2';
+var USER_NUMBER_KEY='tariff_v5_guest_number_v2';
+var RESET_KEY='tariff_v5_new_identity_reset_v2';
+var currentDay='';
+if(!localStorage.getItem(RESET_KEY)){
+ ['tariff_v5_guest_identity_v1','tariff_v5_xp_levels_v1','tariff_v5_daily_local_v1','tariff_v5_completed_question_ids_v1'].forEach(function(k){localStorage.removeItem(k)});
+ localStorage.setItem(RESET_KEY,'1');
+}
+function guestKey(){
+ var token=localStorage.getItem(USER_KEY);
+ if(!token){var bytes=new Uint8Array(32);crypto.getRandomValues(bytes);
+ token='guest_'+Array.from(bytes,function(b){return b.toString(16).padStart(2,'0')}).join('');
+ localStorage.setItem(USER_KEY,token)}
+ return token;
+}
+var registeredNumber=null;
+async function ensureGuest(){
+ if(registeredNumber)return registeredNumber;
+ var id=await cloud()('tariff_v5_register_guest',{p_token:guestKey()});
+ if(!/^\d{6}$/.test(String(id)))throw Error('تعذر تخصيص رقم المستخدم');
+ registeredNumber=String(id);
+ var previous=localStorage.getItem(USER_NUMBER_KEY);
+ localStorage.setItem(USER_NUMBER_KEY,registeredNumber);
+ var welcomeEl=document.getElementById('v5SidebarGuestId');if(welcomeEl)welcomeEl.textContent='ID: '+registeredNumber;
+ if(!previous){
+  var notice=document.createElement('div');notice.id='tariffWelcomeNewId';
+  notice.setAttribute('role','status');notice.style.cssText='position:fixed;inset:auto 12px 85px;z-index:2147483646;background:#15304d;color:white;border-radius:16px;padding:18px;text-align:center;box-shadow:0 10px 35px #0005;direction:rtl';
+  notice.innerHTML='<div style="font-size:18px;font-weight:800">مرحبًا بك في الكشاف الجمركي</div><p>رقم المستخدم الخاص بك</p><div style="font-size:30px;font-weight:900;letter-spacing:4px">'+registeredNumber+'</div><button type="button" style="margin-top:12px;padding:9px 25px;border-radius:9px;border:0" onclick="this.parentNode.remove()">متابعة</button>';
+  document.body.appendChild(notice);
+ }
+ return registeredNumber;
+}
+function initGuestRegistration(){ensureGuest().catch(function(e){console.warn('Guest ID registration pending:',e.message)})}
+window.addEventListener('load',function(){setTimeout(initGuestRegistration,1300)});
+window.addEventListener('online',initGuestRegistration);
+function localToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Damascus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
+
+var LEVEL_KEY='tariff_v5_xp_levels_v1';
+var PROFILE_KEY='tariff_v5_profile_metrics_v1';
+var V5_HISTORY='tariff_v5_history_2026';
+var V5_TITLES=['مبتدئ التعرفة','متدرب جمركي','باحث في البنود','متمرس جمركي','محترف التصنيف','خبير التعرفة','خبير أول','أستاذ التعرفة','نخبة الجمارك','أسطورة التعرفة'];
+function v5Title(level){return V5_TITLES[Math.min(9,Math.floor((level-1)/5))]}
+function v5History(){try{return JSON.parse(localStorage.getItem(V5_HISTORY)||'[]')}catch(e){return []}}
+function v5Record(id,correct,explanation){var h=v5History();if(h.some(function(x){return x.id===String(id)}))return;h.push({id:String(id),day:localToday(),correct:!!correct,explanation:String(explanation||'').slice(0,300)});localStorage.setItem(V5_HISTORY,JSON.stringify(h.slice(-3000)))}
+function v5Celebrate(t){var e=document.createElement('div');e.className='v5-celebrate';e.textContent=t;document.body.appendChild(e);setTimeout(function(){e.remove()},1800)}
+function readProfile(){try{var p=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');return {attempts:Number(p.attempts)||0,correct:Number(p.correct)||0,best:Number(p.best)||0,streak:Number(p.streak)||0,days:Array.isArray(p.days)?p.days:[]}}catch(e){return {attempts:0,correct:0,best:0,streak:0,days:[]}}}
+function recordProfile(ok){var p=readProfile();p.attempts++;if(ok)p.correct++;p.streak=ok?p.streak+1:0;p.best=Math.max(p.best,p.streak);var day=localToday();if(!p.days.includes(day))p.days.push(day);localStorage.setItem(PROFILE_KEY,JSON.stringify(p))}
+function badges(p,xp){var b=[];if(p.attempts>=10)b.push('📚 10 أسئلة');if(p.attempts>=100)b.push('🎓 100 سؤال');if(p.best>=10)b.push('🔥 10 متتالية');if(levelOf(xp.total)>=10)b.push('🏆 المستوى 10');if(p.days.length>=7)b.push('📅 7 أيام');return b}
+window.tariffV5Profile=function(){
+ var d=byId('v5ProfileDialog'),p=readProfile(),xp=readXP(),id=localStorage.getItem(USER_NUMBER_KEY)||'جارٍ تخصيص الرقم';
+ var level=levelOf(xp.total),start=threshold(level),end=level>=50?start:threshold(level+1),percent=level>=50?100:Math.max(0,Math.min(100,Math.round((xp.total-start)/(end-start)*100)));
+ setText('v5ProfileId','ID · '+id);
+ setText('v5ProfileTitle',v5Title(level));setText('v5ProfileLevel','المستوى '+level+' / 50');setText('v5ProfileXP',xp.total+' XP');
+ setText('v5ProfileNext',level>=50?'🏆 وصلت إلى أعلى مستوى':(end-xp.total)+' XP للمستوى التالي');
+ byId('v5ProfileLevelFill').style.width=percent+'%';
+ setText('v5ProfileCorrect',p.correct);setText('v5ProfileAccuracy',(p.attempts?Math.round(p.correct/p.attempts*100):0)+'%');
+ setText('v5ProfileBest',p.best);setText('v5ProfileAttempts',p.attempts);
+ var wrap=byId('v5ProfileBadges');wrap.replaceChildren();var list=badges(p,xp);
+ setText('v5ProfileBadgeCount',list.length+' / 5 شارات');
+ if(!list.length){var empty=document.createElement('div');empty.className='v5-profile-empty';empty.textContent='✨ أجب عن الأسئلة لفتح أول إنجاز!';wrap.appendChild(empty)}
+ else list.forEach(function(v){var el=document.createElement('span');el.className='v5-profile-badge';el.textContent=v;wrap.appendChild(el)});
+ d.showModal();
+};
+// Adaptive sequencing only; does not alter server-assigned daily set or repeat rules.
+function orderByExperience(items){var level=levelOf(readXP().total);var difficulty=function(q){var len=String(q.question||'').length;return len+(String(q.a||'').length+String(q.b||'').length+String(q.c||'').length)/3};return items.map(function(q,i){return {q:q,i:i}}).sort(function(a,b){var x=difficulty(a.q)-difficulty(b.q);return level<15?x:level>=35?-x:a.i-b.i}).map(function(v){return v.q})}
+
+// Total XP required to reach level n: 100(n-1)+20(n-1)^2; level 50 at 52920 XP.
+function threshold(n){var k=n-1;return 100*k+20*k*k}
+function readXP(){try{var x=JSON.parse(localStorage.getItem(LEVEL_KEY)||'{}');return {total:Math.max(0,Math.floor(Number(x.total)||0)),awarded:Array.isArray(x.awarded)?x.awarded.map(String):[]}}catch(e){return {total:0,awarded:[]}}}
+function levelOf(total){for(var n=50;n>=1;n--)if(total>=threshold(n))return n;return 1}
+function updateLevel(){var xp=readXP(),n=levelOf(xp.total),next=threshold(Math.min(50,n+1)),base=threshold(n);setText('v5LevelName','المستوى '+n+' / 50');setText('v5TotalXP',xp.total.toLocaleString('en-US')+' XP إجمالي');setText('v5LevelRemaining',n===50?'🏆 وصلت إلى أعلى مستوى':(next-xp.total).toLocaleString('en-US')+' XP للمستوى التالي');var bar=byId('v5LevelBar');if(bar)bar.style.width=(n===50?100:Math.max(0,Math.min(100,(xp.total-base)/(next-base)*100)))+'%'}
+function awardXP(id){var xp=readXP(),key=String(id);if(xp.awarded.includes(key))return 0;var points=10+Math.floor(Math.random()*16);xp.total+=points;xp.awarded.push(key);localStorage.setItem(LEVEL_KEY,JSON.stringify(xp));updateLevel();return points}
+
+function byId(id){return document.getElementById(id)}
+function setText(id,t){var e=byId(id);if(e)e.textContent=t}
+function cloud(){if(!window.TariffAICloud?.rpc)throw Error('الاتصال بقاعدة البيانات غير جاهز');return window.TariffAICloud.rpc}
+function admin(){return !!(window.state&&window.state.isAdmin&&window.state.currentUser?.role==='admin')}
+function finished(){return '🎉 لقد أنهيت تحدّي اليوم! أحسنت، لا توجد أسئلة جديدة متاحة لك حاليًا.'}
+function quizNoDots(value){return String(value??'').replace(/\b(\d{4})\.(\d{2})\.(\d{2})\b/g,'$1$2$3');}
+function render(){
+ updateLevel();setText('v5RoundXP',roundXP+' XP');setText('v5RoundStreak',roundStreak);setText('v5RoundCorrect',roundCorrect);setText('v5ProgressPercent',Math.round(index/Math.max(questions.length,1)*100)+'%');
+ answered=false;busy=false;byId('tariffV5Next').style.display='none';
+ var feedback=byId('tariffV5Feedback');feedback.textContent='';feedback.className='';
+ var q=questions[index],parent=byId('tariffV5Options');parent.replaceChildren();
+ if(!q){setText('tariffV5Question',availableTotal?finished():'لا توجد أسئلة منشورة حاليًا.');setText('tariffV5Counter',availableTotal?'اكتمل التحدّي':'');byId('tariffV5ProgressBar').style.width=availableTotal?'100%':'0%';setText('v5ProgressPercent',availableTotal?'100%':'0%');return}
+ setText('tariffV5Counter','السؤال '+(index+1)+' من '+questions.length+' المتبقية');
+ byId('tariffV5ProgressBar').style.width=Math.round(index/Math.max(questions.length,1)*100)+'%';
+ setText('tariffV5Question',quizNoDots(q.question));
+ ['a','b','c'].forEach(function(key){
+  var btn=document.createElement('button');btn.type='button';
+  var letter=document.createElement('span');letter.className='v5-letter';letter.textContent=key.toUpperCase();
+  var label=document.createElement('span');label.textContent=quizNoDots(q[key]);
+  btn.append(letter,label);btn.dataset.choice=key;btn.onclick=function(){submit(q.id,key)};
+  parent.appendChild(btn);
+ });
+}
+async function submit(id,choice){
+ if(answered||busy)return;busy=true;setText('tariffV5Status','جارٍ تسجيل الإجابة...');
+ try{
+  var d=await cloud()('tariff_ai_v5_daily_answer',{p_user_key:guestKey(),p_id:id,p_choice:choice});
+  answered=true;if(!d.already_answered){recordProfile(!!d.correct);v5Record(id,!!d.correct,d.explanation);}var gained=0;if(d.correct){roundCorrect++;roundStreak++;if(!d.already_answered){var beforeLevel=levelOf(readXP().total);gained=awardXP(id);roundXP+=gained;if(levelOf(readXP().total)>beforeLevel)v5Celebrate("🏆 "+v5Title(levelOf(readXP().total)));}}else{roundStreak=0;}setText('v5RoundXP',roundXP+' XP');setText('v5RoundStreak',roundStreak);setText('v5RoundCorrect',roundCorrect);
+  Array.from(byId('tariffV5Options').children).forEach(function(b){
+   b.disabled=true;
+   if(b.dataset.choice===String(d.correct_choice||'').toLowerCase())b.classList.add('v5-right');
+   else if(b.dataset.choice===choice&&!d.correct)b.classList.add('v5-wrong');
+  });
+  var f=byId('tariffV5Feedback');f.className=d.correct?'v5-good':'v5-bad';
+  f.textContent=(d.correct?'✓ إجابة صحيحة · +'+gained+' XP':'✕ إجابة غير صحيحة — الاختيار الصحيح: '+String(d.correct_choice||'').toUpperCase())+(d.explanation?'\n'+quizNoDots(d.explanation):'');
+  if(d.correct&&!d.already_answered)v5Celebrate('✨ +'+gained+' XP');byId('tariffV5Next').style.display='block';
+  byId('tariffV5Next').textContent=index+1>=questions.length?'إنهاء التحدّي':'السؤال التالي ←';
+  byId('tariffV5ProgressBar').style.width=Math.round((index+1)/questions.length*100)+'%';setText('v5ProgressPercent',Math.round((index+1)/questions.length*100)+'%');
+  setText('tariffV5Status','تم حفظ إجابتك. '+(d.correct?'لن يتكرر هذا السؤال.':'يمكن مراجعة هذا السؤال في يوم لاحق.'));
+ }catch(e){setText('tariffV5Status','تعذر حفظ الإجابة: '+e.message)}
+ finally{busy=false}
+}
+window.tariffV5Open=async function(){
+ byId('tariffV5Overlay').hidden=false;document.body.style.overflow='hidden';byId('tariffV5Overlay').scrollTop=0;setText('tariffV5Status','جارٍ تحميل الأسئلة...');
+ try{
+  await ensureGuest();
+  var response=await cloud()('tariff_ai_v5_daily_questions',{p_user_key:guestKey()});
+  var all=response&&response.questions;
+  if(!Array.isArray(all))throw Error('صيغة الأسئلة غير صحيحة');
+  currentDay=response.day;availableTotal=all.length;roundCorrect=0;roundStreak=0;roundXP=0;
+  questions=orderByExperience(all.filter(function(q){return !q.answered}));index=0;
+  render();setText('tariffV5Status',questions.length?'':availableTotal?'يمكنك العودة عندما تُنشر أسئلة جديدة.':'');
+ }catch(e){setText('tariffV5Status','تعذر تحميل الأسئلة: '+e.message)}
+};
+window.tariffV5Close=function(){byId('tariffV5Overlay').hidden=true;document.body.style.overflow=''};
+window.tariffV5Next=function(){
+ if(!answered)return;
+ if(localToday()!==currentDay){window.tariffV5Open();return;}
+ index++;
+ if(index>=questions.length){var summary='🎉 انتهت الجولة! أجبت بشكل صحيح عن '+roundCorrect+' من '+questions.length+'، وحصلت على '+roundXP+' نقطة XP.';questions=[];index=0;render();setText('tariffV5Question',summary);setText('tariffV5Status','يمكنك العودة عندما تُنشر أسئلة جديدة.');return}
+ render();setText('tariffV5Status','')
+};
+window.tariffV5Import=async function(){
+ var status='tariffV5AdminStatus';
+ if(!admin()){setText(status,'هذه العملية للمدير فقط');return}
+ var input=byId('tariffV5JsonFile'),file=input&&input.files&&input.files[0];
+ if(!file){setText(status,'اختر ملف JSON أولًا.');return}
+ // Validate JSON by parsing its contents, not by the filename or URL encoding.
+ if(file.size>8*1024*1024){setText(status,'الملف أكبر من الحد المسموح (8 MB).');return}
+ var btn=document.querySelector('button[onclick="tariffV5Import()"]');
+ if(btn)btn.disabled=true;
+ try{
+  var raw=await file.text(); var items; try {items=JSON.parse(raw.replace(/^\uFEFF/,''));} catch(parseError){throw Error('محتوى الملف ليس JSON صالحًا. تأكد من اختيار ملف الأسئلة الصحيح.');}
+  if(items&&typeof items==='object'&&!Array.isArray(items)&&Array.isArray(items.questions))items=items.questions;
+  if(!Array.isArray(items)||!items.length||items.length>10000)throw Error('الملف يجب أن يحتوي على مصفوفة من 1 إلى 10000 سؤال.');
+  for(var i=0;i<items.length;i++){
+   var q=items[i];
+   if(!q||typeof q!=='object'||!['a','b','c'].includes(q.correct)||
+      !['question','a','b','c'].every(function(k){return typeof q[k]==='string'&&q[k].trim()}))
+     throw Error('السؤال رقم '+(i+1)+' غير مكتمل أو تنسيقه غير صحيح.');
+  }
+  var inserted=0,duplicates=0;
+  for(var j=0;j<items.length;j+=100){
+   setText(status,'جارٍ استيراد '+Math.min(j+100,items.length)+' من '+items.length+'...');
+   var d=await cloud()('tariff_ai_v5_import',{p_items:items.slice(j,j+100)});
+   inserted+=Number(d&&d.inserted)||0;
+   duplicates+=Number(d&&d.duplicates)||0;
+  }
+  setText(status,'اكتمل الاستيراد. تمت الإضافة: '+inserted+' | المكررة: '+duplicates+' | إجمالي الملف: '+items.length);
+  input.value='';
+ }catch(e){setText(status,'تعذر الاستيراد: '+(e&&e.message||e))}
+ finally{if(btn)btn.disabled=false}
+};
+window.tariffV5Stats=async function(){if(!admin())return;try{var d=await cloud()('tariff_ai_v5_stats',{});setText('tariffV5AdminStatus','الأسئلة: '+d.questions+' | الإجابات: '+d.answers+' | الصحيحة: '+d.correct_answers+' | نسبة النجاح: '+d.success_pct+'%')}catch(e){setText('tariffV5AdminStatus','تعذر تحميل الإحصاءات: '+e.message)}};
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&byId('tariffV5Overlay')&&!byId('tariffV5Overlay').hidden)window.tariffV5Close()});
+})();
+</script><script id="tariff-v5-minimal-training-level">(function(){
+window.tariffV5TrainingLevel=async function(){
+var v=document.getElementById('tariffV5TrainingLevelValue'),b=document.getElementById('tariffV5TrainingLevelBar'),n=document.getElementById('tariffV5TrainingLevelNote');if(!v||!b||!n)return;
+try{if(!window.TariffAICloud||typeof window.TariffAICloud.rpc!=='function')throw Error('الاتصال غير متاح');
+var d=await window.TariffAICloud.rpc('tariff_ai_v5_learning_level',{});
+var q=Number(d.questions)||0,a=Number(d.knowledge_items)||0;
+var pct=Number(d.coverage_pct)||0;
+v.textContent=pct+'%';b.style.width=pct+'%';
+n.textContent='قاعدة المعرفة: '+a+' سؤالًا مشروحًا من أصل '+q+'. يتم استرجاعها حسب صلة النص؛ هذه ليست إعادة تدريب لأوزان النموذج.';
+}catch(e){v.textContent='—';b.style.width='0%';n.textContent='تعذر تحميل مستوى التدريب: '+(e.message||e);}
+};
+})();</script><script id="v5-side-greeting-init">(function(){
+ function refresh(){var el=document.getElementById('v5SidebarGuestId');if(!el)return;var n=localStorage.getItem('tariff_v5_guest_number_v2');if(n&&/^\d{6}$/.test(n))el.textContent='ID: '+n;}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
+ document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#sidebar, [onclick*="Sidebar"]'))refresh();});
+})();</script>
+
+<script id="v5-general-enhancements-20261107">
+(function(){
+'use strict';
+function setup(){
+  var overlay=document.getElementById('tariffV5Overlay');
+  if(overlay){
+    // Keep the next button reachable when explanations expand, without forcing scrolling.
+    var next=document.getElementById('tariffV5Next');
+    if(next){next.setAttribute('aria-label','الانتقال إلى السؤال التالي');}
+    var opts=document.getElementById('tariffV5Options');
+    if(opts){opts.setAttribute('role','group');opts.setAttribute('aria-label','خيارات الإجابة');}
+  }
+  // Connectivity status is announced only when the state actually changes.
+  var status=document.createElement('div');
+  status.id='v5ConnectivityToast';
+  status.setAttribute('role','status');
+  status.setAttribute('aria-live','polite');
+  status.style.cssText='position:fixed;z-index:2147483000;bottom:calc(74px + env(safe-area-inset-bottom,0px));left:12px;right:12px;max-width:420px;margin:auto;background:#0d594e;color:white;border-radius:12px;padding:10px 14px;text-align:center;box-shadow:0 6px 22px #0003;display:none;font-size:13px;pointer-events:none';
+  document.body.appendChild(status);
+  var hideTimer;
+  function show(msg){clearTimeout(hideTimer);status.textContent=msg;status.style.display='block';hideTimer=setTimeout(function(){status.style.display='none'},3200)}
+  window.addEventListener('offline',function(){show('أنت الآن دون إنترنت؛ ستبقى البيانات المحفوظة متاحة عند توفرها.')});
+  window.addEventListener('online',function(){show('عاد الاتصال بالإنترنت؛ يمكن تحديث البيانات الآن.')});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
+})();
+</script>
+
+<script id="v5-complete-enhancements-20261107">
+(function(){
+'use strict';
+function init(){
+ var result=document.getElementById('resultCount');
+ if(result){result.setAttribute('role','status');result.setAttribute('aria-live','polite')}
+ var q=document.getElementById('tariffV5Question');
+ if(q){q.setAttribute('aria-live','polite')}
+ var opts=document.getElementById('tariffV5Options');
+ if(opts){opts.setAttribute('aria-label','اختر الإجابة الصحيحة')}
+ // Service-worker update notification only if a new worker is actually installed.
+ if('serviceWorker' in navigator){
+  navigator.serviceWorker.ready.then(function(reg){
+   if(!reg||!reg.addEventListener)return;
+   reg.addEventListener('updatefound',function(){
+    var worker=reg.installing;if(!worker)return;
+    worker.addEventListener('statechange',function(){
+     if(worker.state!=='installed'||!navigator.serviceWorker.controller)return;
+     var toast=document.createElement('div');
+     toast.setAttribute('role','status');
+     toast.textContent='يتوفر تحديث جديد للتطبيق. سيُطبّق عند فتحه مجددًا.';
+     toast.style.cssText='position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:430px;margin:auto;z-index:2147483000;background:#075d51;color:white;border-radius:13px;padding:12px 16px;text-align:center;box-shadow:0 6px 24px #0003;font-size:13px;pointer-events:none';
+     document.body.appendChild(toast);
+     setTimeout(function(){toast.remove()},6500);
+    });
+   });
+  }).catch(function(){});
+ }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script><script id="v5-phase-ten-updates">(function(){
+function init(){
+ var r=document.getElementById('resultCount');if(r){r.setAttribute('role','status');r.setAttribute('aria-live','polite')}
+ if(!('serviceWorker' in navigator))return;
+ navigator.serviceWorker.ready.then(function(reg){
+  reg.addEventListener('updatefound',function(){
+   var worker=reg.installing;if(!worker)return;
+   worker.addEventListener('statechange',function(){
+    if(worker.state!=='installed'||!navigator.serviceWorker.controller)return;
+    var el=document.createElement('div');el.setAttribute('role','status');
+    el.textContent='تحديث جديد للتطبيق متاح وسيظهر عند إعادة فتحه.';
+    el.style.cssText='position:fixed;z-index:2147483000;bottom:80px;left:12px;right:12px;max-width:420px;margin:auto;background:#075d51;color:white;border-radius:12px;padding:12px;text-align:center;box-shadow:0 6px 20px #0003;font-size:13px;pointer-events:none';
+    document.body.appendChild(el);setTimeout(function(){el.remove()},6000);
+   });
+  });
+ }).catch(function(){});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();</script></body>
 </html>
